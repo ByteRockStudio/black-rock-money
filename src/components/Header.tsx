@@ -57,40 +57,55 @@ export function Header() {
             </div>
 
             {/* Financial Summary */}
-            <div className="flex flex-col items-center gap-4 mt-4">
-                <div className="flex items-center gap-8 text-lg font-light tracking-wide">
-                    {data ? (
-                        Object.entries(data.monthlyStats).map(([currency, stats]) => (
-                            <div key={currency} className="flex items-center gap-6">
-                                <div className="flex flex-col items-center">
-                                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Income</span>
-                                    <span className="text-green-500 font-medium">+{formatCurrency(stats.income, currency)}</span>
+            <div className="flex flex-col items-center gap-4 mt-4 w-full">
+                {data ? (
+                    Object.keys(data.totalBalance).map((currency) => {
+                        const balance = data.totalBalance[currency] || 0;
+                        const stats = data.monthlyStats[currency] || { income: 0, expense: 0 };
+
+                        return (
+                            <div key={currency} className="flex items-center justify-center gap-16 w-full max-w-4xl">
+                                {/* Monthly Income (Left) */}
+                                <div className="flex flex-col items-center w-40">
+                                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Income</span>
+                                    <span className="text-2xl font-light">{formatCurrency(stats.income, currency)}</span>
                                 </div>
-                                <div className="h-8 w-px bg-border/50"></div>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Expenses</span>
-                                    <span className="text-red-500 font-medium">-{formatCurrency(stats.expense, currency)}</span>
+
+                                {/* Total Balance (Center) */}
+                                <div className="flex flex-col items-center w-40">
+                                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t("header.balance")}</span>
+                                    <div className="text-2xl font-light">
+                                        {formatCurrency(balance, currency)}
+                                    </div>
+                                </div>
+
+                                {/* Monthly Expenses (Right) */}
+                                <div className="flex flex-col items-center w-40">
+                                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Expenses</span>
+                                    <span className="text-2xl font-light">{formatCurrency(stats.expense, currency)}</span>
                                 </div>
                             </div>
-                        ))
-                    ) : (
-                        <span className="text-muted-foreground">...</span>
-                    )}
-                </div>
-
-                <div className="flex flex-col items-center">
-                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t("header.balance")}</span>
-                    <div className="text-4xl font-light flex gap-6">
-                        {data ? (
-                            Object.entries(data.totalBalance).map(([currency, amount]) => (
-                                <span key={currency}>{formatCurrency(amount, currency)}</span>
-                            ))
-                        ) : (
-                            <span>...</span>
-                        )}
-                        {data && Object.keys(data.totalBalance).length === 0 && <span>0</span>}
+                        );
+                    })
+                ) : (
+                    <span className="text-muted-foreground">...</span>
+                )}
+                {data && Object.keys(data.totalBalance).length === 0 && (
+                    <div className="flex items-center justify-center gap-16 w-full max-w-4xl">
+                        <div className="flex flex-col items-center w-40">
+                            <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Income</span>
+                            <span className="text-2xl font-light">0</span>
+                        </div>
+                        <div className="flex flex-col items-center w-40">
+                            <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t("header.balance")}</span>
+                            <div className="text-2xl font-light">0</div>
+                        </div>
+                        <div className="flex flex-col items-center w-40">
+                            <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Expenses</span>
+                            <span className="text-2xl font-light">0</span>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </header>
     );

@@ -56,8 +56,8 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <Header />
-            <main className="flex-1 flex flex-col items-center justify-center p-8 relative">
-                <h1 className="text-4xl font-bold mb-12">{t("app.title")}</h1>
+            <main className="flex-1 flex flex-col items-center justify-center pt-8 px-8 pb-24 relative">
+                <h1 className="text-6xl font-hard-rock tracking-wide mb-16 text-foreground">{t("app.title")}</h1>
 
                 <div className="flex flex-wrap justify-center gap-8 md:gap-12 max-w-5xl mx-auto">
                     <CircleButton

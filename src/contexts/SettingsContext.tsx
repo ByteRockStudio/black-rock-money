@@ -17,7 +17,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 const translations: Record<Language, Record<string, string>> = {
     en: {
-        "app.title": "Budget App",
+        "app.title": "Hard Rock Money",
         "nav.add": "Add Expense",
         "nav.view": "View Expenses",
         "nav.budget": "Budget",
@@ -74,7 +74,7 @@ const translations: Record<Language, Record<string, string>> = {
         "register.login_link": "Already have an account? Login",
     },
     ukr: {
-        "app.title": "Бюджет",
+        "app.title": "Hard Rock Money",
         "nav.add": "Додати витрату",
         "nav.view": "Історія",
         "nav.budget": "Бюджет",

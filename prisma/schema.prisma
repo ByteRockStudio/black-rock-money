@@ -13,6 +13,7 @@ model User {
   username      String    @unique
   passwordHash  String
   createdAt     DateTime  @default(now())
+  exchangeRate  Float     @default(42)
   accounts      Account[]
   categories    Category[]
 }
@@ -24,6 +25,7 @@ model Account {
   name      String
   type      String   // "card", "cash", "crypto"
   balance   Float    @default(0)
+  startingBalance Float @default(0)
   currency  String   @default("UAH")
   transactions Transaction[]
   recurringRules RecurringRule[]
@@ -32,6 +34,7 @@ model Account {
 model Category {
   id          String   @id @default(cuid())
   name        String
+  type        String   @default("expense") // "income", "expense"
   budgetLimit Float?
   userId      String?
   user        User?    @relation(fields: [userId], references: [id])

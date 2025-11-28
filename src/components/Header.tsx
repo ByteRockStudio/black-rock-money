@@ -11,7 +11,7 @@ interface SummaryData {
 }
 
 export function Header() {
-    const { theme, setTheme, language, setLanguage, t } = useSettings();
+    const { theme, setTheme, language, setLanguage, exchangeRate, t } = useSettings();
     const [data, setData] = useState<SummaryData | null>(null);
 
     useEffect(() => {
@@ -44,6 +44,20 @@ export function Header() {
         return `${symbol}${amount.toLocaleString()}`;
     };
 
+    // Calculate total balance in UAH
+    const calculateTotalBalanceUAH = () => {
+        if (!data) return 0;
+        let total = 0;
+        Object.entries(data.totalBalance).forEach(([currency, amount]) => {
+            if (currency === "USD") {
+                total += amount * exchangeRate;
+            } else {
+                total += amount;
+            }
+        });
+        return total;
+    };
+
     return (
         <header className="w-full p-8 flex flex-col items-center gap-6">
             {/* Settings Controls (Top Right) */}
@@ -59,52 +73,33 @@ export function Header() {
             {/* Financial Summary */}
             <div className="flex flex-col items-center gap-4 mt-4 w-full">
                 {data ? (
-                    Object.keys(data.totalBalance).map((currency) => {
-                        const balance = data.totalBalance[currency] || 0;
-                        const stats = data.monthlyStats[currency] || { income: 0, expense: 0 };
-
-                        return (
-                            <div key={currency} className="flex items-center justify-center gap-16 w-full max-w-4xl">
-                                {/* Monthly Income (Left) */}
-                                <div className="flex flex-col items-center w-40">
-                                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Income</span>
-                                    <span className="text-2xl font-light">{formatCurrency(stats.income, currency)}</span>
-                                </div>
-
-                                {/* Total Balance (Center) */}
-                                <div className="flex flex-col items-center w-40">
-                                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t("header.balance")}</span>
-                                    <div className="text-2xl font-light">
-                                        {formatCurrency(balance, currency)}
-                                    </div>
-                                </div>
-
-                                {/* Monthly Expenses (Right) */}
-                                <div className="flex flex-col items-center w-40">
-                                    <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Expenses</span>
-                                    <span className="text-2xl font-light">{formatCurrency(stats.expense, currency)}</span>
-                                </div>
-                            </div>
-                        );
-                    })
-                ) : (
-                    <span className="text-muted-foreground">...</span>
-                )}
-                {data && Object.keys(data.totalBalance).length === 0 && (
                     <div className="flex items-center justify-center gap-16 w-full max-w-4xl">
+                        {/* Monthly Income (Left) */}
                         <div className="flex flex-col items-center w-40">
                             <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Income</span>
-                            <span className="text-2xl font-light">0</span>
+                            <span className="text-2xl font-light">
+                                {formatCurrency(data.monthlyStats["UAH"]?.income || 0, "UAH")}
+                            </span>
                         </div>
+
+                        {/* Total Balance (Center) - in UAH */}
                         <div className="flex flex-col items-center w-40">
                             <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t("header.balance")}</span>
-                            <div className="text-2xl font-light">0</div>
+                            <div className="text-2xl font-light">
+                                {formatCurrency(calculateTotalBalanceUAH(), "UAH")}
+                            </div>
                         </div>
+
+                        {/* Monthly Expenses (Right) */}
                         <div className="flex flex-col items-center w-40">
                             <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Expenses</span>
-                            <span className="text-2xl font-light">0</span>
+                            <span className="text-2xl font-light">
+                                {formatCurrency(data.monthlyStats["UAH"]?.expense || 0, "UAH")}
+                            </span>
                         </div>
                     </div>
+                ) : (
+                    <span className="text-muted-foreground">...</span>
                 )}
             </div>
         </header>

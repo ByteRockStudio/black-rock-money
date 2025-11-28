@@ -10,6 +10,8 @@ interface SettingsContextType {
     setLanguage: (lang: Language) => void;
     theme: Theme;
     setTheme: (theme: Theme) => void;
+    exchangeRate: number;
+    setExchangeRate: (rate: number) => void;
     t: (key: string) => string;
 }
 
@@ -135,6 +137,7 @@ const translations: Record<Language, Record<string, string>> = {
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
     const [language, setLanguage] = useState<Language>("en");
     const [theme, setTheme] = useState<Theme>("light");
+    const [exchangeRate, setExchangeRateState] = useState<number>(42);
 
     useEffect(() => {
         const savedLang = localStorage.getItem("language") as Language;
@@ -145,6 +148,12 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
             setTheme("dark");
         }
+
+        // Fetch exchange rate from API
+        fetch("/api/settings")
+            .then(res => res.json())
+            .then(data => setExchangeRateState(data.exchangeRate))
+            .catch(() => setExchangeRateState(42));
     }, []);
 
     useEffect(() => {
@@ -164,8 +173,21 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         return translations[language][key] || key;
     };
 
+    const setExchangeRate = async (rate: number) => {
+        setExchangeRateState(rate);
+        try {
+            await fetch("/api/settings", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ exchangeRate: rate }),
+            });
+        } catch (error) {
+            console.error("Failed to update exchange rate", error);
+        }
+    };
+
     return (
-        <SettingsContext.Provider value={{ language, setLanguage, theme, setTheme, t }}>
+        <SettingsContext.Provider value={{ language, setLanguage, theme, setTheme, exchangeRate, setExchangeRate, t }}>
             {children}
         </SettingsContext.Provider>
     );

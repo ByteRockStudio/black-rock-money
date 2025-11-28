@@ -32,17 +32,48 @@ export async function POST(req: Request) {
     // @ts-ignore
     const userId = session.user.id;
     const body = await req.json();
-    const { name, budgetLimit } = body;
+    const { name, type, budgetLimit } = body;
 
     const category = await prisma.category.create({
         data: {
             name,
+            type: type || "expense",
             budgetLimit: budgetLimit ? parseFloat(budgetLimit) : null,
             userId,
         },
     });
 
     return NextResponse.json(category);
+}
+
+export async function PUT(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+        return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // @ts-ignore
+    const userId = session.user.id;
+    const body = await req.json();
+    const { id, name, budgetLimit } = body;
+
+    const category = await prisma.category.findUnique({
+        where: { id },
+    });
+
+    if (!category || category.userId !== userId) {
+        return new NextResponse("Forbidden", { status: 403 });
+    }
+
+    const updated = await prisma.category.update({
+        where: { id },
+        data: {
+            name,
+            budgetLimit: budgetLimit ? parseFloat(budgetLimit) : null
+        },
+    });
+
+    return NextResponse.json(updated);
 }
 
 export async function DELETE(req: Request) {

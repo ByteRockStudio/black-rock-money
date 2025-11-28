@@ -28,17 +28,75 @@ export async function POST(req: Request) {
     // @ts-ignore
     const userId = session.user.id;
     const body = await req.json();
-    const { name, type, balance, currency } = body;
+    const { name, type, startingBalance, currency } = body;
 
     const account = await prisma.account.create({
         data: {
             userId,
             name,
             type,
-            balance: parseFloat(balance),
+            balance: parseFloat(startingBalance),
+            startingBalance: parseFloat(startingBalance),
             currency,
         },
     });
 
     return NextResponse.json(account);
+}
+
+export async function PUT(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+        return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // @ts-ignore
+    const userId = session.user.id;
+    const body = await req.json();
+    const { id, name, type, currency } = body;
+
+    const account = await prisma.account.findUnique({
+        where: { id },
+    });
+
+    if (!account || account.userId !== userId) {
+        return new NextResponse("Forbidden", { status: 403 });
+    }
+
+    const updated = await prisma.account.update({
+        where: { id },
+        data: { name, type, currency },
+    });
+
+    return NextResponse.json(updated);
+}
+
+export async function DELETE(req: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+        return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // @ts-ignore
+    const userId = session.user.id;
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+        return new NextResponse("Missing id", { status: 400 });
+    }
+
+    const account = await prisma.account.findUnique({
+        where: { id },
+    });
+
+    if (!account || account.userId !== userId) {
+        return new NextResponse("Forbidden", { status: 403 });
+    }
+
+    await prisma.account.delete({
+        where: { id },
+    });
+
+    return new NextResponse("Deleted", { status: 200 });
 }

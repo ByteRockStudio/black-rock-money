@@ -78,8 +78,8 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
-        return new NextResponse("Unauthorized", { status: 401 });
+    if (!session || !session.user?.email) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // @ts-ignore
@@ -88,7 +88,7 @@ export async function DELETE(req: Request) {
     const id = searchParams.get("id");
 
     if (!id) {
-        return new NextResponse("Missing id", { status: 400 });
+        return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
     const category = await prisma.category.findUnique({
@@ -96,16 +96,19 @@ export async function DELETE(req: Request) {
     });
 
     if (!category) {
-        return new NextResponse("Category not found", { status: 404 });
+        return NextResponse.json({ error: "Category not found" }, { status: 404 });
     }
 
     if (category.userId !== userId) {
-        return new NextResponse("Forbidden", { status: 403 });
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await prisma.category.delete({
-        where: { id },
-    });
-
-    return new NextResponse("Deleted", { status: 200 });
+    try {
+        await prisma.category.delete({
+            where: { id },
+        });
+        return NextResponse.json({ message: "Category deleted" });
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });
+    }
 }

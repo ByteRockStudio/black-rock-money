@@ -53,19 +53,28 @@ export async function PUT(req: Request) {
     // @ts-ignore
     const userId = session.user.id;
     const body = await req.json();
-    const { id, name, type, currency } = body;
+    const { id, name, type, currency, balance } = body;
 
     const account = await prisma.account.findUnique({
         where: { id },
     });
 
     if (!account || account.userId !== userId) {
-        return new NextResponse("Forbidden", { status: 403 });
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const data: any = { name, type, currency };
+
+    if (balance !== undefined && balance !== "") {
+        const newBalance = parseFloat(balance);
+        const difference = newBalance - account.balance;
+        data.balance = newBalance;
+        data.startingBalance = account.startingBalance + difference;
     }
 
     const updated = await prisma.account.update({
         where: { id },
-        data: { name, type, currency },
+        data,
     });
 
     return NextResponse.json(updated);

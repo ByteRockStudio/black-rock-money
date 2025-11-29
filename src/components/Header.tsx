@@ -10,13 +10,18 @@ interface SummaryData {
     monthlyStats: Record<string, { income: number; expense: number }>;
 }
 
+import { usePathname } from "next/navigation";
+
 export function Header() {
     const { theme, setTheme, language, setLanguage, exchangeRate, t } = useSettings();
     const [data, setData] = useState<SummaryData | null>(null);
+    const pathname = usePathname();
 
     useEffect(() => {
-        fetchSummary();
-    }, []);
+        if (pathname !== '/settings') {
+            fetchSummary();
+        }
+    }, [pathname]);
 
     const fetchSummary = async () => {
         try {
@@ -58,6 +63,8 @@ export function Header() {
         return total;
     };
 
+    const isSettingsPage = pathname === '/settings';
+
     return (
         <header className="w-full p-8 flex flex-col items-center gap-6">
             {/* Settings Controls (Top Right) */}
@@ -70,38 +77,40 @@ export function Header() {
                 </Button>
             </div>
 
-            {/* Financial Summary */}
-            <div className="flex flex-col items-center gap-4 mt-4 w-full">
-                {data ? (
-                    <div className="flex items-center justify-center gap-16 w-full max-w-4xl">
-                        {/* Monthly Income (Left) */}
-                        <div className="flex flex-col items-center w-40">
-                            <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Income</span>
-                            <span className="text-2xl font-light">
-                                {formatCurrency(data.monthlyStats["UAH"]?.income || 0, "UAH")}
-                            </span>
-                        </div>
+            {/* Financial Summary - Hide on Settings Page */}
+            {!isSettingsPage && (
+                <div className="flex flex-col items-center gap-4 mt-4 w-full">
+                    {data ? (
+                        <div className="flex items-center justify-center gap-16 w-full max-w-4xl">
+                            {/* Monthly Income (Left) */}
+                            <div className="flex flex-col items-center w-40">
+                                <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Income</span>
+                                <span className="text-2xl font-light">
+                                    {formatCurrency(data.monthlyStats["UAH"]?.income || 0, "UAH")}
+                                </span>
+                            </div>
 
-                        {/* Total Balance (Center) - in UAH */}
-                        <div className="flex flex-col items-center w-40">
-                            <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t("header.balance")}</span>
-                            <div className="text-2xl font-light">
-                                {formatCurrency(calculateTotalBalanceUAH(), "UAH")}
+                            {/* Total Balance (Center) - in UAH */}
+                            <div className="flex flex-col items-center w-40">
+                                <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t("header.balance")}</span>
+                                <div className="text-2xl font-light">
+                                    {formatCurrency(calculateTotalBalanceUAH(), "UAH")}
+                                </div>
+                            </div>
+
+                            {/* Monthly Expenses (Right) */}
+                            <div className="flex flex-col items-center w-40">
+                                <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Expenses</span>
+                                <span className="text-2xl font-light">
+                                    {formatCurrency(data.monthlyStats["UAH"]?.expense || 0, "UAH")}
+                                </span>
                             </div>
                         </div>
-
-                        {/* Monthly Expenses (Right) */}
-                        <div className="flex flex-col items-center w-40">
-                            <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Expenses</span>
-                            <span className="text-2xl font-light">
-                                {formatCurrency(data.monthlyStats["UAH"]?.expense || 0, "UAH")}
-                            </span>
-                        </div>
-                    </div>
-                ) : (
-                    <span className="text-muted-foreground">...</span>
-                )}
-            </div>
+                    ) : (
+                        <span className="text-muted-foreground">...</span>
+                    )}
+                </div>
+            )}
         </header>
     );
 }

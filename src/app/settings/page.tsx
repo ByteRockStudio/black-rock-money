@@ -170,178 +170,185 @@ export default function SettingsPage() {
                     </aside>
 
                     {/* Content Area */}
-                    <div className="flex-1">
-                        {activeTab === "general" && (
-                            <section>
-                                <h2 className="text-2xl font-bold mb-6">{t("settings.global_settings")}</h2>
-                                <div className="max-w-md">
-                                    <label className="block text-sm font-medium mb-2">{t("settings.exchange_rate")}</label>
-                                    <div className="flex gap-4">
-                                        <Input
-                                            type="number"
-                                            value={localExchangeRate}
-                                            onChange={(e) => setLocalExchangeRate(e.target.value)}
-                                            className="border-input focus:border-foreground rounded-md h-11"
-                                            step="0.01"
-                                        />
-                                        <Button onClick={handleExchangeRateUpdate} className="h-11 px-6 bg-foreground text-background hover:bg-foreground/90">
-                                            {t("common.save")}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </section>
-                        )}
+                    <div className="flex-1 relative rounded-[40px] overflow-hidden shadow-xl min-h-[600px]">
+                        {/* Background & Overlay */}
+                        <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center bg-no-repeat" />
+                        <div className="absolute inset-0 bg-black/40" />
 
-                        {activeTab === "accounts" && (
-                            <section>
-                                <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-2xl font-bold">{t("settings.accounts")}</h2>
-                                    <Button onClick={() => openAccountModal()} className="bg-foreground text-background hover:bg-foreground/90">
-                                        <Plus size={16} className="mr-2" />
-                                        {t("settings.add_account")}
-                                    </Button>
-                                </div>
-                                <div className="grid gap-4">
-                                    {accounts.map((acc) => (
-                                        <div key={acc.id} className="flex justify-between items-center border border-border p-5 rounded-lg bg-card hover:border-foreground transition-colors">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-3 bg-secondary rounded-full">
-                                                    {acc.type === 'card' ? <CreditCard size={20} /> : <Banknote size={20} />}
-                                                </div>
-                                                <div>
-                                                    <div className="font-semibold text-lg">{acc.name}</div>
-                                                    <div className="text-sm text-muted-foreground font-mono">{formatAccountBalance(acc)}</div>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button variant="ghost" size="icon" onClick={() => openAccountModal(acc)}>
-                                                    <Edit2 size={18} />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteAccount(acc.id)}>
-                                                    <Trash2 size={18} />
-                                                </Button>
-                                            </div>
+                        {/* Content */}
+                        <div className="relative z-10 p-8 text-white h-full">
+                            {activeTab === "general" && (
+                                <section>
+                                    <h2 className="text-2xl font-bold mb-6 text-white">{t("settings.global_settings")}</h2>
+                                    <div className="max-w-md">
+                                        <label className="block text-sm font-medium mb-2 text-white/90">{t("settings.exchange_rate")}</label>
+                                        <div className="flex gap-4">
+                                            <Input
+                                                type="number"
+                                                value={localExchangeRate}
+                                                onChange={(e) => setLocalExchangeRate(e.target.value)}
+                                                className="border-white/30 bg-white/10 text-white placeholder:text-white/50 focus:border-white rounded-md h-11"
+                                                step="0.01"
+                                            />
+                                            <Button onClick={handleExchangeRateUpdate} className="h-11 px-6 bg-white text-black hover:bg-white/90">
+                                                {t("common.save")}
+                                            </Button>
                                         </div>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
+                                    </div>
+                                </section>
+                            )}
 
-                        {activeTab === "categories" && (
-                            <section className="space-y-12">
-                                {/* Income Categories */}
-                                <div>
-                                    <div className="flex justify-between items-center mb-4 border-b border-border pb-2">
-                                        <h3 className="text-xl font-semibold">{t("settings.income_categories")}</h3>
-                                        <Button size="sm" variant="outline" onClick={() => openCategoryModal("income")}>
-                                            <Plus size={14} className="mr-2" />
-                                            {t("common.add")}
+                            {activeTab === "accounts" && (
+                                <section>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-2xl font-bold text-white">{t("settings.accounts")}</h2>
+                                        <Button onClick={() => openAccountModal()} className="bg-white text-black hover:bg-white/90">
+                                            <Plus size={16} className="mr-2" />
+                                            {t("settings.add_account")}
                                         </Button>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        {incomeCategories.map((cat) => (
-                                            <div key={cat.id} className="flex justify-between items-center p-3 border border-border rounded-md hover:bg-secondary/20">
-                                                <span className="font-medium">{cat.name}</span>
-                                                <div className="flex gap-1">
-                                                    {cat.userId && (
-                                                        <>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openCategoryModal("income", cat)}>
-                                                                <Edit2 size={14} />
-                                                            </Button>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteCategory(cat.id)}>
-                                                                <Trash2 size={14} />
-                                                            </Button>
-                                                        </>
-                                                    )}
+                                    <div className="grid gap-4">
+                                        {accounts.map((acc) => (
+                                            <div key={acc.id} className="flex justify-between items-center border border-white/20 p-5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-3 bg-white/10 rounded-full text-white">
+                                                        {acc.type === 'card' ? <CreditCard size={20} /> : <Banknote size={20} />}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-semibold text-lg text-white">{acc.name}</div>
+                                                        <div className="text-sm text-white/70 font-mono">{formatAccountBalance(acc)}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button variant="ghost" size="icon" onClick={() => openAccountModal(acc)} className="text-white hover:bg-white/20 hover:text-white">
+                                                        <Edit2 size={18} />
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300 hover:bg-white/20" onClick={() => handleDeleteAccount(acc.id)}>
+                                                        <Trash2 size={18} />
+                                                    </Button>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                </div>
+                                </section>
+                            )}
 
-                                {/* Expense Categories */}
-                                <div>
-                                    <div className="flex justify-between items-center mb-4 border-b border-border pb-2">
-                                        <h3 className="text-xl font-semibold">{t("settings.expense_categories")}</h3>
-                                        <Button size="sm" variant="outline" onClick={() => openCategoryModal("expense")}>
-                                            <Plus size={14} className="mr-2" />
-                                            {t("common.add")}
-                                        </Button>
+                            {activeTab === "categories" && (
+                                <section className="space-y-12">
+                                    {/* Income Categories */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                                            <h3 className="text-xl font-semibold text-white">{t("settings.income_categories")}</h3>
+                                            <Button size="sm" variant="outline" onClick={() => openCategoryModal("income")} className="border-white/50 text-white hover:bg-white hover:text-black bg-transparent">
+                                                <Plus size={14} className="mr-2" />
+                                                {t("common.add")}
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {incomeCategories.map((cat) => (
+                                                <div key={cat.id} className="flex justify-between items-center p-3 border border-white/20 rounded-md hover:bg-white/10 bg-white/5">
+                                                    <span className="font-medium text-white">{cat.name}</span>
+                                                    <div className="flex gap-1">
+                                                        {cat.userId && (
+                                                            <>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-white/20" onClick={() => openCategoryModal("income", cat)}>
+                                                                    <Edit2 size={14} />
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-white/20" onClick={() => handleDeleteCategory(cat.id)}>
+                                                                    <Trash2 size={14} />
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        {expenseCategories.map((cat) => (
-                                            <div key={cat.id} className="flex justify-between items-center p-3 border border-border rounded-md hover:bg-secondary/20">
-                                                <div>
-                                                    <div className="font-medium">{cat.name}</div>
-                                                    {cat.budgetLimit && <div className="text-xs text-muted-foreground">{t("budget.limit")}: {cat.budgetLimit}</div>}
+
+                                    {/* Expense Categories */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                                            <h3 className="text-xl font-semibold text-white">{t("settings.expense_categories")}</h3>
+                                            <Button size="sm" variant="outline" onClick={() => openCategoryModal("expense")} className="border-white/50 text-white hover:bg-white hover:text-black bg-transparent">
+                                                <Plus size={14} className="mr-2" />
+                                                {t("common.add")}
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {expenseCategories.map((cat) => (
+                                                <div key={cat.id} className="flex justify-between items-center p-3 border border-white/20 rounded-md hover:bg-white/10 bg-white/5">
+                                                    <div>
+                                                        <div className="font-medium text-white">{cat.name}</div>
+                                                        {cat.budgetLimit && <div className="text-xs text-white/70">{t("budget.limit")}: {cat.budgetLimit}</div>}
+                                                    </div>
+                                                    <div className="flex gap-1">
+                                                        {cat.userId && (
+                                                            <>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-white/20" onClick={() => openCategoryModal("expense", cat)}>
+                                                                    <Edit2 size={14} />
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-white/20" onClick={() => handleDeleteCategory(cat.id)}>
+                                                                    <Trash2 size={14} />
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-1">
-                                                    {cat.userId && (
-                                                        <>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openCategoryModal("expense", cat)}>
-                                                                <Edit2 size={14} />
-                                                            </Button>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteCategory(cat.id)}>
-                                                                <Trash2 size={14} />
-                                                            </Button>
-                                                        </>
-                                                    )}
-                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
+                            {activeTab === "appearance" && (
+                                <section>
+                                    <h2 className="text-2xl font-bold mb-6 text-white">Appearance</h2>
+                                    <div className="space-y-6 max-w-md">
+                                        <div className="flex items-center justify-between p-4 border border-white/20 rounded-lg bg-white/5">
+                                            <div className="flex items-center gap-3 text-white">
+                                                {theme === "light" ? <Sun size={20} /> : <Moon size={20} />}
+                                                <span className="font-medium">Theme</span>
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </section>
-                        )}
+                                            <div className="flex bg-white/10 rounded-full p-1">
+                                                <button
+                                                    onClick={() => setTheme("light")}
+                                                    className={`px-3 py-1 rounded-full text-sm transition-colors ${theme === "light" ? "bg-white text-black shadow-sm" : "text-white hover:bg-white/20"}`}
+                                                >
+                                                    Light
+                                                </button>
+                                                <button
+                                                    onClick={() => setTheme("dark")}
+                                                    className={`px-3 py-1 rounded-full text-sm transition-colors ${theme === "dark" ? "bg-white text-black shadow-sm" : "text-white hover:bg-white/20"}`}
+                                                >
+                                                    Dark
+                                                </button>
+                                            </div>
+                                        </div>
 
-                        {activeTab === "appearance" && (
-                            <section>
-                                <h2 className="text-2xl font-bold mb-6">Appearance</h2>
-                                <div className="space-y-6 max-w-md">
-                                    <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            {theme === "light" ? <Sun size={20} /> : <Moon size={20} />}
-                                            <span className="font-medium">Theme</span>
-                                        </div>
-                                        <div className="flex bg-secondary rounded-full p-1">
-                                            <button
-                                                onClick={() => setTheme("light")}
-                                                className={`px-3 py-1 rounded-full text-sm transition-colors ${theme === "light" ? "bg-background shadow-sm" : ""}`}
-                                            >
-                                                Light
-                                            </button>
-                                            <button
-                                                onClick={() => setTheme("dark")}
-                                                className={`px-3 py-1 rounded-full text-sm transition-colors ${theme === "dark" ? "bg-background shadow-sm" : ""}`}
-                                            >
-                                                Dark
-                                            </button>
+                                        <div className="flex items-center justify-between p-4 border border-white/20 rounded-lg bg-white/5">
+                                            <div className="flex items-center gap-3 text-white">
+                                                <Globe size={20} />
+                                                <span className="font-medium">Language</span>
+                                            </div>
+                                            <div className="flex bg-white/10 rounded-full p-1">
+                                                <button
+                                                    onClick={() => setLanguage("en")}
+                                                    className={`px-3 py-1 rounded-full text-sm transition-colors ${language === "en" ? "bg-white text-black shadow-sm" : "text-white hover:bg-white/20"}`}
+                                                >
+                                                    EN
+                                                </button>
+                                                <button
+                                                    onClick={() => setLanguage("ukr")}
+                                                    className={`px-3 py-1 rounded-full text-sm transition-colors ${language === "ukr" ? "bg-white text-black shadow-sm" : "text-white hover:bg-white/20"}`}
+                                                >
+                                                    UKR
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <Globe size={20} />
-                                            <span className="font-medium">Language</span>
-                                        </div>
-                                        <div className="flex bg-secondary rounded-full p-1">
-                                            <button
-                                                onClick={() => setLanguage("en")}
-                                                className={`px-3 py-1 rounded-full text-sm transition-colors ${language === "en" ? "bg-background shadow-sm" : ""}`}
-                                            >
-                                                EN
-                                            </button>
-                                            <button
-                                                onClick={() => setLanguage("ukr")}
-                                                className={`px-3 py-1 rounded-full text-sm transition-colors ${language === "ukr" ? "bg-background shadow-sm" : ""}`}
-                                            >
-                                                UKR
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        )}
+                                </section>
+                            )}
+                        </div>
                     </div>
                 </div>
             </main>

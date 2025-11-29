@@ -55,41 +55,56 @@ export default function Home() {
         <div className="min-h-screen bg-background flex flex-col">
             <Header />
             <main className="flex-1 flex flex-col items-center justify-center pt-8 px-8 pb-24 relative">
-                <h1 className="text-6xl font-hard-rock tracking-wide mb-16 text-foreground">{t("app.title")}</h1>
+                <div className="relative w-full max-w-5xl mx-auto rounded-[40px] overflow-hidden shadow-2xl">
+                    {/* Background Image & Overlay */}
+                    <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center bg-no-repeat" />
+                    <div className="absolute inset-0 bg-black/40" />
 
-                <div className="flex flex-wrap justify-center gap-8 md:gap-12 max-w-5xl mx-auto">
-                    <CircleButton
-                        icon={<Plus size={32} />}
-                        label={t("nav.add")}
-                        onClick={() => setActiveModule("add")}
-                    />
-                    <CircleButton
-                        icon={<Plus size={32} className="text-green-500" />}
-                        label={t("nav.income")}
-                        onClick={() => setActiveModule("income")}
-                    />
-                    <CircleButton
-                        icon={<List size={32} />}
-                        label={t("nav.view")}
-                        onClick={() => setActiveModule("view")}
-                    />
-                    <CircleButton
-                        icon={<PieChart size={32} />}
-                        label={t("nav.budget")}
-                        onClick={() => setActiveModule("budget")}
-                    />
-                    <CircleButton
-                        icon={<Repeat size={32} />}
-                        label={t("nav.recurring")}
-                        onClick={() => setActiveModule("recurring")}
-                    />
-                    <Link href="/settings">
-                        <CircleButton
-                            icon={<Settings size={32} />}
-                            label={t("nav.settings")}
-                            onClick={() => { }}
-                        />
-                    </Link>
+                    {/* Content */}
+                    <div className="relative z-10 flex flex-col items-center py-24 px-8 text-white">
+                        <h1 className="text-6xl font-hard-rock tracking-wide mb-16 text-white drop-shadow-lg">{t("app.title")}</h1>
+
+                        <div className="flex flex-wrap justify-center gap-8 md:gap-12">
+                            <CircleButton
+                                icon={<Plus size={32} />}
+                                label={t("nav.add")}
+                                onClick={() => setActiveModule("add")}
+                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                            />
+                            <CircleButton
+                                icon={<Plus size={32} className="text-green-400" />}
+                                label={t("nav.income")}
+                                onClick={() => setActiveModule("income")}
+                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                            />
+                            <CircleButton
+                                icon={<List size={32} />}
+                                label={t("nav.view")}
+                                onClick={() => setActiveModule("view")}
+                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                            />
+                            <CircleButton
+                                icon={<PieChart size={32} />}
+                                label={t("nav.budget")}
+                                onClick={() => setActiveModule("budget")}
+                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                            />
+                            <CircleButton
+                                icon={<Repeat size={32} />}
+                                label={t("nav.recurring")}
+                                onClick={() => setActiveModule("recurring")}
+                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                            />
+                            <Link href="/settings">
+                                <CircleButton
+                                    icon={<Settings size={32} />}
+                                    label={t("nav.settings")}
+                                    onClick={() => { }}
+                                    className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                                />
+                            </Link>
+                        </div>
+                    </div>
                 </div>
 
                 {activeModule && (
@@ -112,11 +127,11 @@ export default function Home() {
     );
 }
 
-function CircleButton({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+function CircleButton({ icon, label, onClick, className }: { icon: React.ReactNode; label: string; onClick: () => void; className?: string }) {
     return (
         <button
             onClick={onClick}
-            className="flex flex-col items-center justify-center w-32 h-32 rounded-full border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 group"
+            className={`flex flex-col items-center justify-center w-32 h-32 rounded-full border-2 transition-all duration-300 group ${className || "border-primary hover:bg-primary hover:text-primary-foreground"}`}
         >
             <div className="mb-2 group-hover:scale-110 transition-transform">{icon}</div>
             <span className="text-xs font-medium">{label}</span>

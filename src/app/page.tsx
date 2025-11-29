@@ -52,16 +52,16 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col font-sans text-foreground">
             <Header />
-            <main className="flex-1 flex flex-col items-center justify-center pt-8 px-8 pb-24 relative">
-                <div className="relative w-full max-w-5xl mx-auto rounded-[40px] overflow-hidden shadow-2xl">
+            <main className="flex-1 flex items-center justify-center p-4">
+                <div className="relative h-[65vh] w-[80%] mx-auto rounded-[40px] overflow-hidden shadow-2xl">
                     {/* Background Image & Overlay */}
                     <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center bg-no-repeat" />
                     <div className="absolute inset-0 bg-black/40" />
 
                     {/* Content */}
-                    <div className="relative z-10 flex flex-col items-center py-24 px-8 text-white">
+                    <div className="relative z-10 h-full flex flex-col items-center justify-center text-white py-10 px-10">
                         <h1 className="text-6xl font-hard-rock tracking-wide mb-16 text-white drop-shadow-lg">{t("app.title")}</h1>
 
                         <div className="flex flex-wrap justify-center gap-8 md:gap-12">

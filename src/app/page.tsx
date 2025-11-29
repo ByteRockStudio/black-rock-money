@@ -9,7 +9,7 @@ import { AddIncomeModal } from "@/components/AddIncomeModal";
 import { ExpenseTable } from "@/components/ExpenseTable";
 import { BudgetView } from "@/components/BudgetView";
 import { RecurringView } from "@/components/RecurringView";
-import { SettingsView } from "@/components/SettingsView";
+import Link from "next/link";
 
 import { Header } from "@/components/Header";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -46,8 +46,6 @@ export default function Home() {
                 return <BudgetView onClose={() => setActiveModule(null)} />;
             case "recurring":
                 return <RecurringView onClose={() => setActiveModule(null)} />;
-            case "settings":
-                return <SettingsView onClose={() => setActiveModule(null)} />;
             default:
                 return null;
         }
@@ -85,11 +83,13 @@ export default function Home() {
                         label={t("nav.recurring")}
                         onClick={() => setActiveModule("recurring")}
                     />
-                    <CircleButton
-                        icon={<Settings size={32} />}
-                        label={t("nav.settings")}
-                        onClick={() => setActiveModule("settings")}
-                    />
+                    <Link href="/settings">
+                        <CircleButton
+                            icon={<Settings size={32} />}
+                            label={t("nav.settings")}
+                            onClick={() => { }}
+                        />
+                    </Link>
                 </div>
 
                 {activeModule && (

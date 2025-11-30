@@ -137,223 +137,223 @@ export default function SettingsPage() {
     ];
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-background font-sans text-foreground">
-            {/* Left Sidebar - Fixed Width */}
-            <aside className="w-80 flex-shrink-0 flex flex-col border-r border-border bg-[#efede7] dark:bg-neutral-900 h-full overflow-y-auto z-20 relative text-neutral-800 dark:text-white">
-                <div className="p-8">
-                    <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 group">
-                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                        <span className="font-medium">{t("common.back")}</span>
-                    </Link>
+        <div className="min-h-screen flex items-center justify-center p-6 bg-[#efede7] dark:bg-black font-sans transition-colors duration-500">
+            {/* The Settings Card */}
+            <div className="w-full max-w-5xl h-[75vh] rounded-[40px] overflow-hidden shadow-2xl flex bg-white dark:bg-neutral-900">
 
-                    <h1 className="text-3xl font-hard-rock tracking-wide mb-8">{t("nav.settings")}</h1>
+                {/* Left Column: Navigation Sidebar */}
+                <aside className="w-1/3 flex flex-col bg-white dark:bg-neutral-900 text-neutral-800 dark:text-white border-r border-neutral-100 dark:border-white/5 relative z-20">
+                    <div className="p-8 h-full flex flex-col">
+                        {/* Back Button */}
+                        <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-black dark:hover:text-white transition-colors mb-6 group w-fit">
+                            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                            <span className="font-medium">{t("common.back")}</span>
+                        </Link>
 
-                    <nav className="space-y-2">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id as Tab)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${activeTab === tab.id
-                                    ? "bg-neutral-900 text-white dark:bg-white dark:text-black shadow-md"
-                                    : "hover:bg-black/5 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground"
-                                    }`}
-                            >
-                                {tab.icon}
-                                <span className="font-medium">{tab.label}</span>
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-            </aside>
+                        <h1 className="text-3xl font-bold mb-8 px-2">{t("nav.settings")}</h1>
 
-            {/* Right Content Area - Full Height & Width */}
-            <main className="flex-1 relative h-full overflow-y-auto">
-                {/* Background & Overlay */}
-                <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center bg-no-repeat fixed" />
-                <div className="absolute inset-0 bg-black/40 fixed" />
-
-                {/* Content */}
-                <div className="relative z-10 p-12 text-white min-h-full">
-                    {/* Header inside content area for consistent access */}
-                    <div className="absolute top-6 right-6 z-50">
-                        <Header />
+                        <nav className="space-y-3 flex-1">
+                            {tabs.map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id as Tab)}
+                                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-left transition-all duration-300 ${activeTab === tab.id
+                                        ? "bg-black/5 dark:bg-white/10 font-bold text-black dark:text-white"
+                                        : "text-gray-500 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                                        }`}
+                                >
+                                    {tab.icon}
+                                    <span className="text-lg">{tab.label}</span>
+                                </button>
+                            ))}
+                        </nav>
                     </div>
+                </aside>
 
-                    <div className="max-w-4xl mx-auto pt-16">
-                        {activeTab === "general" && (
-                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <h2 className="text-3xl font-bold mb-8 text-white">{t("settings.global_settings")}</h2>
-                                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 max-w-xl">
-                                    <label className="block text-sm font-medium mb-3 text-white/90">{t("settings.exchange_rate")}</label>
-                                    <div className="flex gap-4">
-                                        <Input
-                                            type="number"
-                                            value={localExchangeRate}
-                                            onChange={(e) => setLocalExchangeRate(e.target.value)}
-                                            className="border-white/30 bg-white/10 text-white placeholder:text-white/50 focus:border-white rounded-xl h-12 text-lg"
-                                            step="0.01"
-                                        />
-                                        <Button onClick={handleExchangeRateUpdate} className="h-12 px-8 bg-white text-black hover:bg-white/90 rounded-xl font-medium">
-                                            {t("common.save")}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </section>
-                        )}
+                {/* Right Column: Content Area */}
+                <main className="w-2/3 relative h-full">
+                    {/* Background & Overlay */}
+                    <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center" />
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
 
-                        {activeTab === "accounts" && (
-                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="flex justify-between items-center mb-8">
-                                    <h2 className="text-3xl font-bold text-white">{t("settings.accounts")}</h2>
-                                    <Button onClick={() => openAccountModal()} className="bg-white text-black hover:bg-white/90 rounded-full px-6 h-10">
-                                        <Plus size={18} className="mr-2" />
-                                        {t("settings.add_account")}
-                                    </Button>
-                                </div>
-                                <div className="grid gap-4">
-                                    {accounts.map((acc) => (
-                                        <div key={acc.id} className="flex justify-between items-center border border-white/20 p-6 rounded-2xl bg-white/5 hover:bg-white/10 transition-all backdrop-blur-sm group">
-                                            <div className="flex items-center gap-5">
-                                                <div className="p-4 bg-white/10 rounded-full text-white group-hover:bg-white/20 transition-colors">
-                                                    {acc.type === 'card' ? <CreditCard size={24} /> : <Banknote size={24} />}
-                                                </div>
-                                                <div>
-                                                    <div className="font-bold text-xl text-white mb-1">{acc.name}</div>
-                                                    <div className="text-sm text-white/70 font-mono tracking-wide">{formatAccountBalance(acc)}</div>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" size="icon" onClick={() => openAccountModal(acc)} className="text-white hover:bg-white/20 hover:text-white rounded-full h-10 w-10">
-                                                    <Edit2 size={18} />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300 hover:bg-white/20 rounded-full h-10 w-10" onClick={() => handleDeleteAccount(acc.id)}>
-                                                    <Trash2 size={18} />
-                                                </Button>
-                                            </div>
+                    {/* Content Container */}
+                    <div className="relative z-10 h-full flex flex-col items-center justify-center px-10 overflow-y-auto">
+                        <div className="w-full max-w-xl py-10">
+                            {activeTab === "general" && (
+                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
+                                    <h2 className="text-3xl font-bold mb-8 text-white text-center">{t("settings.global_settings")}</h2>
+                                    <div className="bg-white/10 border border-white/10 rounded-2xl p-8 backdrop-blur-md">
+                                        <label className="block text-sm font-medium mb-3 text-white/80">{t("settings.exchange_rate")}</label>
+                                        <div className="flex gap-4">
+                                            <Input
+                                                type="number"
+                                                value={localExchangeRate}
+                                                onChange={(e) => setLocalExchangeRate(e.target.value)}
+                                                className="border-b border-white/30 bg-transparent text-white placeholder:text-white/50 focus:border-white rounded-none h-12 text-lg px-0 shadow-none focus-visible:ring-0"
+                                                step="0.01"
+                                            />
+                                            <Button onClick={handleExchangeRateUpdate} className="h-12 px-8 bg-white text-black hover:bg-gray-200 rounded-full font-semibold transition-colors">
+                                                {t("common.save")}
+                                            </Button>
                                         </div>
-                                    ))}
-                                </div>
-                            </section>
-                        )}
+                                    </div>
+                                </section>
+                            )}
 
-                        {activeTab === "categories" && (
-                            <section className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                {/* Income Categories */}
-                                <div>
-                                    <div className="flex justify-between items-center mb-6 border-b border-white/20 pb-4">
-                                        <h3 className="text-2xl font-semibold text-white">{t("settings.income_categories")}</h3>
-                                        <Button size="sm" variant="outline" onClick={() => openCategoryModal("income")} className="border-white/50 text-white hover:bg-white hover:text-black bg-transparent rounded-full">
-                                            <Plus size={16} className="mr-2" />
-                                            {t("common.add")}
+                            {activeTab === "accounts" && (
+                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
+                                    <div className="flex justify-between items-center mb-8">
+                                        <h2 className="text-3xl font-bold text-white">{t("settings.accounts")}</h2>
+                                        <Button onClick={() => openAccountModal()} className="bg-white text-black hover:bg-gray-200 rounded-full px-6 py-2 font-semibold h-auto">
+                                            <Plus size={18} className="mr-2" />
+                                            {t("settings.add_account")}
                                         </Button>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {incomeCategories.map((cat) => (
-                                            <div key={cat.id} className="flex justify-between items-center p-4 border border-white/20 rounded-xl hover:bg-white/10 bg-white/5 backdrop-blur-sm transition-colors group">
-                                                <span className="font-medium text-white text-lg">{cat.name}</span>
+                                    <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                                        {accounts.map((acc) => (
+                                            <div key={acc.id} className="w-full bg-white/10 border border-white/10 rounded-xl p-4 flex justify-between items-center transition-transform hover:scale-[1.02] backdrop-blur-sm group">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="p-3 bg-white/10 rounded-full text-white">
+                                                        {acc.type === 'card' ? <CreditCard size={20} /> : <Banknote size={20} />}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-lg text-white">{acc.name}</div>
+                                                        <div className="text-sm text-white/70 font-mono">{formatAccountBalance(acc)}</div>
+                                                    </div>
+                                                </div>
                                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    {cat.userId && (
-                                                        <>
-                                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-white hover:bg-white/20 rounded-full" onClick={() => openCategoryModal("income", cat)}>
-                                                                <Edit2 size={16} />
-                                                            </Button>
-                                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:text-red-300 hover:bg-white/20 rounded-full" onClick={() => handleDeleteCategory(cat.id)}>
-                                                                <Trash2 size={16} />
-                                                            </Button>
-                                                        </>
-                                                    )}
+                                                    <Button variant="ghost" size="icon" onClick={() => openAccountModal(acc)} className="text-white/50 hover:text-white hover:bg-white/10 rounded-full h-9 w-9">
+                                                        <Edit2 size={16} />
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="text-white/50 hover:text-red-400 hover:bg-white/10 rounded-full h-9 w-9" onClick={() => handleDeleteAccount(acc.id)}>
+                                                        <Trash2 size={16} />
+                                                    </Button>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                </div>
+                                </section>
+                            )}
 
-                                {/* Expense Categories */}
-                                <div>
-                                    <div className="flex justify-between items-center mb-6 border-b border-white/20 pb-4">
-                                        <h3 className="text-2xl font-semibold text-white">{t("settings.expense_categories")}</h3>
-                                        <Button size="sm" variant="outline" onClick={() => openCategoryModal("expense")} className="border-white/50 text-white hover:bg-white hover:text-black bg-transparent rounded-full">
-                                            <Plus size={16} className="mr-2" />
-                                            {t("common.add")}
-                                        </Button>
+                            {activeTab === "categories" && (
+                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full h-full flex flex-col gap-8">
+                                    {/* Income Categories */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                                            <h3 className="text-xl font-semibold text-white">{t("settings.income_categories")}</h3>
+                                            <Button size="sm" variant="ghost" onClick={() => openCategoryModal("income")} className="text-white hover:bg-white/20 rounded-full">
+                                                <Plus size={16} className="mr-1" />
+                                                {t("common.add")}
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3 max-h-[20vh] overflow-y-auto pr-2 custom-scrollbar">
+                                            {incomeCategories.map((cat) => (
+                                                <div key={cat.id} className="flex justify-between items-center p-3 border border-white/10 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-colors group">
+                                                    <span className="font-medium text-white">{cat.name}</span>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {cat.userId && (
+                                                            <>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/10 rounded-full" onClick={() => openCategoryModal("income", cat)}>
+                                                                    <Edit2 size={14} />
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-red-400 hover:bg-white/10 rounded-full" onClick={() => handleDeleteCategory(cat.id)}>
+                                                                    <Trash2 size={14} />
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {expenseCategories.map((cat) => (
-                                            <div key={cat.id} className="flex justify-between items-center p-4 border border-white/20 rounded-xl hover:bg-white/10 bg-white/5 backdrop-blur-sm transition-colors group">
-                                                <div>
-                                                    <div className="font-medium text-white text-lg">{cat.name}</div>
-                                                    {cat.budgetLimit && <div className="text-sm text-white/70 mt-1">{t("budget.limit")}: {cat.budgetLimit}</div>}
+
+                                    {/* Expense Categories */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                                            <h3 className="text-xl font-semibold text-white">{t("settings.expense_categories")}</h3>
+                                            <Button size="sm" variant="ghost" onClick={() => openCategoryModal("expense")} className="text-white hover:bg-white/20 rounded-full">
+                                                <Plus size={16} className="mr-1" />
+                                                {t("common.add")}
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3 max-h-[25vh] overflow-y-auto pr-2 custom-scrollbar">
+                                            {expenseCategories.map((cat) => (
+                                                <div key={cat.id} className="flex justify-between items-center p-3 border border-white/10 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-colors group">
+                                                    <div>
+                                                        <div className="font-medium text-white">{cat.name}</div>
+                                                        {cat.budgetLimit && <div className="text-xs text-white/60 mt-0.5">{t("budget.limit")}: {cat.budgetLimit}</div>}
+                                                    </div>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {cat.userId && (
+                                                            <>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/10 rounded-full" onClick={() => openCategoryModal("expense", cat)}>
+                                                                    <Edit2 size={14} />
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-red-400 hover:bg-white/10 rounded-full" onClick={() => handleDeleteCategory(cat.id)}>
+                                                                    <Trash2 size={14} />
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    {cat.userId && (
-                                                        <>
-                                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-white hover:bg-white/20 rounded-full" onClick={() => openCategoryModal("expense", cat)}>
-                                                                <Edit2 size={16} />
-                                                            </Button>
-                                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:text-red-300 hover:bg-white/20 rounded-full" onClick={() => handleDeleteCategory(cat.id)}>
-                                                                <Trash2 size={16} />
-                                                            </Button>
-                                                        </>
-                                                    )}
-                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
+                            {activeTab === "appearance" && (
+                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
+                                    <h2 className="text-3xl font-bold mb-8 text-white text-center">Appearance</h2>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between p-5 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm">
+                                            <div className="flex items-center gap-4 text-white">
+                                                {theme === "light" ? <Sun size={20} /> : <Moon size={20} />}
+                                                <span className="font-medium text-lg">Theme</span>
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </section>
-                        )}
+                                            <div className="flex bg-white/10 rounded-full p-1">
+                                                <button
+                                                    onClick={() => setTheme("light")}
+                                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${theme === "light" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/10"}`}
+                                                >
+                                                    Light
+                                                </button>
+                                                <button
+                                                    onClick={() => setTheme("dark")}
+                                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${theme === "dark" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/10"}`}
+                                                >
+                                                    Dark
+                                                </button>
+                                            </div>
+                                        </div>
 
-                        {activeTab === "appearance" && (
-                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <h2 className="text-3xl font-bold mb-8 text-white">Appearance</h2>
-                                <div className="space-y-6 max-w-xl">
-                                    <div className="flex items-center justify-between p-6 border border-white/20 rounded-2xl bg-white/5 backdrop-blur-sm">
-                                        <div className="flex items-center gap-4 text-white">
-                                            {theme === "light" ? <Sun size={24} /> : <Moon size={24} />}
-                                            <span className="font-medium text-lg">Theme</span>
-                                        </div>
-                                        <div className="flex bg-white/10 rounded-full p-1.5">
-                                            <button
-                                                onClick={() => setTheme("light")}
-                                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${theme === "light" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/20"}`}
-                                            >
-                                                Light
-                                            </button>
-                                            <button
-                                                onClick={() => setTheme("dark")}
-                                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${theme === "dark" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/20"}`}
-                                            >
-                                                Dark
-                                            </button>
+                                        <div className="flex items-center justify-between p-5 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm">
+                                            <div className="flex items-center gap-4 text-white">
+                                                <Globe size={20} />
+                                                <span className="font-medium text-lg">Language</span>
+                                            </div>
+                                            <div className="flex bg-white/10 rounded-full p-1">
+                                                <button
+                                                    onClick={() => setLanguage("en")}
+                                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${language === "en" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/10"}`}
+                                                >
+                                                    EN
+                                                </button>
+                                                <button
+                                                    onClick={() => setLanguage("ukr")}
+                                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${language === "ukr" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/10"}`}
+                                                >
+                                                    UKR
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <div className="flex items-center justify-between p-6 border border-white/20 rounded-2xl bg-white/5 backdrop-blur-sm">
-                                        <div className="flex items-center gap-4 text-white">
-                                            <Globe size={24} />
-                                            <span className="font-medium text-lg">Language</span>
-                                        </div>
-                                        <div className="flex bg-white/10 rounded-full p-1.5">
-                                            <button
-                                                onClick={() => setLanguage("en")}
-                                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${language === "en" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/20"}`}
-                                            >
-                                                EN
-                                            </button>
-                                            <button
-                                                onClick={() => setLanguage("ukr")}
-                                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${language === "ukr" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/20"}`}
-                                            >
-                                                UKR
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                        )}
+                                </section>
+                            )}
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </div>
 
             <AccountModal
                 isOpen={isAccountModalOpen}
@@ -372,3 +372,4 @@ export default function SettingsPage() {
         </div>
     );
 }
+

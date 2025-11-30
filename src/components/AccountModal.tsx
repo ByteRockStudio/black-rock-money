@@ -31,6 +31,13 @@ export function AccountModal({ isOpen, onClose, account, onSave }: AccountModalP
     });
 
     useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onClose();
+        };
+        if (isOpen) {
+            window.addEventListener("keydown", handleEsc);
+        }
+
         if (account) {
             setForm({
                 name: account.name,
@@ -48,7 +55,8 @@ export function AccountModal({ isOpen, onClose, account, onSave }: AccountModalP
                 currency: "UAH",
             });
         }
-    }, [account, isOpen]);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [account, isOpen, onClose]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

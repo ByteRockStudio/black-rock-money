@@ -11,6 +11,7 @@ import { Trash2, Edit2, ArrowLeft, Wallet, CreditCard, Banknote, Plus, Settings,
 import Link from "next/link";
 import { AccountModal } from "@/components/AccountModal";
 import { CategoryModal } from "@/components/CategoryModal";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { Moon, Sun } from "lucide-react";
 
 interface Account {
@@ -49,6 +50,19 @@ export default function SettingsPage() {
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [categoryType, setCategoryType] = useState<"income" | "expense">("expense");
+
+    // Confirmation Modal State
+    const [confirmation, setConfirmation] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        onConfirm: () => { },
+    });
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -90,18 +104,30 @@ export default function SettingsPage() {
         }
     };
 
-    const handleDeleteAccount = async (id: string) => {
-        if (!confirm(t("settings.confirm_delete_account"))) return;
-        const res = await fetch(`/api/accounts?id=${id}`, { method: "DELETE" });
-        if (res.ok) fetchAccounts();
-        else alert(t("settings.delete_account_failed"));
+    const handleDeleteAccount = (id: string) => {
+        setConfirmation({
+            isOpen: true,
+            title: t("settings.delete_account_title") || "Delete Account",
+            message: t("settings.confirm_delete_account"),
+            onConfirm: async () => {
+                const res = await fetch(`/api/accounts?id=${id}`, { method: "DELETE" });
+                if (res.ok) fetchAccounts();
+                else alert(t("settings.delete_account_failed"));
+            }
+        });
     };
 
-    const handleDeleteCategory = async (id: string) => {
-        if (!confirm(t("settings.confirm_delete_category"))) return;
-        const res = await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
-        if (res.ok) fetchCategories();
-        else alert(t("settings.delete_category_failed"));
+    const handleDeleteCategory = (id: string) => {
+        setConfirmation({
+            isOpen: true,
+            title: t("settings.delete_category_title") || "Delete Category",
+            message: t("settings.confirm_delete_category"),
+            onConfirm: async () => {
+                const res = await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
+                if (res.ok) fetchCategories();
+                else alert(t("settings.delete_category_failed"));
+            }
+        });
     };
 
     const formatAccountBalance = (account: Account) => {
@@ -194,10 +220,11 @@ export default function SettingsPage() {
                                                 type="number"
                                                 value={localExchangeRate}
                                                 onChange={(e) => setLocalExchangeRate(e.target.value)}
-                                                className="border-b border-white/20 bg-transparent text-white placeholder:text-white/40 focus:border-white rounded-none h-10 text-base px-0 shadow-none focus-visible:ring-0 w-full max-w-xs"
+                                                className="bg-transparent border-b border-white/20 text-white text-2xl font-normal p-2.5 focus:border-white transition-colors w-full outline-none ring-0 placeholder:text-white/20 rounded-none h-auto shadow-none focus-visible:ring-0 max-w-[200px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 step="0.01"
+                                                placeholder="0.00"
                                             />
-                                            <Button onClick={handleExchangeRateUpdate} className="h-9 px-6 bg-white text-black hover:bg-zinc-200 rounded-full text-sm font-medium transition-colors">
+                                            <Button onClick={handleExchangeRateUpdate} className="h-10 px-8 bg-white text-black hover:bg-zinc-200 rounded-full text-sm font-bold transition-colors">
                                                 {t("common.save")}
                                             </Button>
                                         </div>
@@ -374,7 +401,14 @@ export default function SettingsPage() {
                 type={categoryType}
                 onSave={fetchCategories}
             />
+
+            <ConfirmationModal
+                isOpen={confirmation.isOpen}
+                onClose={() => setConfirmation({ ...confirmation, isOpen: false })}
+                onConfirm={confirmation.onConfirm}
+                title={confirmation.title}
+                message={confirmation.message}
+            />
         </div>
     );
 }
-

@@ -28,6 +28,13 @@ export function CategoryModal({ isOpen, onClose, category, type, onSave }: Categ
     });
 
     useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onClose();
+        };
+        if (isOpen) {
+            window.addEventListener("keydown", handleEsc);
+        }
+
         if (category) {
             setForm({
                 name: category.name,
@@ -39,7 +46,8 @@ export function CategoryModal({ isOpen, onClose, category, type, onSave }: Categ
                 budgetLimit: "",
             });
         }
-    }, [category, isOpen]);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [category, isOpen, onClose]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

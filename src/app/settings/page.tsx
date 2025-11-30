@@ -137,62 +137,67 @@ export default function SettingsPage() {
     ];
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-[#efede7] dark:bg-black font-sans transition-colors duration-500">
-            {/* The Settings Card */}
-            <div className="w-full max-w-5xl h-[75vh] rounded-[40px] overflow-hidden shadow-2xl flex bg-white dark:bg-neutral-900">
+        <div className="min-h-screen w-full bg-[#efede7] dark:bg-[hsl(0_0%_3.92%)] transition-colors duration-300 flex flex-col items-center justify-center p-6">
+            {/* Main Container: The Workspace */}
+            <div className="w-full max-w-[1600px] mx-auto h-[90vh] rounded-3xl overflow-hidden flex shadow-2xl bg-white dark:bg-black transition-colors duration-300">
 
-                {/* Left Column: Navigation Sidebar */}
-                <aside className="w-1/3 flex flex-col bg-white dark:bg-neutral-900 text-neutral-800 dark:text-white border-r border-neutral-100 dark:border-white/5 relative z-20">
+                {/* Left Sidebar: Navigation */}
+                <aside className="w-80 flex-shrink-0 flex flex-col border-r border-black/5 dark:border-white/10 bg-white/50 dark:bg-black backdrop-blur-xl transition-colors duration-300">
                     <div className="p-8 h-full flex flex-col">
                         {/* Back Button */}
-                        <Link href="/" className="flex items-center gap-2 text-gray-500 hover:text-black dark:hover:text-white transition-colors mb-6 group w-fit">
+                        <Link href="/" className="flex items-center gap-2 text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white transition-colors mb-8 group w-fit">
                             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                            <span className="font-medium">{t("common.back")}</span>
+                            <span className="font-medium text-sm">{t("common.back")}</span>
                         </Link>
 
-                        <h1 className="text-3xl font-bold mb-8 px-2">{t("nav.settings")}</h1>
+                        <h1 className="text-2xl font-bold mb-8 px-2 text-zinc-900 dark:text-white tracking-tight">{t("nav.settings")}</h1>
 
-                        <nav className="space-y-3 flex-1">
+                        <nav className="space-y-2 flex-1">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as Tab)}
-                                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-left transition-all duration-300 ${activeTab === tab.id
-                                        ? "bg-black/5 dark:bg-white/10 font-bold text-black dark:text-white"
-                                        : "text-gray-500 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${activeTab === tab.id
+                                        ? "bg-black text-white dark:bg-white dark:text-black shadow-lg"
+                                        : "text-zinc-700 hover:text-black dark:text-zinc-400 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10"
                                         }`}
                                 >
                                     {tab.icon}
-                                    <span className="text-lg">{tab.label}</span>
+                                    <span className="text-sm font-medium">{tab.label}</span>
                                 </button>
                             ))}
                         </nav>
                     </div>
                 </aside>
 
-                {/* Right Column: Content Area */}
-                <main className="w-2/3 relative h-full">
+                {/* Right Content Area: Visuals */}
+                <main className="flex-1 relative h-full bg-zinc-900 text-white">
                     {/* Background & Overlay */}
                     <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center" />
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
                     {/* Content Container */}
-                    <div className="relative z-10 h-full flex flex-col items-center justify-center px-10 overflow-y-auto">
-                        <div className="w-full max-w-xl py-10">
+                    <div className="relative z-10 h-full overflow-y-auto">
+                        <div className="max-w-4xl mx-auto py-12 px-8">
+                            {/* Header inside content area for consistent access */}
+                            <div className="absolute top-6 right-8 z-50">
+                                <Header />
+                            </div>
+
                             {activeTab === "general" && (
-                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
-                                    <h2 className="text-3xl font-bold mb-8 text-white text-center">{t("settings.global_settings")}</h2>
-                                    <div className="bg-white/10 border border-white/10 rounded-2xl p-8 backdrop-blur-md">
-                                        <label className="block text-sm font-medium mb-3 text-white/80">{t("settings.exchange_rate")}</label>
-                                        <div className="flex gap-4">
+                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <h2 className="text-2xl font-bold mb-6 text-white">{t("settings.global_settings")}</h2>
+                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-md">
+                                        <label className="block text-sm font-medium mb-4 text-white/80">{t("settings.exchange_rate")}</label>
+                                        <div className="flex gap-4 items-center">
                                             <Input
                                                 type="number"
                                                 value={localExchangeRate}
                                                 onChange={(e) => setLocalExchangeRate(e.target.value)}
-                                                className="border-b border-white/30 bg-transparent text-white placeholder:text-white/50 focus:border-white rounded-none h-12 text-lg px-0 shadow-none focus-visible:ring-0"
+                                                className="border-b border-white/20 bg-transparent text-white placeholder:text-white/40 focus:border-white rounded-none h-10 text-base px-0 shadow-none focus-visible:ring-0 w-full max-w-xs"
                                                 step="0.01"
                                             />
-                                            <Button onClick={handleExchangeRateUpdate} className="h-12 px-8 bg-white text-black hover:bg-gray-200 rounded-full font-semibold transition-colors">
+                                            <Button onClick={handleExchangeRateUpdate} className="h-9 px-6 bg-white text-black hover:bg-zinc-200 rounded-full text-sm font-medium transition-colors">
                                                 {t("common.save")}
                                             </Button>
                                         </div>
@@ -201,32 +206,32 @@ export default function SettingsPage() {
                             )}
 
                             {activeTab === "accounts" && (
-                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
+                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     <div className="flex justify-between items-center mb-8">
-                                        <h2 className="text-3xl font-bold text-white">{t("settings.accounts")}</h2>
-                                        <Button onClick={() => openAccountModal()} className="bg-white text-black hover:bg-gray-200 rounded-full px-6 py-2 font-semibold h-auto">
-                                            <Plus size={18} className="mr-2" />
+                                        <h2 className="text-2xl font-bold text-white">{t("settings.accounts")}</h2>
+                                        <Button onClick={() => openAccountModal()} className="bg-white text-black hover:bg-zinc-200 rounded-full px-5 py-2 text-sm font-medium h-auto">
+                                            <Plus size={16} className="mr-2" />
                                             {t("settings.add_account")}
                                         </Button>
                                     </div>
-                                    <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                                    <div className="space-y-2">
                                         {accounts.map((acc) => (
-                                            <div key={acc.id} className="w-full bg-white/10 border border-white/10 rounded-xl p-4 flex justify-between items-center transition-transform hover:scale-[1.02] backdrop-blur-sm group">
+                                            <div key={acc.id} className="w-full bg-white/5 hover:bg-white/10 border-b border-white/10 p-4 flex justify-between items-center transition-colors rounded-lg group">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="p-3 bg-white/10 rounded-full text-white">
-                                                        {acc.type === 'card' ? <CreditCard size={20} /> : <Banknote size={20} />}
+                                                    <div className="p-2 bg-white/10 rounded-lg text-white">
+                                                        {acc.type === 'card' ? <CreditCard size={18} /> : <Banknote size={18} />}
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-lg text-white">{acc.name}</div>
-                                                        <div className="text-sm text-white/70 font-mono">{formatAccountBalance(acc)}</div>
+                                                        <div className="font-medium text-base text-white">{acc.name}</div>
+                                                        <div className="text-xs text-white/60 font-mono mt-0.5">{formatAccountBalance(acc)}</div>
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Button variant="ghost" size="icon" onClick={() => openAccountModal(acc)} className="text-white/50 hover:text-white hover:bg-white/10 rounded-full h-9 w-9">
-                                                        <Edit2 size={16} />
+                                                    <Button variant="ghost" size="icon" onClick={() => openAccountModal(acc)} className="text-white/60 hover:text-white hover:bg-white/10 rounded-full h-8 w-8">
+                                                        <Edit2 size={14} />
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" className="text-white/50 hover:text-red-400 hover:bg-white/10 rounded-full h-9 w-9" onClick={() => handleDeleteAccount(acc.id)}>
-                                                        <Trash2 size={16} />
+                                                    <Button variant="ghost" size="icon" className="text-white/60 hover:text-red-400 hover:bg-white/10 rounded-full h-8 w-8" onClick={() => handleDeleteAccount(acc.id)}>
+                                                        <Trash2 size={14} />
                                                     </Button>
                                                 </div>
                                             </div>
@@ -236,28 +241,28 @@ export default function SettingsPage() {
                             )}
 
                             {activeTab === "categories" && (
-                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full h-full flex flex-col gap-8">
+                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-10">
                                     {/* Income Categories */}
                                     <div>
-                                        <div className="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                                        <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                                             <h3 className="text-xl font-semibold text-white">{t("settings.income_categories")}</h3>
-                                            <Button size="sm" variant="ghost" onClick={() => openCategoryModal("income")} className="text-white hover:bg-white/20 rounded-full">
-                                                <Plus size={16} className="mr-1" />
+                                            <Button size="sm" variant="ghost" onClick={() => openCategoryModal("income")} className="text-white/70 hover:text-white hover:bg-white/10 rounded-full text-xs">
+                                                <Plus size={14} className="mr-1" />
                                                 {t("common.add")}
                                             </Button>
                                         </div>
-                                        <div className="grid grid-cols-1 gap-3 max-h-[20vh] overflow-y-auto pr-2 custom-scrollbar">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {incomeCategories.map((cat) => (
-                                                <div key={cat.id} className="flex justify-between items-center p-3 border border-white/10 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-colors group">
-                                                    <span className="font-medium text-white">{cat.name}</span>
+                                                <div key={cat.id} className="flex justify-between items-center p-3 border-b border-white/10 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group">
+                                                    <span className="font-medium text-white text-sm">{cat.name}</span>
                                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         {cat.userId && (
                                                             <>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/10 rounded-full" onClick={() => openCategoryModal("income", cat)}>
-                                                                    <Edit2 size={14} />
+                                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/60 hover:text-white hover:bg-white/10 rounded-full" onClick={() => openCategoryModal("income", cat)}>
+                                                                    <Edit2 size={12} />
                                                                 </Button>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-red-400 hover:bg-white/10 rounded-full" onClick={() => handleDeleteCategory(cat.id)}>
-                                                                    <Trash2 size={14} />
+                                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/60 hover:text-red-400 hover:bg-white/10 rounded-full" onClick={() => handleDeleteCategory(cat.id)}>
+                                                                    <Trash2 size={12} />
                                                                 </Button>
                                                             </>
                                                         )}
@@ -269,28 +274,28 @@ export default function SettingsPage() {
 
                                     {/* Expense Categories */}
                                     <div>
-                                        <div className="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                                        <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                                             <h3 className="text-xl font-semibold text-white">{t("settings.expense_categories")}</h3>
-                                            <Button size="sm" variant="ghost" onClick={() => openCategoryModal("expense")} className="text-white hover:bg-white/20 rounded-full">
-                                                <Plus size={16} className="mr-1" />
+                                            <Button size="sm" variant="ghost" onClick={() => openCategoryModal("expense")} className="text-white/70 hover:text-white hover:bg-white/10 rounded-full text-xs">
+                                                <Plus size={14} className="mr-1" />
                                                 {t("common.add")}
                                             </Button>
                                         </div>
-                                        <div className="grid grid-cols-1 gap-3 max-h-[25vh] overflow-y-auto pr-2 custom-scrollbar">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {expenseCategories.map((cat) => (
-                                                <div key={cat.id} className="flex justify-between items-center p-3 border border-white/10 rounded-xl bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-colors group">
+                                                <div key={cat.id} className="flex justify-between items-center p-3 border-b border-white/10 bg-white/5 hover:bg-white/10 rounded-lg transition-colors group">
                                                     <div>
-                                                        <div className="font-medium text-white">{cat.name}</div>
+                                                        <div className="font-medium text-white text-sm">{cat.name}</div>
                                                         {cat.budgetLimit && <div className="text-xs text-white/60 mt-0.5">{t("budget.limit")}: {cat.budgetLimit}</div>}
                                                     </div>
                                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         {cat.userId && (
                                                             <>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-white hover:bg-white/10 rounded-full" onClick={() => openCategoryModal("expense", cat)}>
-                                                                    <Edit2 size={14} />
+                                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/60 hover:text-white hover:bg-white/10 rounded-full" onClick={() => openCategoryModal("expense", cat)}>
+                                                                    <Edit2 size={12} />
                                                                 </Button>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-white/50 hover:text-red-400 hover:bg-white/10 rounded-full" onClick={() => handleDeleteCategory(cat.id)}>
-                                                                    <Trash2 size={14} />
+                                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/60 hover:text-red-400 hover:bg-white/10 rounded-full" onClick={() => handleDeleteCategory(cat.id)}>
+                                                                    <Trash2 size={12} />
                                                                 </Button>
                                                             </>
                                                         )}
@@ -303,45 +308,45 @@ export default function SettingsPage() {
                             )}
 
                             {activeTab === "appearance" && (
-                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
-                                    <h2 className="text-3xl font-bold mb-8 text-white text-center">Appearance</h2>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between p-5 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm">
-                                            <div className="flex items-center gap-4 text-white">
+                                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <h2 className="text-2xl font-bold mb-6 text-white">Appearance</h2>
+                                    <div className="space-y-4 max-w-xl">
+                                        <div className="flex items-center justify-between p-5 border-b border-white/10 bg-white/5 rounded-lg">
+                                            <div className="flex items-center gap-3 text-white">
                                                 {theme === "light" ? <Sun size={20} /> : <Moon size={20} />}
-                                                <span className="font-medium text-lg">Theme</span>
+                                                <span className="font-medium text-sm">Theme</span>
                                             </div>
-                                            <div className="flex bg-white/10 rounded-full p-1">
+                                            <div className="flex bg-black/20 rounded-full p-1">
                                                 <button
                                                     onClick={() => setTheme("light")}
-                                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${theme === "light" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/10"}`}
+                                                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${theme === "light" ? "bg-white text-black shadow-sm" : "text-white/60 hover:text-white"}`}
                                                 >
                                                     Light
                                                 </button>
                                                 <button
                                                     onClick={() => setTheme("dark")}
-                                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${theme === "dark" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/10"}`}
+                                                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${theme === "dark" ? "bg-white text-black shadow-sm" : "text-white/60 hover:text-white"}`}
                                                 >
                                                     Dark
                                                 </button>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between p-5 border border-white/10 rounded-xl bg-white/5 backdrop-blur-sm">
-                                            <div className="flex items-center gap-4 text-white">
+                                        <div className="flex items-center justify-between p-5 border-b border-white/10 bg-white/5 rounded-lg">
+                                            <div className="flex items-center gap-3 text-white">
                                                 <Globe size={20} />
-                                                <span className="font-medium text-lg">Language</span>
+                                                <span className="font-medium text-sm">Language</span>
                                             </div>
-                                            <div className="flex bg-white/10 rounded-full p-1">
+                                            <div className="flex bg-black/20 rounded-full p-1">
                                                 <button
                                                     onClick={() => setLanguage("en")}
-                                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${language === "en" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/10"}`}
+                                                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${language === "en" ? "bg-white text-black shadow-sm" : "text-white/60 hover:text-white"}`}
                                                 >
                                                     EN
                                                 </button>
                                                 <button
                                                     onClick={() => setLanguage("ukr")}
-                                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${language === "ukr" ? "bg-white text-black shadow-lg" : "text-white hover:bg-white/10"}`}
+                                                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${language === "ukr" ? "bg-white text-black shadow-sm" : "text-white/60 hover:text-white"}`}
                                                 >
                                                     UKR
                                                 </button>

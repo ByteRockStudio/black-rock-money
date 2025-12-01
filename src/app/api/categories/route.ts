@@ -77,8 +77,15 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+    console.log("API: DELETE /api/categories - Start");
+
     const session = await getServerSession(authOptions);
-    if (!session || !session.user?.email) {
+    console.log("API: Session object:", JSON.stringify(session, null, 2));
+
+    // Fix: Check for session.user instead of session.user.email
+    // The logs show that the session has an ID but no email, which is valid for this app's auth strategy.
+    if (!session || !session.user) {
+        console.log("API: Unauthorized - No session or user");
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -91,16 +98,17 @@ export async function DELETE(req: Request) {
         return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
-    const category = await prisma.category.findUnique({
-        where: { id },
+    // Strict check: Find category that matches BOTH id AND userId
+    const category = await prisma.category.findFirst({
+        where: {
+            id,
+            userId,
+        },
     });
 
     if (!category) {
-        return NextResponse.json({ error: "Category not found" }, { status: 404 });
-    }
-
-    if (category.userId !== userId) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        // If not found, it either doesn't exist or belongs to another user
+        return NextResponse.json({ error: "Category not found or access denied" }, { status: 404 });
     }
 
     // Check for existing transactions

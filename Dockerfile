@@ -1,9 +1,12 @@
 FROM node:18-alpine AS base
 
+# Install dependencies needed for all stages
+# libc6-compat is needed for some npm packages
+# openssl is needed for Prisma
+RUN apk add --no-cache libc6-compat openssl
+
 # Install dependencies only when needed
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -39,7 +42,7 @@ ENV NODE_ENV production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-RUN apk add --no-cache openssl
+# openssl is already installed in base
 
 COPY --from=builder /app/public ./public
 

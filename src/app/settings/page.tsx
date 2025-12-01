@@ -13,6 +13,7 @@ import { AccountModal } from "@/components/AccountModal";
 import { CategoryModal } from "@/components/CategoryModal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { Moon, Sun } from "lucide-react";
+import { toast } from "sonner";
 
 interface Account {
     id: string;
@@ -111,11 +112,24 @@ export default function SettingsPage() {
             message: t("settings.confirm_delete_account"),
             onConfirm: async () => {
                 const res = await fetch(`/api/accounts?id=${id}`, { method: "DELETE" });
-                if (res.ok) fetchAccounts();
-                else alert(t("settings.delete_account_failed"));
+
+                if (res.status === 401) {
+                    toast.error("Unauthorized session. Please login again.");
+                    router.push("/login");
+                    return;
+                }
+
+                if (res.ok) {
+                    toast.success("Account deleted successfully");
+                    fetchAccounts();
+                } else {
+                    toast.error(t("settings.delete_account_failed"));
+                }
             }
         });
     };
+
+
 
     const handleDeleteCategory = (id: string) => {
         setConfirmation({
@@ -123,12 +137,25 @@ export default function SettingsPage() {
             title: t("settings.delete_category_title") || "Delete Category",
             message: t("settings.confirm_delete_category"),
             onConfirm: async () => {
-                const res = await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
+                const res = await fetch(`/api/categories?id=${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (res.status === 401) {
+                    toast.error("Unauthorized session. Please login again.");
+                    router.push("/login");
+                    return;
+                }
+
                 if (res.ok) {
+                    toast.success("Category deleted successfully");
                     fetchCategories();
                 } else {
                     const data = await res.json();
-                    alert(data.error || t("settings.delete_category_failed"));
+                    toast.error(data.error || t("settings.delete_category_failed"));
                 }
             }
         });

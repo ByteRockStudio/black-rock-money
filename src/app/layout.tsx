@@ -18,6 +18,8 @@ export const metadata: Metadata = {
 import { Providers } from "@/components/Providers";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -29,6 +31,7 @@ export default function RootLayout({
                 <Providers>
                     <SettingsProvider>
                         {children}
+                        <Toaster position="top-center" richColors />
                     </SettingsProvider>
                 </Providers>
             </body>

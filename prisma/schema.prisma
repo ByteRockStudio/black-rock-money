@@ -53,6 +53,8 @@ model Transaction {
   type        String   // "expense", "income"
   comment     String?
   isRecurring Boolean  @default(false)
+  recurringExpenseId String?
+  recurringExpense RecurringExpense? @relation(fields: [recurringExpenseId], references: [id])
 }
 
 model RecurringRule {
@@ -63,4 +65,24 @@ model RecurringRule {
   category    Category @relation(fields: [categoryId], references: [id])
   accountId   String
   account     Account  @relation(fields: [accountId], references: [id])
+}
+
+model RecurringExpense {
+  id                 String    @id @default(uuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+  name               String
+  amount             Float
+  accountId          String
+  account            Account   @relation(fields: [accountId], references: [id])
+  categoryId         String
+  category           Category  @relation(fields: [categoryId], references: [id])
+  recurrenceType     String    // DAILY, WEEKLY, MONTHLY, YEARLY
+  recurrenceInterval Int
+  startDate          DateTime
+  lastAppliedDate    DateTime?
+  isActive           Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  transactions       Transaction[]
 }

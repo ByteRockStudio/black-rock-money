@@ -9,15 +9,16 @@ import { useSettings } from "@/contexts/SettingsContext";
 
 interface AddExpenseModalProps {
     onClose: () => void;
+    initialData?: any;
 }
 
-export function AddExpenseModal({ onClose }: AddExpenseModalProps) {
+export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) {
     const { t } = useSettings();
-    const [amount, setAmount] = useState("");
-    const [currency, setCurrency] = useState("UAH");
-    const [accountId, setAccountId] = useState("");
-    const [categoryId, setCategoryId] = useState("");
-    const [comment, setComment] = useState("");
+    const [amount, setAmount] = useState(initialData?.amount?.toString() || "");
+    const [currency, setCurrency] = useState(initialData?.currency || "UAH");
+    const [accountId, setAccountId] = useState(initialData?.accountId || "");
+    const [categoryId, setCategoryId] = useState(initialData?.categoryId || "");
+    const [comment, setComment] = useState(initialData?.comment || "");
     const [accounts, setAccounts] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
 
@@ -26,37 +27,43 @@ export function AddExpenseModal({ onClose }: AddExpenseModalProps) {
             .then((res) => res.json())
             .then((data) => {
                 setAccounts(data);
-                if (data.length > 0) setAccountId(data[0].id);
+                if (!initialData && data.length > 0) setAccountId(data[0].id);
             });
 
         fetch("/api/categories")
             .then((res) => res.json())
             .then((data) => {
                 setCategories(data);
-                if (data.length > 0) setCategoryId(data[0].id);
+                if (!initialData && data.length > 0) setCategoryId(data[0].id);
             });
-    }, []);
+    }, [initialData]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await fetch("/api/transactions", {
-            method: "POST",
+
+        const url = initialData ? "/api/transactions" : "/api/transactions";
+        const method = initialData ? "PUT" : "POST";
+        const body = {
+            id: initialData?.id, // Only for PUT
+            amount,
+            currency,
+            accountId,
+            categoryId,
+            comment,
+            type: initialData?.type || "expense", // Preserve type if editing, default to expense
+        };
+
+        await fetch(url, {
+            method,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                amount,
-                currency,
-                accountId,
-                categoryId,
-                comment,
-                type: "expense",
-            }),
+            body: JSON.stringify(body),
         });
         onClose();
     };
 
     return (
         <div className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">{t("add.title")}</h2>
+            <h2 className="text-2xl font-bold mb-4">{initialData ? "Edit Transaction" : t("add.title")}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">

@@ -77,12 +77,14 @@ export default function Home() {
                                 onClick={() => setActiveModule("income")}
                                 className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
                             />
-                            <CircleButton
-                                icon={<List size={32} />}
-                                label={t("nav.view")}
-                                onClick={() => setActiveModule("view")}
-                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                            />
+                            <Link href="/transactions">
+                                <CircleButton
+                                    icon={<List size={32} />}
+                                    label={t("nav.view")}
+                                    onClick={() => { }}
+                                    className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                                />
+                            </Link>
                             <CircleButton
                                 icon={<PieChart size={32} />}
                                 label={t("nav.budget")}

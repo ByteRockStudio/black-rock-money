@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { AddExpenseModal } from "@/components/AddExpenseModal";
 
 // Placeholder for Analytics Widgets (will implement in next step)
+// Analytics Panel with new styling
 function AnalyticsPanel({ transactions }: { transactions: any[] }) {
     // Calculate Monthly Summary
     const totalIncome = transactions
@@ -40,24 +41,24 @@ function AnalyticsPanel({ transactions }: { transactions: any[] }) {
         .slice(0, 5); // Top 5
 
     return (
-        <div className="h-full w-full bg-black/60 backdrop-blur-md p-8 border-l border-white/10 text-white flex flex-col gap-8 overflow-y-auto">
+        <div className="h-full w-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-8 flex flex-col gap-8 overflow-y-auto">
 
             {/* Widget 1: Monthly Summary */}
             <div className="space-y-4">
-                <h2 className="text-xl font-bold border-b border-white/10 pb-2">Monthly Summary</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2">Monthly Summary</h2>
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 p-4 rounded-lg">
-                        <div className="text-sm text-white/50">Income</div>
-                        <div className="text-xl font-bold text-green-400">+{totalIncome.toLocaleString()}</div>
+                    <div className="bg-white dark:bg-white/5 p-4 rounded-lg border border-gray-100 dark:border-white/5">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Income</div>
+                        <div className="text-lg font-bold text-green-600 dark:text-green-400">+{totalIncome.toLocaleString()}</div>
                     </div>
-                    <div className="bg-white/5 p-4 rounded-lg">
-                        <div className="text-sm text-white/50">Expense</div>
-                        <div className="text-xl font-bold text-white">-{totalExpense.toLocaleString()}</div>
+                    <div className="bg-white dark:bg-white/5 p-4 rounded-lg border border-gray-100 dark:border-white/5">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Expense</div>
+                        <div className="text-lg font-bold text-gray-900 dark:text-white">-{totalExpense.toLocaleString()}</div>
                     </div>
                 </div>
-                <div className="bg-white/10 p-4 rounded-lg flex justify-between items-center">
-                    <div className="text-sm text-white/70">Net Result</div>
-                    <div className={`text-2xl font-bold ${netResult >= 0 ? "text-green-400" : "text-red-400"}`}>
+                <div className="bg-white dark:bg-white/5 p-4 rounded-lg border border-gray-100 dark:border-white/5 flex justify-between items-center">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Net Result</div>
+                    <div className={`text-xl font-bold ${netResult >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500"}`}>
                         {netResult >= 0 ? "+" : ""}{netResult.toLocaleString()}
                     </div>
                 </div>
@@ -65,9 +66,9 @@ function AnalyticsPanel({ transactions }: { transactions: any[] }) {
 
             {/* Widget 2: Top Spenders */}
             <div className="space-y-4 flex-1">
-                <h2 className="text-xl font-bold border-b border-white/10 pb-2">Top Spenders</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2">Top Spenders</h2>
                 {sortedCategories.length === 0 ? (
-                    <div className="text-white/30 text-sm italic">No expenses yet.</div>
+                    <div className="text-gray-400 text-sm italic">No expenses yet.</div>
                 ) : (
                     <div className="space-y-6">
                         {sortedCategories.map(([name, amount]) => {
@@ -75,12 +76,12 @@ function AnalyticsPanel({ transactions }: { transactions: any[] }) {
                             return (
                                 <div key={name} className="space-y-1">
                                     <div className="flex justify-between text-sm">
-                                        <span className="font-medium">{name}</span>
-                                        <span className="text-white/70">{amount.toLocaleString()}</span>
+                                        <span className="font-medium text-gray-700 dark:text-gray-300">{name}</span>
+                                        <span className="text-gray-500 dark:text-gray-400">{amount.toLocaleString()}</span>
                                     </div>
-                                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                    <div className="h-1.5 w-full bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
                                         <div
-                                            className="h-full bg-white/80 rounded-full"
+                                            className="h-full bg-gray-800 dark:bg-white/80 rounded-full"
                                             style={{ width: `${percentage}%` }}
                                         />
                                     </div>
@@ -184,51 +185,45 @@ export default function TransactionsPage() {
     if (status === "loading") return null;
 
     return (
-        <div className="h-screen w-full flex overflow-hidden bg-background font-sans">
-            {/* Global Background */}
-            <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center bg-no-repeat z-0" />
-            <div className="absolute inset-0 bg-black/50 z-0" />
+        <div className="flex h-screen w-full overflow-hidden bg-[#efede7] dark:bg-black font-sans">
 
-            {/* Content Wrapper */}
-            <div className="relative z-10 flex w-full h-full">
+            {/* Left Panel: Transaction Table (70%) */}
+            <div className="w-[70%] h-full flex flex-col bg-white dark:bg-black px-8">
 
-                {/* Left Panel: Transaction Feed (65%) */}
-                <div className="w-[65%] h-full flex flex-col bg-black/20 backdrop-blur-sm">
-
-                    {/* Sticky Header */}
-                    <div className="sticky top-0 z-20 bg-black/40 backdrop-blur-md border-b border-white/10 p-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <Link href="/" className="text-white/70 hover:text-white flex items-center gap-2 transition">
+                {/* Sticky Header */}
+                <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-gray-100 dark:border-white/10 py-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                            <Link href="/" className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
                                 <ArrowLeft size={20} />
-                                Back to Dashboard
                             </Link>
-                            <h1 className="text-2xl font-bold text-white">Transactions</h1>
-                            <div className="w-[100px]"></div> {/* Spacer for alignment */}
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Transactions</h1>
                         </div>
 
-                        <div className="flex items-center justify-between">
+                        {/* Filters */}
+                        <div className="flex items-center gap-4">
                             {/* Date Selector */}
-                            <div className="flex items-center gap-4 bg-white/10 rounded-full px-4 py-2">
-                                <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="text-white/70 hover:text-white">
-                                    <ChevronLeft size={20} />
+                            <div className="flex items-center gap-2 bg-gray-100 dark:bg-white/10 rounded-md px-2 py-1">
+                                <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="p-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                                    <ChevronLeft size={16} />
                                 </button>
-                                <span className="text-white font-medium min-w-[140px] text-center">
+                                <span className="text-sm font-medium text-gray-900 dark:text-white min-w-[100px] text-center">
                                     {format(currentDate, "MMMM yyyy")}
                                 </span>
-                                <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="text-white/70 hover:text-white">
-                                    <ChevronRight size={20} />
+                                <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="p-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                                    <ChevronRight size={16} />
                                 </button>
                             </div>
 
-                            {/* Type Filter Tabs */}
-                            <div className="flex bg-white/10 rounded-lg p-1">
+                            {/* Type Filter */}
+                            <div className="flex bg-gray-100 dark:bg-white/10 rounded-md p-1">
                                 {(["all", "expense", "income"] as const).map((type) => (
                                     <button
                                         key={type}
                                         onClick={() => setFilterType(type)}
-                                        className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${filterType === type
-                                                ? "bg-white text-black shadow-sm"
-                                                : "text-white/70 hover:text-white hover:bg-white/5"
+                                        className={`px-3 py-1 rounded text-xs font-medium transition-all ${filterType === type
+                                                ? "bg-white dark:bg-black text-black dark:text-white shadow-sm"
+                                                : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                             }`}
                                     >
                                         {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -238,16 +233,32 @@ export default function TransactionsPage() {
                         </div>
                     </div>
 
-                    {/* Transaction List */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar">
-                        {loading ? (
-                            <div className="flex items-center justify-center h-40 text-white/50">Loading...</div>
-                        ) : transactions.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-64 text-white/50">
-                                <p>No transactions found for this period.</p>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col pb-20">
+                    {/* Table Header */}
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-white/10">
+                                <th className="px-4 py-2 font-medium w-[120px]">Date</th>
+                                <th className="px-4 py-2 font-medium">Category</th>
+                                <th className="px-4 py-2 font-medium">Account</th>
+                                <th className="px-4 py-2 font-medium">Comment</th>
+                                <th className="px-4 py-2 font-medium text-right">Amount</th>
+                                <th className="px-4 py-2 font-medium text-right w-[80px]"></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                {/* Transaction List (Table Body) */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    {loading ? (
+                        <div className="flex items-center justify-center h-40 text-gray-400">Loading...</div>
+                    ) : transactions.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+                            <p>No transactions found.</p>
+                        </div>
+                    ) : (
+                        <table className="w-full text-left border-collapse">
+                            <tbody>
                                 {transactions.map((tx) => (
                                     <TransactionRow
                                         key={tx.id}
@@ -256,24 +267,24 @@ export default function TransactionsPage() {
                                         onDelete={handleDelete}
                                     />
                                 ))}
-                            </div>
-                        )}
-                    </div>
+                            </tbody>
+                        </table>
+                    )}
                 </div>
+            </div>
 
-                {/* Right Panel: Analytics (35%) */}
-                <div className="w-[35%] h-full hidden md:block">
-                    <AnalyticsPanel transactions={transactions} />
-                </div>
+            {/* Right Panel: Analytics (30%) */}
+            <div className="w-[30%] h-full hidden md:block">
+                <AnalyticsPanel transactions={transactions} />
             </div>
 
             {/* Modal for Editing */}
             {editingTransaction && (
-                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-card border text-card-foreground rounded-lg shadow-lg w-full max-w-md relative p-6">
+                <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-lg shadow-xl w-full max-w-md relative p-6">
                         <button
                             onClick={handleCloseEdit}
-                            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         >
                             {t("common.close")}
                         </button>

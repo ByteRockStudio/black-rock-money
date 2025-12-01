@@ -13,6 +13,11 @@ const hardRock = localFont({
 export const metadata: Metadata = {
     title: "Rock Money",
     description: "Minimalist Expense Tracker",
+    icons: {
+        icon: "/favicon/favicon.ico",
+        apple: "/favicon/apple-touch-icon.png",
+    },
+    manifest: "/favicon/site.webmanifest",
 };
 
 import { Providers } from "@/components/Providers";

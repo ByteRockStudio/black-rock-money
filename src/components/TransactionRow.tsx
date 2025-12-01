@@ -33,63 +33,58 @@ export function TransactionRow({ transaction, onEdit, onDelete }: TransactionRow
     const isRecurring = transaction.isRecurring;
 
     return (
-        <div
-            className={`w-full bg-white/5 border-b border-white/10 p-4 flex justify-between items-center hover:bg-white/10 transition group
-            ${isRecurring ? "border-l-4 border-l-purple-500" : ""}
-            `}
-        >
-            {/* Left: Date & Category */}
-            <div className="flex items-center gap-4">
-                <div className="flex flex-col">
-                    <span className="text-white font-medium text-lg">{transaction.category.name}</span>
-                    <span className="text-white/50 text-sm">
-                        {format(new Date(transaction.date), "dd MMM yyyy")} • {transaction.account.name}
-                    </span>
-                </div>
-            </div>
+        <tr className="h-12 border-b border-gray-100 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group text-sm">
+            {/* Date */}
+            <td className="px-4 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                {format(new Date(transaction.date), "dd MMM yyyy")}
+            </td>
 
-            {/* Middle: Comment (Optional) */}
-            {transaction.comment && (
-                <div className="hidden md:block text-white/40 text-sm italic truncate max-w-[200px]">
-                    {transaction.comment}
-                </div>
-            )}
-
-            {/* Right: Amount & Actions */}
-            <div className="flex items-center gap-6">
-                <div className="flex flex-col items-end">
-                    <span
-                        className={`text-xl font-bold ${isIncome ? "text-green-400" : "text-white"
-                            }`}
-                    >
-                        {isIncome ? "+" : "-"}{transaction.amount} {transaction.currency}
-                    </span>
+            {/* Category */}
+            <td className="px-4 font-medium text-gray-900 dark:text-gray-100">
+                <div className="flex items-center gap-2">
+                    {transaction.category.name}
                     {isRecurring && (
-                        <span className="text-purple-400 text-xs flex items-center gap-1">
-                            <Repeat size={12} /> Recurring
-                        </span>
+                        <Repeat size={12} className="text-purple-500" />
                     )}
                 </div>
+            </td>
 
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Account */}
+            <td className="px-4 text-gray-500 dark:text-gray-400">
+                {transaction.account.name}
+            </td>
+
+            {/* Comment */}
+            <td className="px-4 text-gray-400 dark:text-gray-500 italic truncate max-w-[200px]">
+                {transaction.comment}
+            </td>
+
+            {/* Amount */}
+            <td className={`px-4 text-right font-medium ${isIncome ? "text-green-600 dark:text-green-400" : "text-gray-900 dark:text-gray-100"}`}>
+                {isIncome ? "+" : "-"}{transaction.amount} {transaction.currency}
+            </td>
+
+            {/* Actions */}
+            <td className="px-4 text-right">
+                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onEdit(transaction)}
-                        className="h-8 w-8 text-white/70 hover:text-white hover:bg-white/20"
+                        className="h-8 w-8 text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     >
-                        <Edit2 size={16} />
+                        <Edit2 size={14} />
                     </Button>
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onDelete(transaction.id)}
-                        className="h-8 w-8 text-red-400/70 hover:text-red-400 hover:bg-red-400/20"
+                        className="h-8 w-8 text-gray-400 hover:text-red-500"
                     >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} />
                     </Button>
                 </div>
-            </div>
-        </div>
+            </td>
+        </tr>
     );
 }

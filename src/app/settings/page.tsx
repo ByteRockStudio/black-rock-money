@@ -124,8 +124,12 @@ export default function SettingsPage() {
             message: t("settings.confirm_delete_category"),
             onConfirm: async () => {
                 const res = await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
-                if (res.ok) fetchCategories();
-                else alert(t("settings.delete_category_failed"));
+                if (res.ok) {
+                    fetchCategories();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || t("settings.delete_category_failed"));
+                }
             }
         });
     };

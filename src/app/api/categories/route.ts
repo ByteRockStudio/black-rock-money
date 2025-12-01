@@ -103,6 +103,18 @@ export async function DELETE(req: Request) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Check for existing transactions
+    const transactionCount = await prisma.transaction.count({
+        where: { categoryId: id },
+    });
+
+    if (transactionCount > 0) {
+        return NextResponse.json(
+            { error: "Cannot delete category with existing transactions. Please delete or reassign them first." },
+            { status: 409 }
+        );
+    }
+
     try {
         await prisma.category.delete({
             where: { id },

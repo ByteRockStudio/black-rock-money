@@ -341,192 +341,191 @@ export default function RecurringPage() {
             </div>
 
             {/* Right Panel: Summary or Form (30%) */}
-            <div className="w-[30%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-8 overflow-y-auto">
+            <div className="w-[30%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto">
                 {viewMode === 'summary' ? (
-                    /* Summary Dashboard */
-                    <div className="flex flex-col items-center justify-center h-full space-y-8">
-                        <div className="text-center space-y-2">
-                            <h2 className="text-sm uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Monthly Commitment</h2>
-                            <div className="text-5xl font-bold text-gray-900 dark:text-white">
-                                {totalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                            </div>
-                            <p className="text-sm text-gray-400">UAH / month</p>
-                        </div>
-
-                        <div className="w-full space-y-4 border-t border-gray-200 dark:border-white/10 pt-8">
-                            <div className="flex justify-between items-center">
+                    /* Compact Summary Dashboard */
+                    <div className="flex flex-col items-center justify-center h-full space-y-6">
+                        {/* Compact Status Card */}
+                        <div className="w-full space-y-3 bg-white/5 dark:bg-white/5 rounded-lg p-4 border border-white/10">
+                            <div className="flex justify-between items-center pb-3 border-b border-white/10">
                                 <div>
-                                    <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Paid This Month</p>
-                                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{paidExpenses.length}</p>
+                                    <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">Paid</p>
+                                    <p className="text-xl font-light text-gray-900 dark:text-white">{paidExpenses.length}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-xl font-medium text-gray-900 dark:text-white">
-                                        {paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                    </p>
-                                    <p className="text-xs text-gray-400">UAH</p>
+                                    <p className="text-sm text-gray-400">{paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} UAH</p>
                                 </div>
                             </div>
 
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Pending</p>
-                                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{pendingExpenses.length}</p>
+                                    <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">Pending</p>
+                                    <p className="text-xl font-light text-gray-900 dark:text-white">{pendingExpenses.length}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-xl font-medium text-gray-900 dark:text-white">
-                                        {pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                    </p>
-                                    <p className="text-xs text-gray-400">UAH</p>
+                                    <p className="text-sm text-gray-400">{pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} UAH</p>
                                 </div>
                             </div>
                         </div>
 
-                        <Button
+                        {/* Compact Add Button */}
+                        <button
                             onClick={() => setViewMode('form')}
-                            className="w-full mt-8"
-                            size="lg"
+                            className="w-full h-10 text-sm font-bold bg-white dark:bg-white text-black rounded-md hover:bg-gray-200 dark:hover:bg-gray-200 transition-colors"
                         >
                             Add New Recurring Expense
-                        </Button>
+                        </button>
                     </div>
                 ) : (
-                    /* Form View */
+                    /* Compact Form View with Ghost Inputs */
                     <div>
-                        <div className="flex items-center gap-2 mb-6">
+                        <div className="flex items-center gap-2 mb-8">
                             <button
                                 onClick={resetForm}
                                 className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
                             >
-                                <ArrowLeft size={20} />
+                                <ArrowLeft size={16} />
                             </button>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                                {editingId ? "Edit Recurring Expense" : "New Recurring Expense"}
+                            <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                {editingId ? "Edit" : "New"}
                             </h2>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-                                <Input
+                            {/* Name - Full Width */}
+                            <div>
+                                <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Name</label>
+                                <input
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     placeholder="e.g. Netflix Subscription"
                                     required
-                                    className="bg-white dark:bg-black"
+                                    className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none placeholder:text-gray-600"
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
-                                <Input
-                                    name="amount"
-                                    type="number"
-                                    step="0.01"
-                                    value={formData.amount}
-                                    onChange={handleInputChange}
-                                    placeholder="0.00"
-                                    required
-                                    className="bg-white dark:bg-black"
-                                />
+                            {/* Amount + Account - Side by Side */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Amount</label>
+                                    <input
+                                        name="amount"
+                                        type="number"
+                                        step="0.01"
+                                        value={formData.amount}
+                                        onChange={handleInputChange}
+                                        placeholder="0.00"
+                                        required
+                                        className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none placeholder:text-gray-600"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Account</label>
+                                    <select
+                                        name="accountId"
+                                        value={formData.accountId}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none"
+                                    >
+                                        {accounts.map((acc) => (
+                                            <option key={acc.id} value={acc.id} className="bg-black">
+                                                {acc.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Account</label>
-                                <select
-                                    name="accountId"
-                                    value={formData.accountId}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="flex h-10 w-full rounded-md border border-input bg-white dark:bg-black px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                >
-                                    {accounts.map((acc) => (
-                                        <option key={acc.id} value={acc.id}>
-                                            {acc.name} ({acc.currency})
-                                        </option>
-                                    ))}
-                                </select>
+                            {/* Category + Start Date - Side by Side */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Category</label>
+                                    <select
+                                        name="categoryId"
+                                        value={formData.categoryId}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none"
+                                    >
+                                        {categories.map((cat) => (
+                                            <option key={cat.id} value={cat.id} className="bg-black">
+                                                {cat.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Start Date</label>
+                                    <input
+                                        name="startDate"
+                                        type="date"
+                                        value={formData.startDate}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none"
+                                    />
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                                <select
-                                    name="categoryId"
-                                    value={formData.categoryId}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="flex h-10 w-full rounded-md border border-input bg-white dark:bg-black px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                                >
-                                    {categories.map((cat) => (
-                                        <option key={cat.id} value={cat.id}>
-                                            {cat.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="space-y-4 border-t border-gray-200 dark:border-white/10 pt-4">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Recurrence</label>
-
-                                <div className="grid grid-cols-2 gap-2">
+                            {/* Recurrence - Segmented Control */}
+                            <div>
+                                <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-2 block">Recurrence</label>
+                                <div className="flex gap-2 p-1 bg-white/5 dark:bg-white/5 rounded-lg">
                                     {["DAILY", "WEEKLY", "MONTHLY", "YEARLY"].map((type) => (
                                         <button
                                             key={type}
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, recurrenceType: type }))}
-                                            className={`px-3 py-2 text-xs font-medium rounded-md border transition-all ${formData.recurrenceType === type
-                                                ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
-                                                : "bg-white dark:bg-black text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-gray-400"
+                                            className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-all ${formData.recurrenceType === type
+                                                    ? "bg-white text-black"
+                                                    : "text-gray-400 hover:text-white"
                                                 }`}
                                         >
-                                            {type}
+                                            {type.charAt(0)}
                                         </button>
                                     ))}
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm text-gray-500">Every</span>
-                                    <Input
+                                <div className="flex items-center gap-2 mt-3">
+                                    <span className="text-xs text-gray-500">Every</span>
+                                    <input
                                         name="recurrenceInterval"
                                         type="number"
                                         min="1"
                                         value={formData.recurrenceInterval}
                                         onChange={handleInputChange}
-                                        className="w-20 bg-white dark:bg-black"
+                                        className="w-16 bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-1 focus:border-white focus:outline-none text-center"
                                     />
-                                    <span className="text-sm text-gray-500">
+                                    <span className="text-xs text-gray-500">
                                         {formData.recurrenceType.toLowerCase().replace("ly", "")}(s)
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
-                                <Input
-                                    name="startDate"
-                                    type="date"
-                                    value={formData.startDate}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="bg-white dark:bg-black"
-                                />
-                            </div>
-
-                            <div className="pt-4 flex gap-2">
+                            {/* Submit Buttons */}
+                            <div className="pt-6 flex gap-2">
                                 {editingId && (
-                                    <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
+                                    <button
+                                        type="button"
+                                        onClick={resetForm}
+                                        className="flex-1 h-10 text-sm font-medium border border-white/20 text-white rounded-md hover:bg-white/5 transition-colors"
+                                    >
                                         Cancel
-                                    </Button>
+                                    </button>
                                 )}
-                                <Button type="submit" className="flex-1">
+                                <button
+                                    type="submit"
+                                    className="flex-1 h-10 text-sm font-bold bg-white text-black rounded-md hover:bg-gray-200 transition-colors"
+                                >
                                     {editingId ? "Update" : "Create"}
-                                </Button>
+                                </button>
                             </div>
                         </form>
                     </div>
                 )}
             </div>
-
             <ConfirmationModal
                 isOpen={confirmation.isOpen}
                 onClose={() => setConfirmation({ ...confirmation, isOpen: false })}

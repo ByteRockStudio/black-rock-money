@@ -1,8 +1,9 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { Moon, Sun, Globe } from "lucide-react";
+import { Moon, Sun, Globe, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SummaryData {
@@ -77,15 +78,12 @@ export function Header() {
                 </Button>
                 <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                        fetch('/api/auth/signout', { method: 'POST' })
-                            .then(() => window.location.href = '/login');
-                    }}
+                    size="icon"
+                    onClick={() => signOut({ callbackUrl: '/login' })}
                     title="Logout"
-                    className="text-xs"
+                    className="rounded-full text-neutral-700 hover:text-red-600 dark:text-white dark:hover:text-red-400 transition-colors duration-200"
                 >
-                    Logout
+                    <LogOut size={18} />
                 </Button>
             </div>
 

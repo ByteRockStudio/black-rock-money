@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { format, addDays, addWeeks, addMonths, addYears, isBefore } from "date-fns";
+import { format, addDays, addWeeks, addMonths, addYears, isBefore, isSameMonth } from "date-fns";
 import { ArrowLeft, Play, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,9 @@ export default function RecurringPage() {
     const [accounts, setAccounts] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // View Mode State
+    const [viewMode, setViewMode] = useState<'summary' | 'form'>('summary');
 
     // Form State
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -106,6 +109,7 @@ export default function RecurringPage() {
             recurrenceInterval: "1",
             startDate: format(new Date(), "yyyy-MM-dd"),
         });
+        setViewMode('summary');
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -144,6 +148,7 @@ export default function RecurringPage() {
             recurrenceInterval: expense.recurrenceInterval.toString(),
             startDate: format(new Date(expense.startDate), "yyyy-MM-dd"),
         });
+        setViewMode('form');
     };
 
     const handleDelete = (id: string) => {
@@ -215,6 +220,18 @@ export default function RecurringPage() {
 
         return sum + monthlyAmount;
     }, 0);
+
+    // Calculate Paid vs Pending
+    const currentMonth = new Date();
+    const paidExpenses = recurringExpenses.filter(expense =>
+        expense.lastAppliedDate && isSameMonth(new Date(expense.lastAppliedDate), currentMonth)
+    );
+    const pendingExpenses = recurringExpenses.filter(expense =>
+        !expense.lastAppliedDate || !isSameMonth(new Date(expense.lastAppliedDate), currentMonth)
+    );
+
+    const paidTotal = paidExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+    const pendingTotal = pendingExpenses.reduce((sum, expense) => sum + expense.amount, 0);
 
     if (status === "loading") return null;
 
@@ -323,131 +340,191 @@ export default function RecurringPage() {
                 </div>
             </div>
 
-            {/* Right Panel: Form (30%) */}
+            {/* Right Panel: Summary or Form (30%) */}
             <div className="w-[30%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-8 overflow-y-auto">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                    {editingId ? "Edit Recurring Expense" : "New Recurring Expense"}
-                </h2>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-                        <Input
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            placeholder="e.g. Netflix Subscription"
-                            required
-                            className="bg-white dark:bg-black"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
-                        <Input
-                            name="amount"
-                            type="number"
-                            step="0.01"
-                            value={formData.amount}
-                            onChange={handleInputChange}
-                            placeholder="0.00"
-                            required
-                            className="bg-white dark:bg-black"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Account</label>
-                        <select
-                            name="accountId"
-                            value={formData.accountId}
-                            onChange={handleInputChange}
-                            required
-                            className="flex h-10 w-full rounded-md border border-input bg-white dark:bg-black px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        >
-                            {accounts.map((acc) => (
-                                <option key={acc.id} value={acc.id}>
-                                    {acc.name} ({acc.currency})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                        <select
-                            name="categoryId"
-                            value={formData.categoryId}
-                            onChange={handleInputChange}
-                            required
-                            className="flex h-10 w-full rounded-md border border-input bg-white dark:bg-black px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        >
-                            {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="space-y-4 border-t border-gray-200 dark:border-white/10 pt-4">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Recurrence</label>
-
-                        <div className="grid grid-cols-2 gap-2">
-                            {["DAILY", "WEEKLY", "MONTHLY", "YEARLY"].map((type) => (
-                                <button
-                                    key={type}
-                                    type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, recurrenceType: type }))}
-                                    className={`px-3 py-2 text-xs font-medium rounded-md border transition-all ${formData.recurrenceType === type
-                                        ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
-                                        : "bg-white dark:bg-black text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-gray-400"
-                                        }`}
-                                >
-                                    {type}
-                                </button>
-                            ))}
+                {viewMode === 'summary' ? (
+                    /* Summary Dashboard */
+                    <div className="flex flex-col items-center justify-center h-full space-y-8">
+                        <div className="text-center space-y-2">
+                            <h2 className="text-sm uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Monthly Commitment</h2>
+                            <div className="text-5xl font-bold text-gray-900 dark:text-white">
+                                {totalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </div>
+                            <p className="text-sm text-gray-400">UAH / month</p>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500">Every</span>
-                            <Input
-                                name="recurrenceInterval"
-                                type="number"
-                                min="1"
-                                value={formData.recurrenceInterval}
-                                onChange={handleInputChange}
-                                className="w-20 bg-white dark:bg-black"
-                            />
-                            <span className="text-sm text-gray-500">
-                                {formData.recurrenceType.toLowerCase().replace("ly", "")}(s)
-                            </span>
+                        <div className="w-full space-y-4 border-t border-gray-200 dark:border-white/10 pt-8">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Paid This Month</p>
+                                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{paidExpenses.length}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xl font-medium text-gray-900 dark:text-white">
+                                        {paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                    </p>
+                                    <p className="text-xs text-gray-400">UAH</p>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">Pending</p>
+                                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{pendingExpenses.length}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xl font-medium text-gray-900 dark:text-white">
+                                        {pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                    </p>
+                                    <p className="text-xs text-gray-400">UAH</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
-                        <Input
-                            name="startDate"
-                            type="date"
-                            value={formData.startDate}
-                            onChange={handleInputChange}
-                            required
-                            className="bg-white dark:bg-black"
-                        />
-                    </div>
-
-                    <div className="pt-4 flex gap-2">
-                        {editingId && (
-                            <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
-                                Cancel
-                            </Button>
-                        )}
-                        <Button type="submit" className="flex-1">
-                            {editingId ? "Update" : "Create"}
+                        <Button
+                            onClick={() => setViewMode('form')}
+                            className="w-full mt-8"
+                            size="lg"
+                        >
+                            Add New Recurring Expense
                         </Button>
                     </div>
-                </form>
+                ) : (
+                    /* Form View */
+                    <div>
+                        <div className="flex items-center gap-2 mb-6">
+                            <button
+                                onClick={resetForm}
+                                className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                {editingId ? "Edit Recurring Expense" : "New Recurring Expense"}
+                            </h2>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                                <Input
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    placeholder="e.g. Netflix Subscription"
+                                    required
+                                    className="bg-white dark:bg-black"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
+                                <Input
+                                    name="amount"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.amount}
+                                    onChange={handleInputChange}
+                                    placeholder="0.00"
+                                    required
+                                    className="bg-white dark:bg-black"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Account</label>
+                                <select
+                                    name="accountId"
+                                    value={formData.accountId}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="flex h-10 w-full rounded-md border border-input bg-white dark:bg-black px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                >
+                                    {accounts.map((acc) => (
+                                        <option key={acc.id} value={acc.id}>
+                                            {acc.name} ({acc.currency})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
+                                <select
+                                    name="categoryId"
+                                    value={formData.categoryId}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="flex h-10 w-full rounded-md border border-input bg-white dark:bg-black px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                >
+                                    {categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="space-y-4 border-t border-gray-200 dark:border-white/10 pt-4">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Recurrence</label>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                    {["DAILY", "WEEKLY", "MONTHLY", "YEARLY"].map((type) => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, recurrenceType: type }))}
+                                            className={`px-3 py-2 text-xs font-medium rounded-md border transition-all ${formData.recurrenceType === type
+                                                ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
+                                                : "bg-white dark:bg-black text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-gray-400"
+                                                }`}
+                                        >
+                                            {type}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-500">Every</span>
+                                    <Input
+                                        name="recurrenceInterval"
+                                        type="number"
+                                        min="1"
+                                        value={formData.recurrenceInterval}
+                                        onChange={handleInputChange}
+                                        className="w-20 bg-white dark:bg-black"
+                                    />
+                                    <span className="text-sm text-gray-500">
+                                        {formData.recurrenceType.toLowerCase().replace("ly", "")}(s)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+                                <Input
+                                    name="startDate"
+                                    type="date"
+                                    value={formData.startDate}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="bg-white dark:bg-black"
+                                />
+                            </div>
+
+                            <div className="pt-4 flex gap-2">
+                                {editingId && (
+                                    <Button type="button" variant="outline" onClick={resetForm} className="flex-1">
+                                        Cancel
+                                    </Button>
+                                )}
+                                <Button type="submit" className="flex-1">
+                                    {editingId ? "Update" : "Create"}
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                )}
             </div>
 
             <ConfirmationModal

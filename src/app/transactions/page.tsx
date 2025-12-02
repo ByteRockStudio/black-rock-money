@@ -187,8 +187,8 @@ export default function TransactionsPage() {
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#efede7] dark:bg-black font-sans">
 
-            {/* Left Panel: Transaction Table (70%) */}
-            <div className="w-[70%] h-full flex flex-col bg-white dark:bg-black px-8">
+            {/* Left Panel: Transaction Table (75%) */}
+            <div className="w-[75%] h-full flex flex-col bg-white dark:bg-black px-8">
 
                 {/* Sticky Header */}
                 <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-gray-100 dark:border-white/10 py-6">
@@ -222,8 +222,8 @@ export default function TransactionsPage() {
                                         key={type}
                                         onClick={() => setFilterType(type)}
                                         className={`px-3 py-1 rounded text-xs font-medium transition-all ${filterType === type
-                                                ? "bg-white dark:bg-black text-black dark:text-white shadow-sm"
-                                                : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                                            ? "bg-white dark:bg-black text-black dark:text-white shadow-sm"
+                                            : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                                             }`}
                                     >
                                         {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -273,8 +273,8 @@ export default function TransactionsPage() {
                 </div>
             </div>
 
-            {/* Right Panel: Analytics (30%) */}
-            <div className="w-[30%] h-full hidden md:block">
+            {/* Right Panel: Analytics (25%) */}
+            <div className="w-[25%] h-full hidden md:block">
                 <AnalyticsPanel transactions={transactions} />
             </div>
 

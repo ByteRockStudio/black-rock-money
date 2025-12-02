@@ -127,8 +127,8 @@ export default function BudgetPage() {
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#efede7] dark:bg-black font-sans">
-            {/* Left Panel (70%) - Budget List */}
-            <div className="w-[70%] h-full flex flex-col bg-white dark:bg-black px-8 relative">
+            {/* Left Panel (75%) - Budget List */}
+            <div className="w-[75%] h-full flex flex-col bg-white dark:bg-black px-8 relative">
                 {/* Header */}
                 <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-gray-100 dark:border-white/10 py-6">
                     <div className="flex items-center gap-4 mb-6">
@@ -265,8 +265,8 @@ export default function BudgetPage() {
                 </div>
             </div>
 
-            {/* Right Panel (30%) - Financial Health Dashboard */}
-            <div className="w-[30%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto flex flex-col items-center justify-center">
+            {/* Right Panel (25%) - Financial Health Dashboard */}
+            <div className="w-[25%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto flex flex-col items-center justify-center">
                 <div className="w-full">
                     {/* Consolidated Month Overview Card */}
                     <div className="w-full bg-white/5 dark:bg-white/5 backdrop-blur-md rounded-lg p-6 border border-white/10 space-y-6">

@@ -238,8 +238,8 @@ export default function RecurringPage() {
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#efede7] dark:bg-black font-sans">
 
-            {/* Left Panel: List (70%) */}
-            <div className="w-[70%] h-full flex flex-col bg-white dark:bg-black px-8 relative">
+            {/* Left Panel: List (75%) */}
+            <div className="w-[75%] h-full flex flex-col bg-white dark:bg-black px-8 relative">
 
                 {/* Header */}
                 <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-gray-100 dark:border-white/10 py-6">
@@ -340,8 +340,8 @@ export default function RecurringPage() {
                 </div>
             </div>
 
-            {/* Right Panel: Summary or Form (30%) */}
-            <div className="w-[30%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto">
+            {/* Right Panel: Summary or Form (25%) */}
+            <div className="w-[25%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto">
                 {viewMode === 'summary' ? (
                     /* Compact Summary Dashboard */
                     <div className="flex flex-col items-center justify-center h-full space-y-6">

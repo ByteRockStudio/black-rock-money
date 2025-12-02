@@ -233,20 +233,16 @@ export default function RecurringPage() {
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Recurring Expenses</h1>
                     </div>
 
-                    {/* Table Header */}
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-white/10">
-                                <th className="px-4 py-2 font-medium w-[20%]">Name</th>
-                                <th className="px-4 py-2 font-medium w-[15%] text-right">Amount</th>
-                                <th className="px-4 py-2 font-medium w-[15%]">Account</th>
-                                <th className="px-4 py-2 font-medium w-[15%]">Category</th>
-                                <th className="px-4 py-2 font-medium w-[15%]">Recurrence</th>
-                                <th className="px-4 py-2 font-medium w-[10%]">Next Due</th>
-                                <th className="px-4 py-2 font-medium w-[10%] text-right">Actions</th>
-                            </tr>
-                        </thead>
-                    </table>
+                    {/* Column Headers */}
+                    <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 items-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2 mb-4 px-4">
+                        <div className="text-left">Name</div>
+                        <div className="text-right">Amount</div>
+                        <div className="text-left">Account</div>
+                        <div className="text-left">Category</div>
+                        <div className="text-left">Recurrence</div>
+                        <div className="text-left">Next Due</div>
+                        <div className="text-right">Actions</div>
+                    </div>
                 </div>
 
                 {/* List Content */}
@@ -258,56 +254,61 @@ export default function RecurringPage() {
                             <p>No recurring expenses found.</p>
                         </div>
                     ) : (
-                        <table className="w-full text-left border-collapse">
-                            <tbody>
-                                {recurringExpenses.map((expense) => {
-                                    const nextDue = calculateNextDue(expense);
-                                    const isOverdue = isBefore(nextDue, new Date());
+                        <div className="space-y-0">
+                            {recurringExpenses.map((expense) => {
+                                const nextDue = calculateNextDue(expense);
+                                const isOverdue = isBefore(nextDue, new Date());
 
-                                    return (
-                                        <tr key={expense.id} className="group border-b border-gray-50 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                                            <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{expense.name}</td>
-                                            <td className="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">
-                                                {expense.amount.toLocaleString()} <span className="text-xs text-gray-400">{expense.account.currency}</span>
-                                            </td>
-                                            <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{expense.account.name}</td>
-                                            <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{expense.category.name}</td>
-                                            <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                                                {getRecurrenceLabel(expense.recurrenceType, expense.recurrenceInterval)}
-                                            </td>
-                                            <td className={`px-4 py-3 text-sm ${isOverdue ? "text-red-500 font-medium" : "text-gray-600 dark:text-gray-400"}`}>
-                                                {format(nextDue, "MMM d")}
-                                            </td>
-                                            <td className="px-4 py-3 text-right">
-                                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button
-                                                        onClick={() => handleManualApply(expense.id, expense.name)}
-                                                        className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-colors"
-                                                        title="Apply Now"
-                                                    >
-                                                        <Play size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleEdit(expense)}
-                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
-                                                        title="Edit"
-                                                    >
-                                                        <Edit size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(expense.id)}
-                                                        className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                return (
+                                    <div
+                                        key={expense.id}
+                                        className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 items-center w-full bg-white dark:bg-black border-b border-gray-50 dark:border-white/5 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition group"
+                                    >
+                                        <div className="font-medium text-gray-900 dark:text-white truncate">
+                                            {expense.name}
+                                        </div>
+                                        <div className="text-right font-medium text-gray-900 dark:text-white">
+                                            {expense.amount.toLocaleString()} <span className="text-xs text-gray-400">{expense.account.currency}</span>
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                            {expense.account.name}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                            {expense.category.name}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                            {getRecurrenceLabel(expense.recurrenceType, expense.recurrenceInterval)}
+                                        </div>
+                                        <div className={`text-sm ${isOverdue ? "text-red-500 font-medium" : "text-gray-600 dark:text-gray-400"}`}>
+                                            {format(nextDue, "MMM d")}
+                                        </div>
+                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={() => handleManualApply(expense.id, expense.name)}
+                                                className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-colors"
+                                                title="Apply Now"
+                                            >
+                                                <Play size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleEdit(expense)}
+                                                className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                                                title="Edit"
+                                            >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(expense.id)}
+                                                className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                                                title="Delete"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     )}
                 </div>
 
@@ -399,8 +400,8 @@ export default function RecurringPage() {
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, recurrenceType: type }))}
                                     className={`px-3 py-2 text-xs font-medium rounded-md border transition-all ${formData.recurrenceType === type
-                                            ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
-                                            : "bg-white dark:bg-black text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-gray-400"
+                                        ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
+                                        : "bg-white dark:bg-black text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-gray-400"
                                         }`}
                                 >
                                     {type}

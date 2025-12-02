@@ -115,7 +115,15 @@ export default function BudgetPage() {
 
     const totalPercentage = data.totalBudget > 0 ? (data.totalSpent / data.totalBudget) * 100 : 0;
     const safeToSpend = Math.max(0, data.totalBudget - data.totalSpent);
-    const dailySafeRate = data.daysLeftInMonth > 0 ? safeToSpend / data.daysLeftInMonth : 0;
+
+    // Calculate burn rate insight
+    const now = new Date();
+    const currentDay = now.getDate();
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const expectedPercentage = (currentDay / lastDayOfMonth) * 100;
+    const actualPercentage = totalPercentage;
+    const isSpendingFast = actualPercentage > expectedPercentage + 10;
+    const isSpendingSlow = actualPercentage < expectedPercentage - 10;
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-[#efede7] dark:bg-black font-sans">
@@ -153,150 +161,170 @@ export default function BudgetPage() {
                         </div>
                     ) : (
                         <div className="space-y-0">
-                            {data.categories.map((category) => (
-                                <div
-                                    key={category.id}
-                                    className="grid grid-cols-[2fr_3fr_1.5fr_80px] gap-4 items-center w-full bg-white dark:bg-black border-b border-gray-50 dark:border-white/5 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition group"
-                                >
-                                    {/* Category Name */}
-                                    <div className="font-medium text-gray-900 dark:text-white truncate">
-                                        {category.name}
-                                    </div>
+                            {data.categories.map((category) => {
+                                // Calculate daily cap for this category
+                                const remaining = Math.max(0, category.budgetLimit - category.spent);
+                                const dailyCap = data.daysLeftInMonth > 0 ? remaining / data.daysLeftInMonth : 0;
 
-                                    {/* Progress Bar */}
-                                    <div className="flex items-center gap-2">
-                                        {category.isOverBudget ? (
-                                            /* Over Budget: 100% bar + overflow */
-                                            <div className="flex gap-1 flex-1">
-                                                {/* Main bar (100%) */}
-                                                <div className="relative h-2 bg-white/10 dark:bg-white/10 rounded-full overflow-hidden flex-1">
-                                                    <div className="h-full bg-white dark:bg-white" style={{ width: "100%" }} />
-                                                </div>
-                                                {/* Overflow bar */}
-                                                <div
-                                                    className="relative h-2 bg-red-500/20 rounded-full overflow-hidden"
-                                                    style={{ width: `${Math.min(category.percentage - 100, 100)}%` }}
-                                                >
-                                                    <div className="h-full bg-red-500" style={{ width: "100%" }} />
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            /* Under Budget: Normal bar */
-                                            <div className="relative h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden flex-1">
-                                                <div
-                                                    className="h-full bg-white dark:bg-white"
-                                                    style={{ width: `${Math.min(category.percentage, 100)}%` }}
-                                                />
-                                            </div>
-                                        )}
-                                        {/* Percentage */}
-                                        <span className={`text-xs font-medium min-w-[45px] text-right ${category.isOverBudget ? "text-red-500" : "text-gray-600 dark:text-gray-400"}`}>
-                                            {category.percentage.toFixed(0)}%
-                                        </span>
-                                    </div>
+                                return (
+                                    <div
+                                        key={category.id}
+                                        className="grid grid-cols-[2fr_3fr_1.5fr_80px] gap-4 items-start w-full bg-white dark:bg-black border-b border-gray-50 dark:border-white/5 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition group"
+                                    >
+                                        {/* Category Name */}
+                                        <div className="font-medium text-gray-900 dark:text-white truncate pt-1">
+                                            {category.name}
+                                        </div>
 
-                                    {/* Spent / Limit */}
-                                    <div className="text-right text-sm">
-                                        <span className={category.isOverBudget ? "text-red-500 font-medium" : "text-gray-900 dark:text-white"}>
-                                            {category.spent.toLocaleString()}
-                                        </span>
-                                        <span className="text-gray-400"> / </span>
-                                        {editingId === category.id ? (
-                                            <input
-                                                type="number"
-                                                value={editValue}
-                                                onChange={(e) => setEditValue(e.target.value)}
-                                                onBlur={handleSaveLimit}
-                                                onKeyDown={handleKeyDown}
-                                                className="w-20 bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-1 focus:border-white focus:outline-none text-right"
-                                                autoFocus
-                                            />
-                                        ) : (
-                                            <span
-                                                className="text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white transition"
-                                                onClick={() => handleStartEdit(category.id, category.budgetLimit)}
-                                            >
-                                                {category.budgetLimit.toLocaleString()}
+                                        {/* Progress Bar + Daily Cap */}
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-2">
+                                                {category.isOverBudget ? (
+                                                    /* Over Budget: 100% bar + overflow */
+                                                    <div className="flex gap-1 flex-1">
+                                                        {/* Main bar (100%) */}
+                                                        <div className="relative h-2 bg-white/10 dark:bg-white/10 rounded-full overflow-hidden flex-1">
+                                                            <div className="h-full bg-white dark:bg-white" style={{ width: "100%" }} />
+                                                        </div>
+                                                        {/* Overflow bar */}
+                                                        <div
+                                                            className="relative h-2 bg-red-500/20 rounded-full overflow-hidden"
+                                                            style={{ width: `${Math.min(category.percentage - 100, 100)}%` }}
+                                                        >
+                                                            <div className="h-full bg-red-500" style={{ width: "100%" }} />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    /* Under Budget: Normal bar */
+                                                    <div className="relative h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden flex-1">
+                                                        <div
+                                                            className="h-full bg-white dark:bg-white"
+                                                            style={{ width: `${Math.min(category.percentage, 100)}%` }}
+                                                        />
+                                                    </div>
+                                                )}
+                                                {/* Percentage */}
+                                                <span className={`text-xs font-medium min-w-[45px] text-right ${category.isOverBudget ? "text-red-500" : "text-gray-600 dark:text-gray-400"}`}>
+                                                    {category.percentage.toFixed(0)}%
+                                                </span>
+                                            </div>
+
+                                            {/* Contextual Daily Cap */}
+                                            <div className="text-xs text-right">
+                                                {category.isOverBudget ? (
+                                                    <span className="text-red-400">Limit exceeded</span>
+                                                ) : (
+                                                    <span className="text-gray-400">
+                                                        Can spend <span className="text-white dark:text-white font-medium">{dailyCap.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₴</span> / day
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Spent / Limit */}
+                                        <div className="text-right text-sm pt-1">
+                                            <span className={category.isOverBudget ? "text-red-500 font-medium" : "text-gray-900 dark:text-white"}>
+                                                {category.spent.toLocaleString()}
                                             </span>
-                                        )}
-                                    </div>
+                                            <span className="text-gray-400"> / </span>
+                                            {editingId === category.id ? (
+                                                <input
+                                                    type="number"
+                                                    value={editValue}
+                                                    onChange={(e) => setEditValue(e.target.value)}
+                                                    onBlur={handleSaveLimit}
+                                                    onKeyDown={handleKeyDown}
+                                                    className="w-20 bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-1 focus:border-white focus:outline-none text-right"
+                                                    autoFocus
+                                                />
+                                            ) : (
+                                                <span
+                                                    className="text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white transition"
+                                                    onClick={() => handleStartEdit(category.id, category.budgetLimit)}
+                                                >
+                                                    {category.budgetLimit.toLocaleString()}
+                                                </span>
+                                            )}
+                                        </div>
 
-                                    {/* Edit Button */}
-                                    <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => handleStartEdit(category.id, category.budgetLimit)}
-                                            className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
-                                            title="Edit Budget Limit"
-                                        >
-                                            <Edit2 size={14} />
-                                        </button>
+                                        {/* Edit Button */}
+                                        <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity pt-1">
+                                            <button
+                                                onClick={() => handleStartEdit(category.id, category.budgetLimit)}
+                                                className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                                                title="Edit Budget Limit"
+                                            >
+                                                <Edit2 size={14} />
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Right Panel (30%) - Budget Summary */}
+            {/* Right Panel (30%) - Financial Health Dashboard */}
             <div className="w-[30%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto flex flex-col items-center justify-center">
-                <div className="w-full space-y-6">
-                    {/* Budget Health */}
-                    <div className="w-full bg-white/5 dark:bg-white/5 rounded-lg p-6 border border-white/10">
-                        <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-2">
-                            Budget Health
-                        </p>
-                        <p className={`text-5xl font-light ${totalPercentage > 100 ? "text-red-500" : totalPercentage > 80 ? "text-yellow-500" : "text-green-500"}`}>
-                            {totalPercentage.toFixed(0)}%
-                        </p>
-                    </div>
-
-                    {/* Safe to Spend */}
-                    <div className="w-full bg-white/5 dark:bg-white/5 rounded-lg p-6 border border-white/10">
-                        <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-2">
-                            Safe to Spend
-                        </p>
-                        <p className="text-3xl font-light text-gray-900 dark:text-white">
-                            {safeToSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                            <span className="text-sm font-normal text-gray-400 ml-2">UAH</span>
-                        </p>
-                    </div>
-
-                    {/* Daily Safe Rate */}
-                    <div className="w-full bg-white/5 dark:bg-white/5 rounded-lg p-6 border border-white/10">
-                        <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-2">
-                            Daily Safe Rate
-                        </p>
-                        <p className="text-3xl font-light text-gray-900 dark:text-white">
-                            {dailySafeRate.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                            <span className="text-sm font-normal text-gray-400 ml-2">/ day</span>
-                        </p>
-                        <p className="text-xs text-gray-400 mt-2">
-                            {data.daysLeftInMonth} days left in month
-                        </p>
-                    </div>
-
-                    {/* Total Comparison */}
-                    <div className="w-full bg-white/5 dark:bg-white/5 rounded-lg p-6 border border-white/10">
-                        <div className="flex justify-between items-center pb-3 border-b border-white/10 mb-3">
-                            <div>
-                                <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">
-                                    Total Spent
-                                </p>
-                                <p className="text-2xl font-light text-gray-900 dark:text-white">
-                                    {data.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                </p>
+                <div className="w-full">
+                    {/* Consolidated Month Overview Card */}
+                    <div className="w-full bg-white/5 dark:bg-white/5 backdrop-blur-md rounded-lg p-6 border border-white/10 space-y-6">
+                        {/* Health Indicator Badge - Top Right */}
+                        <div className="flex justify-between items-start">
+                            <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">
+                                Month Overview
+                            </p>
+                            <div className={`px-3 py-1 rounded-full text-xs font-medium ${totalPercentage > 100 ? "bg-red-500/20 text-red-400" :
+                                totalPercentage > 80 ? "bg-yellow-500/20 text-yellow-400" :
+                                    "bg-green-500/20 text-green-400"
+                                }`}>
+                                {totalPercentage.toFixed(0)}% Used
                             </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">
-                                    Total Budget
-                                </p>
-                                <p className="text-2xl font-light text-gray-900 dark:text-white">
-                                    {data.totalBudget.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                </p>
+
+                        {/* Hero Section - Total Remaining */}
+                        <div className="py-4">
+                            <p className="text-xs text-gray-400 mb-2">Safe to Spend</p>
+                            <p className="text-4xl font-bold text-gray-900 dark:text-white">
+                                {safeToSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                <span className="text-lg font-bold text-gray-400 ml-2">₴</span>
+                            </p>
+                        </div>
+
+                        {/* Global Progress Bar */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-xs text-gray-400">
+                                <span>Spent: {data.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                <span>Limit: {data.totalBudget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                             </div>
+                            <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full ${totalPercentage > 100 ? "bg-red-500" : "bg-white"}`}
+                                    style={{ width: `${Math.min(totalPercentage, 100)}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Burn Rate Insight */}
+                        <div className="pt-4 border-t border-white/10">
+                            <p className="text-xs text-gray-400 mb-2">Spending Pace</p>
+                            {isSpendingFast ? (
+                                <p className="text-sm text-orange-400">
+                                    ⚠️ Pacing too fast. Consider slowing down.
+                                </p>
+                            ) : isSpendingSlow ? (
+                                <p className="text-sm text-green-400">
+                                    ✓ Spending slower than planned. Good job!
+                                </p>
+                            ) : (
+                                <p className="text-sm text-gray-400">
+                                    → On track with monthly budget.
+                                </p>
+                            )}
+                            <p className="text-xs text-gray-500 mt-1">
+                                {data.daysLeftInMonth} days left in month
+                            </p>
                         </div>
                     </div>
                 </div>

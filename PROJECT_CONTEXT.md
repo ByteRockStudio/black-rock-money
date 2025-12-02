@@ -76,6 +76,11 @@ The database schema is defined in `prisma/schema.prisma`.
     *   **Settings / Transactions / Recurring**: Use a **Full-Screen Split Layout**.
         *   **Left**: Sidebar/Navigation or List view.
         *   **Right**: Content area or Form, often with an image background and glassmorphism overlays.
+*   **Layout Stabilization**:
+    *   **App-Shell Pattern**: The root `html` and `body` tags use `h-full w-full overflow-hidden` to create a fixed viewport.
+    *   **Purpose**: Prevents scrollbar toggling and layout shift during navigation between pages.
+    *   **Dashboard Positioning**: Uses static positioning with fixed margins (`mt-8`) instead of flex centering to eliminate vertical jump during hydration.
+    *   **Internal Scrolling**: Individual pages/components use `overflow-y-auto` for scrolling within their containers.
 *   **Tailwind**: Configured for class-based dark mode.
 
 ## 6. Development Notes

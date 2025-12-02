@@ -52,10 +52,12 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col font-sans text-foreground">
-            <Header />
-            <main className="flex-1 flex items-center justify-center p-4">
-                <div className="relative h-[65vh] w-[80%] mx-auto rounded-[40px] overflow-hidden shadow-2xl">
+        <div className="h-full w-full bg-background font-sans text-foreground overflow-hidden relative">
+            <div className="absolute top-0 left-0 right-0 z-10">
+                <Header />
+            </div>
+            <main className="absolute top-[180px] left-0 right-0 bottom-0 overflow-y-auto">
+                <div className="relative mt-8 w-[80%] max-w-7xl mx-auto h-[65vh] rounded-[40px] overflow-hidden shadow-2xl">
                     {/* Background Image & Overlay */}
                     <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center bg-no-repeat" />
                     <div className="absolute inset-0 bg-black/40" />

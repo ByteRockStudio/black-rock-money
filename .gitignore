@@ -41,4 +41,4 @@ next-env.d.ts
 scripts/reset-db.js
 
 # project context
-PROJECT_CONTEXT.md
+# PROJECT_CONTEXT.md

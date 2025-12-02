@@ -91,12 +91,14 @@ export default function Home() {
                                 onClick={() => setActiveModule("budget")}
                                 className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
                             />
-                            <CircleButton
-                                icon={<Repeat size={32} />}
-                                label={t("nav.recurring")}
-                                onClick={() => setActiveModule("recurring")}
-                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                            />
+                            <Link href="/recurring">
+                                <CircleButton
+                                    icon={<Repeat size={32} />}
+                                    label={t("nav.recurring")}
+                                    onClick={() => { }}
+                                    className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                                />
+                            </Link>
                             <Link href="/settings">
                                 <CircleButton
                                     icon={<Settings size={32} />}

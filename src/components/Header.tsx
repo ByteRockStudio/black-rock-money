@@ -75,6 +75,18 @@ export function Header() {
                 <Button variant="ghost" size="icon" onClick={toggleTheme} title="Toggle Theme" className="rounded-full">
                     {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
                 </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                        fetch('/api/auth/signout', { method: 'POST' })
+                            .then(() => window.location.href = '/login');
+                    }}
+                    title="Logout"
+                    className="text-xs"
+                >
+                    Logout
+                </Button>
             </div>
 
             {/* Financial Summary - Hide on Settings Page */}

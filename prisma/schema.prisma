@@ -16,6 +16,7 @@ model User {
   exchangeRate  Float     @default(42)
   accounts      Account[]
   categories    Category[]
+  recurringExpenses RecurringExpense[]
 }
 
 model Account {
@@ -29,6 +30,7 @@ model Account {
   currency  String   @default("UAH")
   transactions Transaction[]
   recurringRules RecurringRule[]
+  recurringExpenses RecurringExpense[]
 }
 
 model Category {
@@ -40,6 +42,7 @@ model Category {
   user        User?    @relation(fields: [userId], references: [id])
   transactions Transaction[]
   recurringRules RecurringRule[]
+  recurringExpenses RecurringExpense[]
 }
 
 model Transaction {

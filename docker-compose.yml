@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build:
@@ -11,7 +9,7 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:password@db:5432/budget_db
-      - NEXTAUTH_SECRET=supersecret
+      - NEXTAUTH_SECRET=supersecret_v3
       - NEXTAUTH_URL=http://localhost:3000
     depends_on:
       - db

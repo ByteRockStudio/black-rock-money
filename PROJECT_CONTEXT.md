@@ -86,6 +86,12 @@ The database schema is defined in `prisma/schema.prisma`.
 *   **API Logic**:
     *   All API routes **MUST** validate the session using `getServerSession(authOptions)` before performing any database operations.
     *   Data ownership is strictly enforced (users can only access their own data).
+*   **Category Filtering**:
+    *   The `/api/categories` endpoint supports query parameter `?type=INCOME` or `?type=EXPENSE` to filter categories by type.
+    *   **AddExpenseModal**: Fetches only EXPENSE categories (`/api/categories?type=EXPENSE`).
+    *   **AddIncomeModal**: Fetches only INCOME categories (`/api/categories?type=INCOME`).
+    *   **Recurring Expenses Page**: Fetches only EXPENSE categories (recurring expenses are expense-only).
+    *   **Settings Page**: Fetches all categories and separates them on the frontend.
 *   **Favicons**: Located in `public/favicon/`. Ensure permissions allow the container to read these files.
 *   **Logout**: Header component includes a Logout button (top-right) that calls `/api/auth/signout` and redirects to login.
 *   **Session Management**: Rotating `NEXTAUTH_SECRET` in `docker-compose.yml` invalidates all active sessions (forces logout).

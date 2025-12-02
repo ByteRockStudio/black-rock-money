@@ -67,7 +67,7 @@ export default function RecurringPage() {
             const [expensesRes, accountsRes, categoriesRes] = await Promise.all([
                 fetch("/api/recurring"),
                 fetch("/api/accounts"),
-                fetch("/api/categories"),
+                fetch("/api/categories?type=EXPENSE"),
             ]);
 
             if (expensesRes.ok) setRecurringExpenses(await expensesRes.json());
@@ -479,8 +479,8 @@ export default function RecurringPage() {
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, recurrenceType: type }))}
                                             className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-all ${formData.recurrenceType === type
-                                                    ? "bg-white text-black"
-                                                    : "text-gray-400 hover:text-white"
+                                                ? "bg-white text-black"
+                                                : "text-gray-400 hover:text-white"
                                                 }`}
                                         >
                                             {type.charAt(0)}

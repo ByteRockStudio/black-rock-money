@@ -30,7 +30,7 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
                 if (!initialData && data.length > 0) setAccountId(data[0].id);
             });
 
-        fetch("/api/categories")
+        fetch("/api/categories?type=EXPENSE")
             .then((res) => res.json())
             .then((data) => {
                 setCategories(data);

@@ -27,7 +27,7 @@ export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
                 if (data.length > 0) setAccountId(data[0].id);
             });
 
-        fetch("/api/categories")
+        fetch("/api/categories?type=INCOME")
             .then((res) => res.json())
             .then((data) => {
                 setCategories(data);

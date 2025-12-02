@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
         return new NextResponse("Unauthorized", { status: 401 });
@@ -12,13 +12,25 @@ export async function GET() {
     // @ts-ignore
     const userId = session.user.id;
 
+    // Parse query parameters
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type");
+
+    // Build where clause with optional type filtering
+    const whereClause: any = {
+        OR: [
+            { userId: null }, // System categories
+            { userId: userId }, // User categories
+        ],
+    };
+
+    // Add type filter if specified (INCOME or EXPENSE)
+    if (type === "INCOME" || type === "EXPENSE") {
+        whereClause.type = type.toLowerCase();
+    }
+
     const categories = await prisma.category.findMany({
-        where: {
-            OR: [
-                { userId: null }, // System categories
-                { userId: userId }, // User categories
-            ],
-        },
+        where: whereClause,
     });
     return NextResponse.json(categories);
 }

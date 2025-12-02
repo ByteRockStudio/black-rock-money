@@ -7,7 +7,6 @@ import { Plus, List, PieChart, Repeat, Settings } from "lucide-react";
 import { AddExpenseModal } from "@/components/AddExpenseModal";
 import { AddIncomeModal } from "@/components/AddIncomeModal";
 import { ExpenseTable } from "@/components/ExpenseTable";
-import { BudgetView } from "@/components/BudgetView";
 import { RecurringView } from "@/components/RecurringView";
 import Link from "next/link";
 
@@ -42,8 +41,6 @@ export default function Home() {
                 return <AddIncomeModal onClose={() => setActiveModule(null)} />;
             case "view":
                 return <ExpenseTable onClose={() => setActiveModule(null)} />;
-            case "budget":
-                return <BudgetView onClose={() => setActiveModule(null)} />;
             case "recurring":
                 return <RecurringView onClose={() => setActiveModule(null)} />;
             default:
@@ -87,12 +84,14 @@ export default function Home() {
                                     className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
                                 />
                             </Link>
-                            <CircleButton
-                                icon={<PieChart size={32} />}
-                                label={t("nav.budget")}
-                                onClick={() => setActiveModule("budget")}
-                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                            />
+                            <Link href="/budget">
+                                <CircleButton
+                                    icon={<PieChart size={32} />}
+                                    label={t("nav.budget")}
+                                    onClick={() => { }}
+                                    className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
+                                />
+                            </Link>
                             <Link href="/recurring">
                                 <CircleButton
                                     icon={<Repeat size={32} />}

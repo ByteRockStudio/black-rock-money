@@ -75,7 +75,8 @@ export default function RecurringPage() {
                 const accs = await accountsRes.json();
                 setAccounts(accs);
                 if (!formData.accountId && accs.length > 0) {
-                    setFormData(prev => ({ ...prev, accountId: accs[0].id }));
+                    const defaultAccount = accs.find((acc: any) => acc.isDefault);
+                    setFormData(prev => ({ ...prev, accountId: defaultAccount ? defaultAccount.id : accs[0].id }));
                 }
             }
             if (categoriesRes.ok) {

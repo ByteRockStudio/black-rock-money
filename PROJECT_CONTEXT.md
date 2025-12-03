@@ -40,6 +40,7 @@ The database schema is defined in `prisma/schema.prisma`.
 ### Models
 *   **User**: Authentication and profile data.
 *   **Account**: Represents financial sources (Wallets, Cards, Cash, Crypto). Linked to `User`.
+    *   **Default Account**: Each user can mark one account as default (`isDefault: Boolean`). The default account is automatically pre-selected in Add Expense, Add Income, and Recurring Expense modals.
 *   **Category**: Classification for income/expenses. Linked to `User`.
 *   **Transaction**: Individual financial records.
     *   **Relationships**: Linked to `Account` and `Category`. Can be linked to a `RecurringExpense`.
@@ -57,6 +58,7 @@ The database schema is defined in `prisma/schema.prisma`.
     *   `/api`: Backend API routes.
         *   `/auth`: NextAuth endpoints.
         *   `/accounts`: CRUD for accounts.
+        *   `/accounts/set-default`: POST endpoint to set default account (transactional: resets all, sets one).
         *   `/categories`: CRUD for categories.
         *   `/transactions`: CRUD for transactions.
         *   `/recurring`: CRUD operations (GET, POST, PUT, DELETE)

@@ -7,7 +7,7 @@ import { Header } from "@/components/Header";
 import { useSettings } from "@/contexts/SettingsContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Edit2, ArrowLeft, Wallet, CreditCard, Banknote, Plus, Settings, Layers, Monitor, Globe } from "lucide-react";
+import { Trash2, Edit2, ArrowLeft, Wallet, CreditCard, Banknote, Plus, Settings, Layers, Monitor, Globe, Star } from "lucide-react";
 import Link from "next/link";
 import { AccountModal } from "@/components/AccountModal";
 import { CategoryModal } from "@/components/CategoryModal";
@@ -22,6 +22,7 @@ interface Account {
     balance: number;
     startingBalance: number;
     currency: string;
+    isDefault: boolean;
 }
 
 interface Category {
@@ -161,6 +162,31 @@ export default function SettingsPage() {
         });
     };
 
+    const handleSetDefault = async (accountId: string) => {
+        try {
+            const res = await fetch("/api/accounts/set-default", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ accountId }),
+            });
+
+            if (res.status === 401) {
+                toast.error("Unauthorized session. Please login again.");
+                router.push("/login");
+                return;
+            }
+
+            if (res.ok) {
+                toast.success("Default account updated");
+                fetchAccounts();
+            } else {
+                toast.error("Failed to set default account");
+            }
+        } catch (error) {
+            toast.error("Error setting default account");
+        }
+    };
+
     const formatAccountBalance = (account: Account) => {
         if (account.currency === "USD") {
             const uahEquivalent = account.balance * exchangeRate;
@@ -280,7 +306,19 @@ export default function SettingsPage() {
                                                         {acc.type === 'card' ? <CreditCard size={18} /> : <Banknote size={18} />}
                                                     </div>
                                                     <div>
-                                                        <div className="font-medium text-base text-white">{acc.name}</div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-medium text-base text-white">{acc.name}</span>
+                                                            <button
+                                                                onClick={() => handleSetDefault(acc.id)}
+                                                                className="transition-colors"
+                                                                title={acc.isDefault ? "Default account" : "Set as default"}
+                                                            >
+                                                                <Star
+                                                                    size={16}
+                                                                    className={acc.isDefault ? "fill-yellow-500 text-yellow-500" : "text-gray-400 hover:text-yellow-500"}
+                                                                />
+                                                            </button>
+                                                        </div>
                                                         <div className="text-xs text-white/60 font-mono mt-0.5">{formatAccountBalance(acc)}</div>
                                                     </div>
                                                 </div>

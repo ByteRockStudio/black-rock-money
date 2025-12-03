@@ -27,7 +27,10 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
             .then((res) => res.json())
             .then((data) => {
                 setAccounts(data);
-                if (!initialData && data.length > 0) setAccountId(data[0].id);
+                if (!initialData && data.length > 0) {
+                    const defaultAccount = data.find((acc: any) => acc.isDefault);
+                    setAccountId(defaultAccount ? defaultAccount.id : data[0].id);
+                }
             });
 
         fetch("/api/categories?type=EXPENSE")

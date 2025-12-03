@@ -28,6 +28,7 @@ model Account {
   balance   Float    @default(0)
   startingBalance Float @default(0)
   currency  String   @default("UAH")
+  isDefault Boolean  @default(false)
   transactions Transaction[]
   recurringRules RecurringRule[]
   recurringExpenses RecurringExpense[]

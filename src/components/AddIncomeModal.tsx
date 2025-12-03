@@ -24,7 +24,10 @@ export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
             .then((res) => res.json())
             .then((data) => {
                 setAccounts(data);
-                if (data.length > 0) setAccountId(data[0].id);
+                if (data.length > 0) {
+                    const defaultAccount = data.find((acc: any) => acc.isDefault);
+                    setAccountId(defaultAccount ? defaultAccount.id : data[0].id);
+                }
             });
 
         fetch("/api/categories?type=INCOME")

@@ -315,7 +315,7 @@ export default function SettingsPage() {
                                                             >
                                                                 <Star
                                                                     size={16}
-                                                                    className={acc.isDefault ? "fill-yellow-500 text-yellow-500" : "text-gray-400 hover:text-yellow-500"}
+                                                                    className={acc.isDefault ? "fill-purple-500 text-purple-500" : "text-gray-400 hover:text-purple-500"}
                                                                 />
                                                             </button>
                                                         </div>

@@ -266,7 +266,7 @@ export default function BudgetPage() {
             </div>
 
             {/* Right Panel (25%) - Financial Health Dashboard */}
-            <div className="w-[25%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto flex flex-col items-center justify-center">
+            <div className="w-[25%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto flex flex-col items-center justify-start">
                 <div className="w-full">
                     {/* Consolidated Month Overview Card */}
                     <div className="w-full bg-white/5 dark:bg-white/5 backdrop-blur-md rounded-lg p-6 border border-white/10 space-y-6">

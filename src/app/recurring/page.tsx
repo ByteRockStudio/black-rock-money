@@ -345,7 +345,7 @@ export default function RecurringPage() {
             <div className="w-[25%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto">
                 {viewMode === 'summary' ? (
                     /* Compact Summary Dashboard */
-                    <div className="flex flex-col items-center justify-center h-full space-y-6">
+                    <div className="flex flex-col items-center justify-start h-full space-y-6">
                         {/* Compact Status Card */}
                         <div className="w-full space-y-3 bg-white/5 dark:bg-white/5 rounded-lg p-4 border border-white/10">
                             <div className="flex justify-between items-center pb-3 border-b border-white/10">

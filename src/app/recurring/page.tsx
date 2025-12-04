@@ -332,50 +332,63 @@ export default function RecurringPage() {
                         </div>
                     )}
                 </div>
-
-                {/* Bottom Summary */}
-                <div className="absolute bottom-0 left-0 w-full bg-white dark:bg-black border-t border-gray-200 dark:border-white/10 p-4 px-8 flex justify-between items-center">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                        Total Monthly Estimate
-                    </div>
-                    <div className="text-xl font-bold text-gray-900 dark:text-white">
-                        {totalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })} <span className="text-sm font-normal text-gray-400">/ month</span>
-                    </div>
-                </div>
             </div>
 
             {/* Right Panel: Summary or Form (25%) */}
             <div className="w-[25%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto">
                 {viewMode === 'summary' ? (
-                    /* Compact Summary Dashboard */
-                    <div className="flex flex-col items-center justify-start h-full space-y-6">
-                        {/* Compact Status Card */}
-                        <div className="w-full space-y-3 bg-white/5 dark:bg-white/5 rounded-lg p-4 border border-white/10">
-                            <div className="flex justify-between items-center pb-3 border-b border-white/10">
-                                <div>
-                                    <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">Paid</p>
-                                    <p className="text-xl font-light text-gray-900 dark:text-white">{paidExpenses.length}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-gray-400">{paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} UAH</p>
-                                </div>
+                    /* Summary Dashboard - Budget Style */
+                    <div className="w-full">
+                        {/* Monthly Overview Card */}
+                        <div className="w-full bg-white/5 dark:bg-white/5 backdrop-blur-md rounded-lg p-6 border border-white/10 space-y-6">
+                            {/* Header */}
+                            <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">
+                                Monthly Overview
+                            </p>
+
+                            {/* Hero Metric - Total Monthly Estimate */}
+                            <div className="py-4">
+                                <p className="text-xs text-gray-400 mb-2">Total Monthly Estimate</p>
+                                <p className="text-4xl font-bold text-gray-900 dark:text-white">
+                                    {totalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                    <span className="text-lg font-bold text-gray-400 ml-2">₴</span>
+                                </p>
                             </div>
 
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">Pending</p>
-                                    <p className="text-xl font-light text-gray-900 dark:text-white">{pendingExpenses.length}</p>
+                            {/* Status Metrics */}
+                            <div className="space-y-4 pt-4 border-t border-white/10">
+                                {/* Paid This Month */}
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="text-xs text-gray-400">Paid This Month</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-500 mt-0.5">{paidExpenses.length} expenses</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-lg font-semibold text-green-400">
+                                            {paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-gray-400">{pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} UAH</p>
+
+                                {/* Pending */}
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="text-xs text-gray-400">Pending</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-500 mt-0.5">{pendingExpenses.length} expenses</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-lg font-semibold text-orange-400">
+                                            {pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Compact Add Button */}
+                        {/* Add Button - Prominent */}
                         <button
                             onClick={() => setViewMode('form')}
-                            className="w-full h-10 text-sm font-bold bg-white dark:bg-white text-black rounded-md hover:bg-gray-200 dark:hover:bg-gray-200 transition-colors"
+                            className="w-full mt-6 h-12 text-sm font-bold bg-white dark:bg-white text-black rounded-md hover:bg-gray-200 dark:hover:bg-gray-200 transition-colors shadow-sm"
                         >
                             Add New Recurring Expense
                         </button>

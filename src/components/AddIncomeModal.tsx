@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -13,6 +13,7 @@ interface AddIncomeModalProps {
 export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
     useCloseOnEscape(onClose);
     const { t } = useSettings();
+    const amountInputRef = useRef<HTMLInputElement>(null);
     const [amount, setAmount] = useState("");
     const [currency, setCurrency] = useState("UAH");
     const [accountId, setAccountId] = useState("");
@@ -22,6 +23,9 @@ export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
     const [categories, setCategories] = useState<any[]>([]);
 
     useEffect(() => {
+        // Auto-focus on amount input
+        amountInputRef.current?.focus();
+
         fetch("/api/accounts")
             .then((res) => res.json())
             .then((data) => {
@@ -65,10 +69,12 @@ export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
                     <div className="space-y-2">
                         <label>{t("add.amount")}</label>
                         <Input
+                            ref={amountInputRef}
                             type="number"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             required
+                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                     </div>
                     <div className="space-y-2">

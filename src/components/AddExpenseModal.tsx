@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ interface AddExpenseModalProps {
 export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) {
     useCloseOnEscape(onClose);
     const { t } = useSettings();
+    const amountInputRef = useRef<HTMLInputElement>(null);
     const [amount, setAmount] = useState(initialData?.amount?.toString() || "");
     const [currency, setCurrency] = useState(initialData?.currency || "UAH");
     const [accountId, setAccountId] = useState(initialData?.accountId || "");
@@ -25,6 +26,9 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
     const [categories, setCategories] = useState<any[]>([]);
 
     useEffect(() => {
+        // Auto-focus on amount input
+        amountInputRef.current?.focus();
+
         fetch("/api/accounts")
             .then((res) => res.json())
             .then((data) => {
@@ -74,10 +78,12 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
                     <div className="space-y-2">
                         <label>{t("add.amount")}</label>
                         <Input
+                            ref={amountInputRef}
                             type="number"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             required
+                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                     </div>
                     <div className="space-y-2">

@@ -75,9 +75,10 @@ The database schema is defined in `prisma/schema.prisma`.
 
 *   **Layouts**:
     *   **Dashboard**: Features a large centered background image with a unique circular navigation menu.
-    *   **Settings / Transactions / Recurring**: Use a **Full-Screen Split Layout**.
-        *   **Left**: Sidebar/Navigation or List view.
-        *   **Right**: Content area or Form, often with an image background and glassmorphism overlays.
+    *   **Settings / Transactions / Recurring / Budget**: Use a **Full-Screen Split Layout** (`flex h-screen w-full overflow-hidden`).
+        *   **Left Panel**: Sidebar/Navigation (Settings: `w-80`) or List view (75% width for others).
+        *   **Right Panel**: Content area or Form with image background (`/img/back.jpg`) and glassmorphism overlay (`bg-black/50 backdrop-blur-md`).
+        *   **Content Constraint**: Right panel content uses `max-w-4xl mx-auto` to center forms and reduce mouse travel on large monitors.
 *   **Layout Stabilization**:
     *   **App-Shell Pattern**: The root `html` and `body` tags use `h-full w-full overflow-hidden` to create a fixed viewport.
     *   **Purpose**: Prevents scrollbar toggling and layout shift during navigation between pages.

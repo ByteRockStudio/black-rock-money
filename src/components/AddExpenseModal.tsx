@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { useSettings } from "@/contexts/SettingsContext";
+import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
 
 interface AddExpenseModalProps {
     onClose: () => void;
@@ -13,6 +14,7 @@ interface AddExpenseModalProps {
 }
 
 export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) {
+    useCloseOnEscape(onClose);
     const { t } = useSettings();
     const [amount, setAmount] = useState(initialData?.amount?.toString() || "");
     const [currency, setCurrency] = useState(initialData?.currency || "UAH");

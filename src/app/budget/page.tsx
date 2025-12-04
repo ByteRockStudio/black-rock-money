@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Edit2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
 
 interface BudgetCategory {
     id: string;
@@ -26,6 +27,8 @@ interface BudgetData {
 export default function BudgetPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+
+    useCloseOnEscape(() => router.back());
 
     const [data, setData] = useState<BudgetData | null>(null);
     const [loading, setLoading] = useState(true);

@@ -102,3 +102,4 @@ The database schema is defined in `prisma/schema.prisma`.
 *   **Favicons**: Located in `public/favicon/`. Ensure permissions allow the container to read these files.
 *   **Logout**: Header component includes a Logout button (top-right) that calls `/api/auth/signout` and redirects to login.
 *   **Session Management**: Rotating `NEXTAUTH_SECRET` in `docker-compose.yml` invalidates all active sessions (forces logout).
+*   **ESC Key Closure**: Full-screen pages (Settings, Budget, Recurring, Transactions) and modals (AddExpenseModal, AddIncomeModal) use the `useCloseOnEscape` hook from `src/lib/hooks/useCloseOnEscape.ts` to close on ESC key press.

@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
 
 interface AddIncomeModalProps {
     onClose: () => void;
 }
 
 export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
+    useCloseOnEscape(onClose);
     const { t } = useSettings();
     const [amount, setAmount] = useState("");
     const [currency, setCurrency] = useState("UAH");

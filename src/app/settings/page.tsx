@@ -14,6 +14,7 @@ import { CategoryModal } from "@/components/CategoryModal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
+import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
 
 interface Account {
     id: string;
@@ -39,6 +40,8 @@ export default function SettingsPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const { t, exchangeRate, setExchangeRate, theme, setTheme, language, setLanguage } = useSettings();
+
+    useCloseOnEscape(() => router.back());
 
     const [activeTab, setActiveTab] = useState<Tab>("general");
     const [accounts, setAccounts] = useState<Account[]>([]);

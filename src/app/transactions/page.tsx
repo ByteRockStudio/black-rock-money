@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { toast } from "sonner";
 import { AddExpenseModal } from "@/components/AddExpenseModal";
+import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
 
 // Placeholder for Analytics Widgets (will implement in next step)
 // Analytics Panel with new styling
@@ -99,6 +100,8 @@ export default function TransactionsPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const { t } = useSettings();
+
+    useCloseOnEscape(() => router.back());
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [filterType, setFilterType] = useState<"all" | "expense" | "income">("all");

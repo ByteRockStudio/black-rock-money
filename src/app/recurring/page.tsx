@@ -10,10 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
 
 export default function RecurringPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+
+    useCloseOnEscape(() => router.back());
 
     // Data State
     const [recurringExpenses, setRecurringExpenses] = useState<any[]>([]);

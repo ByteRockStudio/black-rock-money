@@ -283,7 +283,7 @@ export default function RecurringPage() {
                                 return (
                                     <div
                                         key={expense.id}
-                                        className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 items-center w-full bg-white dark:bg-black border-b border-gray-50 dark:border-white/5 p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition group"
+                                        className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 items-center w-full bg-white dark:bg-black border-b border-gray-50 dark:border-white/5 p-2 hover:bg-gray-50 dark:hover:bg-white/5 transition group"
                                     >
                                         <div className="font-medium text-gray-900 dark:text-white truncate">
                                             {expense.name}

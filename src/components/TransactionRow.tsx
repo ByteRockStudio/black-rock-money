@@ -33,7 +33,7 @@ export function TransactionRow({ transaction, onEdit, onDelete }: TransactionRow
     const isRecurring = transaction.isRecurring;
 
     return (
-        <tr className={`h-12 border-b border-gray-100 dark:border-white/10 transition-colors group text-sm ${isRecurring ? "bg-purple-50/50 dark:bg-purple-900/10 hover:bg-purple-50 dark:hover:bg-purple-900/20" : "hover:bg-gray-50 dark:hover:bg-white/5"}`}>
+        <tr className={`h-2 border-b border-gray-100 dark:border-white/10 transition-colors group text-sm ${isRecurring ? "bg-purple-50/50 dark:bg-purple-900/10 hover:bg-purple-50 dark:hover:bg-purple-900/20" : "hover:bg-gray-50 dark:hover:bg-white/5"}`}>
             {/* Date */}
             <td className="px-4 text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 {format(new Date(transaction.date), "dd MMM yyyy")}

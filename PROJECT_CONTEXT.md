@@ -45,8 +45,8 @@ The database schema is defined in `prisma/schema.prisma`.
 *   **Transaction**: Individual financial records.
     *   **Relationships**: Linked to `Account` and `Category`. Can be linked to a `RecurringExpense`.
 *   **RecurringExpense**: Definitions for subscriptions and regular payments.
-    *   **Fields**: `id`, `userId`, `name`, `amount`, `accountId`, `categoryId`, `recurrenceType` (DAILY/WEEKLY/MONTHLY/YEARLY), `recurrenceInterval`, `startDate`, `lastAppliedDate`, `isActive`, `createdAt`, `updatedAt`
-    *   **Function**: Generates `Transaction` records via manual application (Play button) or future automation.
+    *   **Fields**: `id`, `userId`, `name`, `amount`, `accountId`, `categoryId`, `recurrenceType` (DAILY/WEEKLY/MONTHLY/YEARLY), `recurrenceInterval`, `startDate`, `lastAppliedDate`, `isActive`, `isPaused`, `createdAt`, `updatedAt`
+    *   **Function**: Generates `Transaction` records via manual application (Play button) or future automation. Paused expenses are excluded from monthly totals and cannot generate transactions.
 
 ## 4. Project Structure & Key Directories
 
@@ -62,6 +62,7 @@ The database schema is defined in `prisma/schema.prisma`.
         *   `/categories`: CRUD for categories.
         *   `/transactions`: CRUD for transactions.
         *   `/recurring`: CRUD operations (GET, POST, PUT, DELETE)
+        *   `/recurring/[id]/toggle-pause`: Toggle pause status (PUT)
         *   `/recurring/apply/[id]`: Manual application endpoint (creates transaction, updates balance, sets lastAppliedDate)
 *   **`src/lib`**: Shared utilities.
     *   `prisma.ts`: Prisma client instance.

@@ -23,6 +23,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         return new NextResponse("Recurring expense not found", { status: 404 });
     }
 
+    // Skip if paused
+    if (recurringExpense.isPaused) {
+        return new NextResponse("Expense is paused", { status: 400 });
+    }
+
     // Transaction logic
     const result = await prisma.$transaction(async (tx) => {
         // 1. Create Transaction

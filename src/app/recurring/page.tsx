@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { format, addDays, addWeeks, addMonths, addYears, isBefore, isSameMonth } from "date-fns";
-import { ArrowLeft, Play, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Play, Edit, Trash2, PauseCircle, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -186,6 +186,20 @@ export default function RecurringPage() {
         }
     };
 
+    const handleTogglePause = async (id: string) => {
+        try {
+            const res = await fetch(`/api/recurring/${id}/toggle-pause`, { method: "PUT" });
+            if (res.ok) {
+                toast.success("Pause status updated");
+                fetchData();
+            } else {
+                toast.error("Failed to update pause status");
+            }
+        } catch (error) {
+            toast.error("Error updating pause status");
+        }
+    };
+
     const calculateNextDue = (expense: any) => {
         const start = new Date(expense.startDate);
         const last = expense.lastAppliedDate ? new Date(expense.lastAppliedDate) : null;
@@ -214,8 +228,9 @@ export default function RecurringPage() {
         return `Every ${interval} ${type.toLowerCase().replace("ly", "s")}`;
     };
 
-    // Calculate Total Monthly
-    const totalMonthly = recurringExpenses.reduce((sum, expense) => {
+    // Calculate Total Monthly (exclude paused)
+    const activeExpenses = recurringExpenses.filter(expense => !expense.isPaused);
+    const totalMonthly = activeExpenses.reduce((sum, expense) => {
         let monthlyAmount = expense.amount;
         if (expense.recurrenceType === "DAILY") monthlyAmount = expense.amount * 30 / expense.recurrenceInterval;
         if (expense.recurrenceType === "WEEKLY") monthlyAmount = expense.amount * 4 / expense.recurrenceInterval;
@@ -225,12 +240,12 @@ export default function RecurringPage() {
         return sum + monthlyAmount;
     }, 0);
 
-    // Calculate Paid vs Pending
+    // Calculate Paid vs Pending (exclude paused)
     const currentMonth = new Date();
-    const paidExpenses = recurringExpenses.filter(expense =>
+    const paidExpenses = activeExpenses.filter(expense =>
         expense.lastAppliedDate && isSameMonth(new Date(expense.lastAppliedDate), currentMonth)
     );
-    const pendingExpenses = recurringExpenses.filter(expense =>
+    const pendingExpenses = activeExpenses.filter(expense =>
         !expense.lastAppliedDate || !isSameMonth(new Date(expense.lastAppliedDate), currentMonth)
     );
 
@@ -283,10 +298,15 @@ export default function RecurringPage() {
                                 return (
                                     <div
                                         key={expense.id}
-                                        className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 items-center w-full bg-white dark:bg-black border-b border-gray-50 dark:border-white/5 p-2 hover:bg-gray-50 dark:hover:bg-white/5 transition group"
+                                        className={`grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 items-center w-full bg-white dark:bg-black border-b border-gray-50 dark:border-white/5 p-2 hover:bg-gray-50 dark:hover:bg-white/5 transition group ${expense.isPaused ? 'opacity-50' : ''}`}
                                     >
-                                        <div className="font-medium text-gray-900 dark:text-white truncate">
+                                        <div className="font-medium text-gray-900 dark:text-white truncate flex items-center gap-2">
                                             {expense.name}
+                                            {expense.isPaused && (
+                                                <span className="text-[10px] bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded uppercase tracking-wider">
+                                                    PAUSED
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="text-right font-medium text-gray-900 dark:text-white">
                                             {expense.amount.toLocaleString()} <span className="text-xs text-gray-400">{expense.account.currency}</span>
@@ -300,17 +320,26 @@ export default function RecurringPage() {
                                         <div className="text-sm text-gray-600 dark:text-gray-400">
                                             {getRecurrenceLabel(expense.recurrenceType, expense.recurrenceInterval)}
                                         </div>
-                                        <div className={`text-sm ${isOverdue ? "text-red-500 font-medium" : "text-gray-600 dark:text-gray-400"}`}>
+                                        <div className={`text-sm ${expense.isPaused ? 'line-through text-gray-400' : isOverdue ? "text-red-500 font-medium" : "text-gray-600 dark:text-gray-400"}`}>
                                             {format(nextDue, "MMM d")}
                                         </div>
                                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button
-                                                onClick={() => handleManualApply(expense.id, expense.name)}
-                                                className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-colors"
-                                                title="Apply Now"
+                                                onClick={() => handleTogglePause(expense.id)}
+                                                className={`p-1.5 rounded-md transition-colors ${expense.isPaused ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20' : 'text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'}`}
+                                                title={expense.isPaused ? "Resume" : "Pause"}
                                             >
-                                                <Play size={16} />
+                                                {expense.isPaused ? <PlayCircle size={16} /> : <PauseCircle size={16} />}
                                             </button>
+                                            {!expense.isPaused && (
+                                                <button
+                                                    onClick={() => handleManualApply(expense.id, expense.name)}
+                                                    className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-colors"
+                                                    title="Apply Now"
+                                                >
+                                                    <Play size={16} />
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => handleEdit(expense)}
                                                 className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"

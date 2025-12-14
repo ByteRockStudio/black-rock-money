@@ -86,6 +86,7 @@ model RecurringExpense {
   startDate          DateTime
   lastAppliedDate    DateTime?
   isActive           Boolean   @default(true)
+  isPaused           Boolean   @default(false)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   transactions       Transaction[]

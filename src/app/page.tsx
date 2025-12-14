@@ -48,76 +48,74 @@ export default function Home() {
         }
     };
 
+    const navItems = [
+        { icon: <Plus size={24} />, label: t("nav.add"), onClick: () => setActiveModule("add"), accent: "text-red-500" },
+        { icon: <Plus size={24} />, label: t("nav.income"), onClick: () => setActiveModule("income"), accent: "text-green-500" },
+        { icon: <List size={24} />, label: t("nav.view"), href: "/transactions" },
+        { icon: <PieChart size={24} />, label: t("nav.budget"), href: "/budget" },
+        { icon: <Repeat size={24} />, label: t("nav.recurring"), href: "/recurring" },
+        { icon: <Settings size={24} />, label: t("nav.settings"), href: "/settings" },
+    ];
+
     return (
-        <div className="h-full w-full bg-background font-sans text-foreground overflow-hidden relative">
+        <div className="h-full w-full font-sans overflow-hidden relative">
+            {/* Header */}
             <div className="absolute top-0 left-0 right-0 z-10">
                 <Header />
             </div>
+
+            {/* Main Content */}
             <main className="absolute top-[180px] left-0 right-0 bottom-0 overflow-y-auto">
-                <div className="relative mt-8 w-[80%] max-w-7xl mx-auto h-[65vh] rounded-[40px] overflow-hidden shadow-2xl">
-                    {/* Background Image & Overlay */}
-                    <div className="absolute inset-0 bg-[url('/img/back.jpg')] bg-cover bg-center bg-no-repeat" />
-                    <div className="absolute inset-0 bg-black/40" />
+                <div className="max-w-5xl mx-auto px-8 py-12">
+                    {/* Title */}
+                    <h1 className="text-5xl md:text-6xl font-hard-rock tracking-wide mb-16 text-center text-zinc-900 dark:text-white">
+                        {t("app.title")}
+                    </h1>
 
-                    {/* Content */}
-                    <div className="relative z-10 h-full flex flex-col items-center justify-center text-white py-10 px-10">
-                        <h1 className="text-6xl font-hard-rock tracking-wide mb-16 text-white drop-shadow-lg">{t("app.title")}</h1>
+                    {/* Navigation Grid - Minimalist Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                        {navItems.map((item, index) => {
+                            const CardContent = (
+                                <div className="group flex flex-col items-center justify-center p-8 rounded-2xl transition-all duration-300 cursor-pointer
+                                    bg-white dark:bg-zinc-900/50 
+                                    hover:bg-zinc-50 dark:hover:bg-zinc-800/70
+                                    border border-zinc-200 dark:border-zinc-800
+                                    hover:border-zinc-300 dark:hover:border-zinc-700
+                                    hover:shadow-lg dark:hover:shadow-zinc-900/50
+                                    ">
+                                    <div className={`mb-4 p-4 rounded-full bg-zinc-100 dark:bg-zinc-800 group-hover:scale-110 transition-transform ${item.accent || "text-zinc-700 dark:text-zinc-300"}`}>
+                                        {item.icon}
+                                    </div>
+                                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
+                                        {item.label}
+                                    </span>
+                                </div>
+                            );
 
-                        <div className="flex flex-wrap justify-center gap-8 md:gap-12">
-                            <CircleButton
-                                icon={<Plus size={32} />}
-                                label={t("nav.add")}
-                                onClick={() => setActiveModule("add")}
-                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                            />
-                            <CircleButton
-                                icon={<Plus size={32} className="text-green-400" />}
-                                label={t("nav.income")}
-                                onClick={() => setActiveModule("income")}
-                                className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                            />
-                            <Link href="/transactions">
-                                <CircleButton
-                                    icon={<List size={32} />}
-                                    label={t("nav.view")}
-                                    onClick={() => { }}
-                                    className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                                />
-                            </Link>
-                            <Link href="/budget">
-                                <CircleButton
-                                    icon={<PieChart size={32} />}
-                                    label={t("nav.budget")}
-                                    onClick={() => { }}
-                                    className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                                />
-                            </Link>
-                            <Link href="/recurring">
-                                <CircleButton
-                                    icon={<Repeat size={32} />}
-                                    label={t("nav.recurring")}
-                                    onClick={() => { }}
-                                    className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                                />
-                            </Link>
-                            <Link href="/settings">
-                                <CircleButton
-                                    icon={<Settings size={32} />}
-                                    label={t("nav.settings")}
-                                    onClick={() => { }}
-                                    className="border-white/50 text-white hover:bg-white hover:text-black hover:border-white"
-                                />
-                            </Link>
-                        </div>
+                            if (item.href) {
+                                return (
+                                    <Link key={index} href={item.href}>
+                                        {CardContent}
+                                    </Link>
+                                );
+                            }
+
+                            return (
+                                <div key={index} onClick={item.onClick}>
+                                    {CardContent}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
+                {/* Modal Overlay */}
                 {activeModule && (
-                    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-card border text-card-foreground rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-auto relative">
+                    <div className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-auto relative">
                             <button
                                 onClick={() => setActiveModule(null)}
-                                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+                                className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
                             >
                                 {t("common.close")}
                             </button>
@@ -129,17 +127,5 @@ export default function Home() {
                 )}
             </main>
         </div>
-    );
-}
-
-function CircleButton({ icon, label, onClick, className }: { icon: React.ReactNode; label: string; onClick: () => void; className?: string }) {
-    return (
-        <button
-            onClick={onClick}
-            className={`flex flex-col items-center justify-center w-32 h-32 rounded-full border-2 transition-all duration-300 group ${className || "border-primary hover:bg-primary hover:text-primary-foreground"}`}
-        >
-            <div className="mb-2 group-hover:scale-110 transition-transform">{icon}</div>
-            <span className="text-xs font-medium">{label}</span>
-        </button>
     );
 }

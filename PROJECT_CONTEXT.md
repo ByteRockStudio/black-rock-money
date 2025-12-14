@@ -105,3 +105,26 @@ The database schema is defined in `prisma/schema.prisma`.
 *   **Logout**: Header component includes a Logout button (top-right) that calls `/api/auth/signout` and redirects to login.
 *   **Session Management**: Rotating `NEXTAUTH_SECRET` in `docker-compose.yml` invalidates all active sessions (forces logout).
 *   **ESC Key Closure**: Full-screen pages (Settings, Budget, Recurring, Transactions) and modals (AddExpenseModal, AddIncomeModal) use the `useCloseOnEscape` hook from `src/lib/hooks/useCloseOnEscape.ts` to close on ESC key press.
+
+## 7. Change Log (Recent Updates)
+
+### [2025-12-14] UI/UX Refactor: Ultra-Minimalist Flat Background
+*   **Goal**: Replace outdated image backgrounds with a CSS-only, 2D flat design.
+*   **Changes**:
+    *   **Layout** (`src/app/layout.tsx`):
+        *   **Base**: `bg-zinc-950` (Deep Matte Black).
+        *   **Pattern**: Subtle 24px grid using CSS `linear-gradient` (gray lines at ~3% opacity).
+        *   **Style**: Swiss Design / Blueprint aesthetic - no glow, no 3D effects.
+    *   **Individual pages** retain their existing structure but now sit on the global flat background.
+
+### [2025-12-14] UI/UX Refactor: Minimalist Dashboard Redesign
+*   **Goal**: Remove heavy containers, implement clean card-based navigation inspired by modern CRM dashboards.
+*   **Changes**:
+    *   **Layout** (`src/app/layout.tsx`): Dual-theme background grid support.
+        *   Light mode: `bg-stone-100` with subtle dark grid lines.
+        *   Dark mode: `bg-zinc-950` with subtle light grid lines.
+    *   **Dashboard** (`src/app/page.tsx`): Complete redesign.
+        *   Removed: Heavy rounded container with background image.
+        *   Added: Clean responsive grid (2-3 columns) of minimalist cards.
+        *   Cards: White/dark backgrounds with subtle borders, hover shadows.
+        *   Icons: Pill-shaped backgrounds with accent colors.

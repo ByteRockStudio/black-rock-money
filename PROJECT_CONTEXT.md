@@ -108,6 +108,25 @@ The database schema is defined in `prisma/schema.prisma`.
 
 ## 7. Change Log (Recent Updates)
 
+### [2025-12-14] UI/UX Overhaul v2.0: Clean Industrial/Flat Dashboard
+*   **Goal**: Complete refactor from Glassmorphism/Neon to Clean Industrial/Flat SaaS dashboard with persistent navigation.
+*   **New Component**: `DashboardLayout.tsx`
+    *   **Left Sidebar** (w-64, fixed): Logo, navigation (Dashboard, Transactions, Recurring, Budget, Settings), user email, logout button.
+    *   **Top Header** (sticky): Breadcrumbs, "Add Expense/Income" buttons, theme/language toggles.
+    *   **Active State**: `bg-zinc-900 text-white` (dark) / `bg-zinc-100 text-zinc-900` (light) with left border accent.
+*   **Dashboard** (`src/app/page.tsx`):
+    *   Replaced card-based navigation with **Bento Grid** (grid-cols-12).
+    *   Widgets: Total Balance, Accounts Overview, Budget Progress (top 3), Recent Transactions (last 5).
+*   **Visual System**:
+    *   **Backgrounds**: Solid `bg-zinc-50` (light) / `bg-zinc-950` (dark). No background images.
+    *   **Cards**: `border border-zinc-200/800`, `rounded-xl`, no glassmorphism.
+    *   **Typography**: Inter font, tight headers, `text-zinc-500` for secondary text.
+    *   **Buttons**: Primary = solid `bg-zinc-900 dark:bg-white`, Secondary = bordered.
+*   **Page Updates**: Transactions, Recurring, Budget, Settings all wrapped in `DashboardLayout`.
+    *   Removed 75/25 split layouts.
+    *   Analytics/stats moved to page headers.
+    *   Settings uses internal tabs sidebar.
+
 ### [2025-12-14] UI/UX Refactor: Ultra-Minimalist Flat Background
 *   **Goal**: Replace outdated image backgrounds with a CSS-only, 2D flat design.
 *   **Changes**:

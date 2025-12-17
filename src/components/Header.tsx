@@ -3,7 +3,9 @@
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { Moon, Sun, Globe, LogOut } from "lucide-react";
+import { usePrivacy } from "@/contexts/PrivacyContext";
+import { Moon, Sun, Globe, LogOut, Eye, EyeOff } from "lucide-react";
+import { PrivacyMask } from "@/components/PrivacyMask";
 import { Button } from "@/components/ui/button";
 
 interface SummaryData {
@@ -15,6 +17,7 @@ import { usePathname } from "next/navigation";
 
 export function Header() {
     const { theme, setTheme, language, setLanguage, exchangeRate, t } = useSettings();
+    const { isPrivacyEnabled, togglePrivacy } = usePrivacy();
     const [data, setData] = useState<SummaryData | null>(null);
     const pathname = usePathname();
 
@@ -70,6 +73,9 @@ export function Header() {
         <header className="w-full p-8 flex flex-col items-center gap-6">
             {/* Settings Controls (Top Right) */}
             <div className="absolute top-6 right-6 flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={togglePrivacy} title={isPrivacyEnabled ? "Show Balances" : "Hide Balances"} className="rounded-full">
+                    {isPrivacyEnabled ? <Eye size={18} /> : <EyeOff size={18} />}
+                </Button>
                 <Button variant="ghost" size="icon" onClick={toggleLanguage} title="Switch Language" className="rounded-full">
                     <span className="font-medium text-xs">{language.toUpperCase()}</span>
                 </Button>
@@ -96,7 +102,7 @@ export function Header() {
                             <div className="flex flex-col items-center w-40">
                                 <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Income</span>
                                 <span className="text-2xl font-light">
-                                    {formatCurrency(data.monthlyStats["UAH"]?.income || 0, "UAH")}
+                                    <PrivacyMask value={formatCurrency(data.monthlyStats["UAH"]?.income || 0, "UAH")} />
                                 </span>
                             </div>
 
@@ -104,7 +110,7 @@ export function Header() {
                             <div className="flex flex-col items-center w-40">
                                 <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t("header.balance")}</span>
                                 <div className="text-2xl font-light">
-                                    {formatCurrency(calculateTotalBalanceUAH(), "UAH")}
+                                    <PrivacyMask value={formatCurrency(calculateTotalBalanceUAH(), "UAH")} />
                                 </div>
                             </div>
 
@@ -112,7 +118,7 @@ export function Header() {
                             <div className="flex flex-col items-center w-40">
                                 <span className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Expenses</span>
                                 <span className="text-2xl font-light">
-                                    {formatCurrency(data.monthlyStats["UAH"]?.expense || 0, "UAH")}
+                                    <PrivacyMask value={formatCurrency(data.monthlyStats["UAH"]?.expense || 0, "UAH")} />
                                 </span>
                             </div>
                         </div>

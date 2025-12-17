@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSettings } from "@/contexts/SettingsContext";
+import { usePrivacy } from "@/contexts/PrivacyContext";
 import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
 
 interface AddIncomeModalProps {
@@ -13,6 +14,7 @@ interface AddIncomeModalProps {
 export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
     useCloseOnEscape(onClose);
     const { t } = useSettings();
+    const { isPrivacyEnabled } = usePrivacy();
     const amountInputRef = useRef<HTMLInputElement>(null);
     const [amount, setAmount] = useState("");
     const [currency, setCurrency] = useState("UAH");
@@ -100,7 +102,9 @@ export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
                     >
                         {accounts.map((acc) => (
                             <option key={acc.id} value={acc.id}>
-                                {acc.name} ({acc.balance} {acc.currency})
+                                {acc.name} {t("common.balance_wrapper", {
+                                    balance: isPrivacyEnabled ? "***" : `${acc.balance} ${acc.currency}`
+                                })}
                             </option>
                         ))}
                     </select>

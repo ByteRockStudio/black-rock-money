@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 import { useSettings } from "@/contexts/SettingsContext";
 
@@ -33,7 +34,10 @@ export function ExpenseTable({ onClose }: ExpenseTableProps) {
         <div className="space-y-4">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">{t("view.title")}</h2>
-                <div className="text-xl font-bold">{t("view.total")}: {totalSpent.toFixed(2)}</div>
+                <div className="text-xl font-bold">
+                    <span className="mr-2">{t("view.total")}:</span>
+                    <PrivacyMask value={totalSpent.toFixed(2)} />
+                </div>
             </div>
 
             <div className="flex space-x-2 mb-4">
@@ -74,7 +78,7 @@ export function ExpenseTable({ onClose }: ExpenseTableProps) {
                                 <td className="px-4 py-2">{format(new Date(t.date), "yyyy-MM-dd")}</td>
                                 <td className="px-4 py-2">{t.category?.name}</td>
                                 <td className="px-4 py-2 font-medium">
-                                    {t.type === "expense" ? "-" : "+"}{t.amount.toFixed(2)}
+                                    <PrivacyMask value={`${t.type === "expense" ? "-" : "+"}${t.amount.toFixed(2)}`} />
                                 </td>
                                 <td className="px-4 py-2">{t.account?.name}</td>
                                 <td className="px-4 py-2 text-muted-foreground">{t.comment}</td>

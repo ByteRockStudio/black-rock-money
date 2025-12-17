@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 export default function RecurringPage() {
     const { data: session, status } = useSession();
@@ -309,7 +310,7 @@ export default function RecurringPage() {
                                             )}
                                         </div>
                                         <div className="text-right font-medium text-gray-900 dark:text-white">
-                                            {expense.amount.toLocaleString()} <span className="text-xs text-gray-400">{expense.account.currency}</span>
+                                            <PrivacyMask value={`${expense.amount.toLocaleString()} ${expense.account.currency}`} />
                                         </div>
                                         <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
                                             {expense.account.name}
@@ -379,8 +380,7 @@ export default function RecurringPage() {
                             <div className="py-4">
                                 <p className="text-xs text-gray-400 mb-2">Total Monthly Estimate</p>
                                 <p className="text-4xl font-bold text-gray-900 dark:text-white">
-                                    {totalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                    <span className="text-lg font-bold text-gray-400 ml-2">₴</span>
+                                    <PrivacyMask value={`${totalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₴`} />
                                 </p>
                             </div>
 
@@ -394,7 +394,7 @@ export default function RecurringPage() {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-lg font-semibold text-green-400">
-                                            {paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                            <PrivacyMask value={paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} />
                                         </p>
                                     </div>
                                 </div>
@@ -407,7 +407,7 @@ export default function RecurringPage() {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-lg font-semibold text-orange-400">
-                                            {pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                            <PrivacyMask value={pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} />
                                         </p>
                                     </div>
                                 </div>

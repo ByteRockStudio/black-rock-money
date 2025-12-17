@@ -12,7 +12,7 @@ interface SettingsContextType {
     setTheme: (theme: Theme) => void;
     exchangeRate: number;
     setExchangeRate: (rate: number) => void;
-    t: (key: string) => string;
+    t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -36,6 +36,7 @@ const translations: Record<Language, Record<string, string>> = {
         "common.delete": "Delete",
         "common.save": "Save",
         "common.system": "System",
+        "common.balance_wrapper": "({balance})",
         "add.title": "Add Expense",
         "add.income_title": "Add Income",
         "add.amount": "Amount",
@@ -107,6 +108,7 @@ const translations: Record<Language, Record<string, string>> = {
         "common.delete": "Видалити",
         "common.save": "Зберегти",
         "common.system": "Система",
+        "common.balance_wrapper": "({balance})",
         "add.title": "Додати витрату",
         "add.income_title": "Додати дохід",
         "add.amount": "Сума",
@@ -197,8 +199,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [theme]);
 
-    const t = (key: string) => {
-        return translations[language][key] || key;
+    const t = (key: string, params?: Record<string, string | number>) => {
+        let text = translations[language][key] || key;
+        if (params) {
+            Object.entries(params).forEach(([param, value]) => {
+                text = text.replace(`{${param}}`, String(value));
+            });
+        }
+        return text;
     };
 
     const setExchangeRate = async (rate: number) => {

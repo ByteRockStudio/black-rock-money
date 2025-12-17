@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { useSettings } from "@/contexts/SettingsContext";
+import { usePrivacy } from "@/contexts/PrivacyContext";
 import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
 
 interface AddExpenseModalProps {
@@ -23,6 +24,7 @@ const formatDateForInput = (date: Date | string | undefined): string => {
 export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) {
     useCloseOnEscape(onClose);
     const { t } = useSettings();
+    const { isPrivacyEnabled } = usePrivacy();
     const amountInputRef = useRef<HTMLInputElement>(null);
     const [amount, setAmount] = useState(initialData?.amount?.toString() || "");
     const [currency, setCurrency] = useState(initialData?.currency || "UAH");
@@ -118,7 +120,9 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
                     >
                         {accounts.map((acc) => (
                             <option key={acc.id} value={acc.id}>
-                                {acc.name} ({acc.balance} {acc.currency})
+                                {acc.name} {t("common.balance_wrapper", {
+                                    balance: isPrivacyEnabled ? "***" : `${acc.balance} ${acc.currency}`
+                                })}
                             </option>
                         ))}
                     </select>

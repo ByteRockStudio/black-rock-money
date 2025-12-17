@@ -13,6 +13,7 @@ import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { toast } from "sonner";
 import { AddExpenseModal } from "@/components/AddExpenseModal";
 import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 // Placeholder for Analytics Widgets (will implement in next step)
 // Analytics Panel with new styling
@@ -50,17 +51,21 @@ function AnalyticsPanel({ transactions }: { transactions: any[] }) {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white dark:bg-white/5 p-4 rounded-lg border border-gray-100 dark:border-white/5">
                         <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Income</div>
-                        <div className="text-lg font-bold text-green-600 dark:text-green-400">+{totalIncome.toLocaleString()}</div>
+                        <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                            <PrivacyMask value={`+${totalIncome.toLocaleString()}`} />
+                        </div>
                     </div>
                     <div className="bg-white dark:bg-white/5 p-4 rounded-lg border border-gray-100 dark:border-white/5">
                         <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Expense</div>
-                        <div className="text-lg font-bold text-gray-900 dark:text-white">-{totalExpense.toLocaleString()}</div>
+                        <div className="text-lg font-bold text-gray-900 dark:text-white">
+                            <PrivacyMask value={`-${totalExpense.toLocaleString()}`} />
+                        </div>
                     </div>
                 </div>
                 <div className="bg-white dark:bg-white/5 p-4 rounded-lg border border-gray-100 dark:border-white/5 flex justify-between items-center">
                     <div className="text-sm text-gray-600 dark:text-gray-400">Net Result</div>
                     <div className={`text-xl font-bold ${netResult >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500"}`}>
-                        {netResult >= 0 ? "+" : ""}{netResult.toLocaleString()}
+                        <PrivacyMask value={`${netResult >= 0 ? "+" : ""}${netResult.toLocaleString()}`} />
                     </div>
                 </div>
             </div>
@@ -78,7 +83,9 @@ function AnalyticsPanel({ transactions }: { transactions: any[] }) {
                                 <div key={name} className="space-y-1">
                                     <div className="flex justify-between text-sm">
                                         <span className="font-medium text-gray-700 dark:text-gray-300">{name}</span>
-                                        <span className="text-gray-500 dark:text-gray-400">{amount.toLocaleString()}</span>
+                                        <span className="text-gray-500 dark:text-gray-400">
+                                            <PrivacyMask value={amount.toLocaleString()} />
+                                        </span>
                                     </div>
                                     <div className="h-1.5 w-full bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
                                         <div

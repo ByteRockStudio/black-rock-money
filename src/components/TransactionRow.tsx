@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { Edit2, Trash2, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSettings } from "@/contexts/SettingsContext";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 interface Transaction {
     id: string;
@@ -61,7 +62,7 @@ export function TransactionRow({ transaction, onEdit, onDelete }: TransactionRow
 
             {/* Amount */}
             <td className={`px-4 text-right font-medium ${isIncome ? "text-green-600 dark:text-green-400" : "text-gray-900 dark:text-gray-100"}`}>
-                {isIncome ? "+" : "-"}{transaction.amount} {transaction.currency}
+                <PrivacyMask value={`${isIncome ? "+" : "-"}${transaction.amount} ${transaction.currency}`} />
             </td>
 
             {/* Actions */}

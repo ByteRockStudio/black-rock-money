@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { PrivacyMask } from "@/components/PrivacyMask";
 
 import { useSettings } from "@/contexts/SettingsContext";
 
@@ -39,8 +40,12 @@ export function BudgetView({ onClose }: BudgetViewProps) {
                             />
                         </div>
                         <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                            <span>{t("budget.spent")}: 0 (Mock)</span>
-                            <span>{t("budget.remaining")}: {cat.budgetLimit || "∞"}</span>
+                            <span>
+                                {t("budget.spent")}: <PrivacyMask value="0 (Mock)" />
+                            </span>
+                            <span>
+                                {t("budget.remaining")}: <PrivacyMask value={cat.budgetLimit || "∞"} />
+                            </span>
                         </div>
                     </div>
                 ))}

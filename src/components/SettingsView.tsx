@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PrivacyMask } from "@/components/PrivacyMask";
 import { Trash2 } from "lucide-react";
 
 import { useSettings } from "@/contexts/SettingsContext";
@@ -105,7 +106,7 @@ export function SettingsView({ onClose }: SettingsViewProps) {
                                     <div className="text-sm text-muted-foreground">{acc.type}</div>
                                 </div>
                                 <div className="font-bold">
-                                    {acc.balance} {acc.currency}
+                                    <PrivacyMask value={`${acc.balance} ${acc.currency}`} />
                                 </div>
                             </div>
                         ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,12 @@ interface AddExpenseModalProps {
     initialData?: any;
 }
 
+// Helper to format date for input[type="date"]
+const formatDateForInput = (date: Date | string | undefined): string => {
+    if (!date) return format(new Date(), "yyyy-MM-dd");
+    return format(new Date(date), "yyyy-MM-dd");
+};
+
 export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) {
     useCloseOnEscape(onClose);
     const { t } = useSettings();
@@ -22,6 +29,7 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
     const [accountId, setAccountId] = useState(initialData?.accountId || "");
     const [categoryId, setCategoryId] = useState(initialData?.categoryId || "");
     const [comment, setComment] = useState(initialData?.comment || "");
+    const [transactionDate, setTransactionDate] = useState(formatDateForInput(initialData?.date));
     const [accounts, setAccounts] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
 
@@ -59,6 +67,7 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
             accountId,
             categoryId,
             comment,
+            date: transactionDate, // ISO date string
             type: initialData?.type || "expense", // Preserve type if editing, default to expense
         };
 
@@ -136,6 +145,17 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
                     <Input
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
+                    />
+                </div>
+
+                {/* Date Field */}
+                <div className="space-y-2">
+                    <label>Date</label>
+                    <Input
+                        type="date"
+                        value={transactionDate}
+                        onChange={(e) => setTransactionDate(e.target.value)}
+                        required
                     />
                 </div>
 

@@ -24,6 +24,7 @@ interface Account {
     startingBalance: number;
     currency: string;
     isDefault: boolean;
+    isSavings: boolean;
 }
 
 interface Category {

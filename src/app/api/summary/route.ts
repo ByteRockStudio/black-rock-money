@@ -19,11 +19,22 @@ export async function GET() {
     });
 
     const balanceByCurrency: Record<string, number> = {};
+    const savingsByCurrency: Record<string, number> = {};
+
     accounts.forEach((acc) => {
-        if (!balanceByCurrency[acc.currency]) {
-            balanceByCurrency[acc.currency] = 0;
+        if (acc.isSavings) {
+            // Aggregate Savings Balance
+            if (!savingsByCurrency[acc.currency]) {
+                savingsByCurrency[acc.currency] = 0;
+            }
+            savingsByCurrency[acc.currency] += acc.balance;
+        } else {
+            // Aggregate Operating Balance
+            if (!balanceByCurrency[acc.currency]) {
+                balanceByCurrency[acc.currency] = 0;
+            }
+            balanceByCurrency[acc.currency] += acc.balance;
         }
-        balanceByCurrency[acc.currency] += acc.balance;
     });
 
     // 2. Calculate Monthly Income and Expenses
@@ -72,6 +83,7 @@ export async function GET() {
 
     return NextResponse.json({
         totalBalance: balanceByCurrency,
+        savingsBalance: savingsByCurrency,
         monthlyStats: monthlyStatsByCurrency,
     });
 }

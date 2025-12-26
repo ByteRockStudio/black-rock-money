@@ -11,6 +11,7 @@ interface Account {
     balance: number;
     startingBalance: number;
     currency: string;
+    isSavings: boolean;
 }
 
 interface AccountModalProps {
@@ -28,6 +29,7 @@ export function AccountModal({ isOpen, onClose, account, onSave }: AccountModalP
         startingBalance: "",
         balance: "", // For manual editing
         currency: "UAH",
+        isSavings: false,
     });
 
     useEffect(() => {
@@ -45,6 +47,7 @@ export function AccountModal({ isOpen, onClose, account, onSave }: AccountModalP
                 startingBalance: String(account.startingBalance),
                 balance: String(account.balance),
                 currency: account.currency,
+                isSavings: account.isSavings || false,
             });
         } else {
             setForm({
@@ -53,6 +56,7 @@ export function AccountModal({ isOpen, onClose, account, onSave }: AccountModalP
                 startingBalance: "",
                 balance: "",
                 currency: "UAH",
+                isSavings: false,
             });
         }
         return () => window.removeEventListener("keydown", handleEsc);
@@ -67,13 +71,15 @@ export function AccountModal({ isOpen, onClose, account, onSave }: AccountModalP
                 name: form.name,
                 type: form.type,
                 currency: form.currency,
-                balance: form.balance // Send balance for manual update
+                balance: form.balance, // Send balance for manual update
+                isSavings: form.isSavings
             }
             : {
                 name: form.name,
                 type: form.type,
                 startingBalance: form.startingBalance,
-                currency: form.currency
+                currency: form.currency,
+                isSavings: form.isSavings
             };
 
         const res = await fetch("/api/accounts", {
@@ -148,6 +154,22 @@ export function AccountModal({ isOpen, onClose, account, onSave }: AccountModalP
                                     <option value="USD">USD</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2 border p-3 rounded-md">
+                            <input
+                                type="checkbox"
+                                id="isSavings"
+                                checked={form.isSavings}
+                                onChange={(e) => setForm({ ...form, isSavings: e.target.checked })}
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                            <label
+                                htmlFor="isSavings"
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            >
+                                Mark as Savings Account
+                            </label>
                         </div>
 
                         {account ? (

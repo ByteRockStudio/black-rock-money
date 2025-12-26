@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     // @ts-ignore
     const userId = session.user.id;
     const body = await req.json();
-    const { name, type, startingBalance, currency } = body;
+    const { name, type, startingBalance, currency, isSavings } = body;
 
     const account = await prisma.account.create({
         data: {
@@ -39,6 +39,7 @@ export async function POST(req: Request) {
             balance: parseFloat(startingBalance),
             startingBalance: parseFloat(startingBalance),
             currency,
+            isSavings: isSavings || false,
         },
     });
 
@@ -54,7 +55,7 @@ export async function PUT(req: Request) {
     // @ts-ignore
     const userId = session.user.id;
     const body = await req.json();
-    const { id, name, type, currency, balance } = body;
+    const { id, name, type, currency, balance, isSavings } = body;
 
     const account = await prisma.account.findUnique({
         where: { id },
@@ -64,7 +65,7 @@ export async function PUT(req: Request) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const data: any = { name, type, currency };
+    const data: any = { name, type, currency, isSavings };
 
     if (balance !== undefined && balance !== "") {
         const newBalance = parseFloat(balance);

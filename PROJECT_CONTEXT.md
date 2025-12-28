@@ -19,6 +19,11 @@ This document serves as the **Source of Truth** for the "Hard Rock Money" projec
 ## 2. Infrastructure & Deployment (Docker)
 
 The project runs in a fully containerized environment using Docker Compose.
+Example of running containers:
+docker ps
+CONTAINER ID   IMAGE                 COMMAND                  CREATED       STATUS      PORTS                                         NAMES
+f6177dc7c31e   hard-rock-money-app   "docker-entrypoint.s…"   11 days ago   Up 2 days   0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp   hard-rock-money-app
+365b69a825b0   postgres:15-alpine    "docker-entrypoint.s…"   4 weeks ago   Up 2 days   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp   hard-rock-money-db
 
 *   **Services**:
     *   `app`: The Next.js application (Frontend + Backend API). Built from `node:18-alpine`.

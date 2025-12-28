@@ -113,6 +113,23 @@ The database schema is defined in `prisma/schema.prisma`.
 
 ## 7. Change Log (Recent Updates)
 
+### [2025-12-28] UI/UX Overhaul: SaaS Dashboard Layout
+*   **Goal**: Transform from Central Menu to Professional SaaS Dashboard with persistent Left Sidebar.
+*   **New Components**:
+    *   **`DashboardLayout.tsx`**: Global app shell with:
+        *   Left Sidebar (w-64, fixed): Logo, vertical nav (Dashboard, Transactions, Budget, Recurring, Settings), user profile.
+        *   Top Header (sticky): Page title, "Add Transaction" button, Privacy toggle (Eye), Theme toggle, Logout.
+    *   **Privacy Mode**: New `privacyMode` state in `SettingsContext` blurs all financial numbers when enabled.
+*   **Dashboard Page** (`src/app/page.tsx`):
+    *   **Row 1 - Financial Health Strip**: 4 pill-shaped cards (Total Balance, Income, Expenses, Savings).
+    *   **Row 2 - Accounts Overview**: Horizontal scroll/grid of account cards.
+    *   **Row 3 - Bento Grid**:
+        *   **Recent Activity** (50%): Compact list of last 7 transactions.
+        *   **Monthly Budget** (25%): Progress bars for top 3 categories.
+        *   **Upcoming Payments** + **Quick Actions** (25%): Next 2 recurring bills + action buttons.
+*   **Design Philosophy**: Flat/Industrial - No shadows, borders only (`border-zinc-200`/`border-zinc-800`), rounded corners (`rounded-xl`), high-density.
+*   **Database Backup**: Created `backups/pre_redesign_backup_20251228.sql` before changes.
+
 ### [2025-12-14] UI/UX Refactor: Ultra-Minimalist Flat Background
 *   **Goal**: Replace outdated image backgrounds with a CSS-only, 2D flat design.
 *   **Changes**:

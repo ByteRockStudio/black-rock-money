@@ -12,6 +12,8 @@ interface SettingsContextType {
     setTheme: (theme: Theme) => void;
     exchangeRate: number;
     setExchangeRate: (rate: number) => void;
+    privacyMode: boolean;
+    togglePrivacy: () => void;
     t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -168,6 +170,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     const [language, setLanguage] = useState<Language>("en");
     const [theme, setTheme] = useState<Theme>("light");
     const [exchangeRate, setExchangeRateState] = useState<number>(42);
+    const [privacyMode, setPrivacyMode] = useState<boolean>(false);
+
+    const togglePrivacy = () => setPrivacyMode(prev => !prev);
 
     useEffect(() => {
         const savedLang = localStorage.getItem("language") as Language;
@@ -223,7 +228,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <SettingsContext.Provider value={{ language, setLanguage, theme, setTheme, exchangeRate, setExchangeRate, t }}>
+        <SettingsContext.Provider value={{ language, setLanguage, theme, setTheme, exchangeRate, setExchangeRate, privacyMode, togglePrivacy, t }}>
             {children}
         </SettingsContext.Provider>
     );

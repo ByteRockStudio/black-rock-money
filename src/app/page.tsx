@@ -3,10 +3,10 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Wallet, TrendingUp, TrendingDown, PiggyBank, ArrowRight, CreditCard, Banknote, Clock, Zap, FolderPlus, ArrowLeftRight, FileText } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, PiggyBank, ArrowRight, CreditCard, Banknote, Clock, FolderPlus, ArrowLeftRight, FileText } from "lucide-react";
 import Link from "next/link";
 import { format, startOfMonth, endOfMonth } from "date-fns";
-import { DashboardLayout } from "@/components/DashboardLayout";
+import { DashboardLayout, GlobalActions } from "@/components/DashboardLayout";
 import { useSettings } from "@/contexts/SettingsContext";
 
 interface Account {
@@ -52,7 +52,6 @@ interface SummaryData {
 // Dynamic greeting based on time (Kyiv timezone)
 function getGreeting(): string {
     const now = new Date();
-    // Get current hour in Kyiv timezone
     const kyivTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Kyiv" }));
     const hour = kyivTime.getHours();
 
@@ -62,7 +61,7 @@ function getGreeting(): string {
     return "Good night";
 }
 
-// Privacy-aware amount display component - uses asterisks instead of blur
+// Privacy-aware amount display - uses asterisks
 function PrivateAmount({ amount, prefix = "", className = "" }: { amount: number; prefix?: string; className?: string }) {
     const { privacyMode } = useSettings();
     const formatted = amount.toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -71,17 +70,13 @@ function PrivateAmount({ amount, prefix = "", className = "" }: { amount: number
         return <span className={className}>******</span>;
     }
 
-    return (
-        <span className={className}>
-            {prefix}{formatted}
-        </span>
-    );
+    return <span className={className}>{prefix}{formatted}</span>;
 }
 
 export default function Home() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { exchangeRate, privacyMode, t } = useSettings();
+    const { exchangeRate } = useSettings();
 
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -98,7 +93,6 @@ export default function Home() {
     }, [status, router]);
 
     useEffect(() => {
-        // Set greeting on client side
         setGreeting(getGreeting());
     }, []);
 
@@ -131,9 +125,7 @@ export default function Home() {
             }
             if (recurringRes.ok) {
                 const data = await recurringRes.json();
-                const upcoming = data
-                    .filter((r: RecurringExpense) => !r.isPaused)
-                    .slice(0, 2);
+                const upcoming = data.filter((r: RecurringExpense) => !r.isPaused).slice(0, 2);
                 setRecurringExpenses(upcoming);
             }
         } catch (error) {
@@ -147,11 +139,8 @@ export default function Home() {
         if (!summary) return 0;
         let total = 0;
         Object.entries(summary.totalBalance).forEach(([currency, amount]) => {
-            if (currency === "USD") {
-                total += amount * exchangeRate;
-            } else {
-                total += amount;
-            }
+            if (currency === "USD") total += amount * exchangeRate;
+            else total += amount;
         });
         return total;
     };
@@ -160,9 +149,7 @@ export default function Home() {
         return accounts
             .filter(acc => acc.isSavings)
             .reduce((sum, acc) => {
-                if (acc.currency === "USD") {
-                    return sum + acc.balance * exchangeRate;
-                }
+                if (acc.currency === "USD") return sum + acc.balance * exchangeRate;
                 return sum + acc.balance;
             }, 0);
     };
@@ -170,16 +157,12 @@ export default function Home() {
     if (status === "loading") {
         return (
             <DashboardLayout>
-                <div className="flex items-center justify-center h-full text-zinc-500">
-                    Loading...
-                </div>
+                <div className="flex items-center justify-center h-full text-zinc-500">Loading...</div>
             </DashboardLayout>
         );
     }
 
-    if (!session) {
-        return null;
-    }
+    if (!session) return null;
 
     const totalBalance = calculateTotalBalance();
     const savingsBalance = calculateSavingsBalance();
@@ -189,82 +172,76 @@ export default function Home() {
 
     return (
         <DashboardLayout>
-            <div className="p-8 space-y-6 max-w-7xl mx-auto">
+            <div className="p-8 space-y-8">
 
-                {/* Dynamic Greeting */}
-                <div className="mb-2">
+                {/* Header Row: Greeting + Actions */}
+                <div className="flex items-center justify-between">
                     <h1 className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">
                         {greeting}, {userName} 👋
                     </h1>
+                    <GlobalActions />
                 </div>
 
-                {/* Row 1: Financial Health Strip */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Metrics Row - Divider-separated, minimal styling */}
+                <div className="grid grid-cols-4 divide-x divide-zinc-200 dark:divide-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden">
                     {/* Total Balance */}
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm dark:shadow-none">
-                        <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
-                            <Wallet size={20} className="text-zinc-600 dark:text-zinc-400" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-0.5">Total Balance</p>
-                            <p className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
-                                <PrivateAmount amount={totalBalance} prefix="₴" />
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Monthly Income */}
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm dark:shadow-none">
-                        <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
-                            <TrendingUp size={20} className="text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-0.5">Income</p>
-                            <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">
-                                <PrivateAmount amount={monthlyIncome} prefix="+₴" />
-                            </p>
+                    <div className="p-6 bg-zinc-50/50 dark:bg-zinc-900/50">
+                        <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">Total Balance</p>
+                        <p className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
+                            <PrivateAmount amount={totalBalance} prefix="₴" />
+                        </p>
+                        <div className="flex items-center gap-1 mt-1">
+                            <Wallet size={12} className="text-zinc-400" />
+                            <span className="text-xs text-zinc-400">All accounts</span>
                         </div>
                     </div>
 
-                    {/* Monthly Expenses */}
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm dark:shadow-none">
-                        <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-xl">
-                            <TrendingDown size={20} className="text-red-600 dark:text-red-400" />
+                    {/* Income */}
+                    <div className="p-6">
+                        <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">Income</p>
+                        <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">
+                            <PrivateAmount amount={monthlyIncome} prefix="+₴" />
+                        </p>
+                        <div className="flex items-center gap-1 mt-1">
+                            <TrendingUp size={12} className="text-emerald-500" />
+                            <span className="text-xs text-zinc-400">This month</span>
                         </div>
-                        <div>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-0.5">Expenses</p>
-                            <p className="text-lg font-bold text-red-600 dark:text-red-400 tracking-tight">
-                                <PrivateAmount amount={monthlyExpense} prefix="-₴" />
-                            </p>
+                    </div>
+
+                    {/* Expenses */}
+                    <div className="p-6">
+                        <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">Expenses</p>
+                        <p className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
+                            <PrivateAmount amount={monthlyExpense} prefix="₴" />
+                        </p>
+                        <div className="flex items-center gap-1 mt-1">
+                            <TrendingDown size={12} className="text-red-500" />
+                            <span className="text-xs text-zinc-400">This month</span>
                         </div>
                     </div>
 
                     {/* Savings */}
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm dark:shadow-none">
-                        <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-xl">
-                            <PiggyBank size={20} className="text-violet-600 dark:text-violet-400" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-0.5">Savings</p>
-                            <p className="text-lg font-bold text-violet-600 dark:text-violet-400 tracking-tight">
-                                <PrivateAmount amount={savingsBalance} prefix="₴" />
-                            </p>
+                    <div className="p-6">
+                        <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-1">Savings</p>
+                        <p className="text-2xl font-bold text-violet-600 dark:text-violet-400 tracking-tight">
+                            <PrivateAmount amount={savingsBalance} prefix="₴" />
+                        </p>
+                        <div className="flex items-center gap-1 mt-1">
+                            <PiggyBank size={12} className="text-violet-500" />
+                            <span className="text-xs text-zinc-400">Reserved</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Row 2: Accounts Overview */}
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
+                {/* Accounts Row */}
+                <div>
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">My Accounts</h3>
-                        <Link
-                            href="/settings"
-                            className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 transition-colors"
-                        >
+                        <Link href="/settings" className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 transition-colors">
                             Manage <ArrowRight size={12} />
                         </Link>
                     </div>
-                    <div className="flex gap-4 overflow-x-auto pb-2">
+                    <div className="flex gap-3 overflow-x-auto pb-2">
                         {loading ? (
                             <div className="text-zinc-400 text-sm py-4">Loading...</div>
                         ) : accounts.length === 0 ? (
@@ -273,7 +250,7 @@ export default function Home() {
                             accounts.map((account) => (
                                 <div
                                     key={account.id}
-                                    className="flex-shrink-0 w-44 bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-xl p-4"
+                                    className="flex-shrink-0 w-44 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4"
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="p-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg">
@@ -286,10 +263,7 @@ export default function Home() {
                                         <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 truncate">{account.name}</span>
                                     </div>
                                     <p className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
-                                        <PrivateAmount
-                                            amount={account.balance}
-                                            prefix={account.currency === "USD" ? "$" : "₴"}
-                                        />
+                                        <PrivateAmount amount={account.balance} prefix={account.currency === "USD" ? "$" : "₴"} />
                                     </p>
                                 </div>
                             ))
@@ -297,112 +271,113 @@ export default function Home() {
                     </div>
                 </div>
 
-                {/* Row 3: Main Activity Grid (Bento Box) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Main Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    {/* Col 1: Recent Transactions (50% = 2 cols) */}
-                    <div className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
+                    {/* Recent Transactions (2/3 width) */}
+                    <div className="lg:col-span-2">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Recent Activity</h3>
-                            <Link
-                                href="/transactions"
-                                className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 transition-colors"
-                            >
+                            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Recent Transactions</h3>
+                            <Link href="/transactions" className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 transition-colors">
                                 View All <ArrowRight size={12} />
                             </Link>
                         </div>
-                        <div className="space-y-2">
-                            {loading ? (
-                                <div className="text-zinc-400 text-sm py-4">Loading...</div>
-                            ) : transactions.length === 0 ? (
-                                <div className="text-zinc-400 text-sm py-4 text-center">No transactions yet</div>
-                            ) : (
-                                transactions.map((tx) => (
-                                    <div key={tx.id} className="flex items-center gap-3 py-2 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
-                                        <div className={`p-2 rounded-lg ${tx.type === "income" ? "bg-emerald-100 dark:bg-emerald-900/30" : "bg-zinc-100 dark:bg-zinc-800"}`}>
-                                            {tx.type === "income" ? (
-                                                <TrendingUp size={14} className="text-emerald-600 dark:text-emerald-400" />
-                                            ) : (
-                                                <TrendingDown size={14} className="text-zinc-500" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{tx.category.name}</p>
-                                            <p className="text-xs text-zinc-500">{format(new Date(tx.date), "MMM d")}</p>
-                                        </div>
-                                        <p className={`text-sm font-semibold ${tx.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-900 dark:text-white"}`}>
-                                            <PrivateAmount
-                                                amount={tx.amount}
-                                                prefix={tx.type === "income" ? "+₴" : "-₴"}
-                                            />
-                                        </p>
-                                    </div>
-                                ))
-                            )}
+                        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="bg-zinc-50 dark:bg-zinc-900 text-xs text-zinc-500 uppercase">
+                                        <th className="text-left px-4 py-3 font-medium">Category</th>
+                                        <th className="text-left px-4 py-3 font-medium">Date</th>
+                                        <th className="text-right px-4 py-3 font-medium">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                    {loading ? (
+                                        <tr><td colSpan={3} className="px-4 py-8 text-center text-zinc-400">Loading...</td></tr>
+                                    ) : transactions.length === 0 ? (
+                                        <tr><td colSpan={3} className="px-4 py-8 text-center text-zinc-400">No transactions yet</td></tr>
+                                    ) : (
+                                        transactions.map((tx) => (
+                                            <tr key={tx.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/50">
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`p-1.5 rounded-lg ${tx.type === "income" ? "bg-emerald-100 dark:bg-emerald-900/30" : "bg-zinc-100 dark:bg-zinc-800"}`}>
+                                                            {tx.type === "income" ? (
+                                                                <TrendingUp size={12} className="text-emerald-600 dark:text-emerald-400" />
+                                                            ) : (
+                                                                <TrendingDown size={12} className="text-zinc-500" />
+                                                            )}
+                                                        </div>
+                                                        <span className="text-sm font-medium text-zinc-900 dark:text-white">{tx.category.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-sm text-zinc-500">{format(new Date(tx.date), "MMM d, yyyy")}</td>
+                                                <td className={`px-4 py-3 text-sm font-semibold text-right ${tx.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-900 dark:text-white"}`}>
+                                                    <PrivateAmount amount={tx.amount} prefix={tx.type === "income" ? "+₴" : "-₴"} />
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
-                    {/* Col 2: Budget Status (25% = 1 col) */}
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Monthly Budget</h3>
-                            <Link
-                                href="/budget"
-                                className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                            >
-                                <ArrowRight size={12} />
-                            </Link>
-                        </div>
-                        <div className="space-y-4">
-                            {loading ? (
-                                <div className="text-zinc-400 text-sm py-4">Loading...</div>
-                            ) : budgetCategories.length === 0 ? (
-                                <div className="text-zinc-400 text-sm py-4 text-center">No budgets set</div>
-                            ) : (
-                                budgetCategories.map((category) => (
-                                    <div key={category.id} className="space-y-1.5">
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-zinc-600 dark:text-zinc-400">{category.name}</span>
-                                            <span className={`font-medium ${category.percentage > 100 ? "text-red-500" : "text-zinc-500"}`}>
-                                                {category.percentage.toFixed(0)}%
-                                            </span>
-                                        </div>
-                                        <div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                            <div
-                                                className={`h-full rounded-full ${category.percentage > 100 ? "bg-red-500" : "bg-zinc-900 dark:bg-white"}`}
-                                                style={{ width: `${Math.min(category.percentage, 100)}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Col 3: Recurring & Quick Actions (25% = 1 col) */}
-                    <div className="space-y-4">
-                        {/* Upcoming Payments */}
-                        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Upcoming</h3>
-                                <Link
-                                    href="/recurring"
-                                    className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                                >
+                    {/* Right Column */}
+                    <div className="space-y-6">
+                        {/* Budget Progress */}
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Monthly Budget</h3>
+                                <Link href="/budget" className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
                                     <ArrowRight size={12} />
                                 </Link>
                             </div>
-                            <div className="space-y-2">
+                            <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-4">
+                                {loading ? (
+                                    <div className="text-zinc-400 text-sm">Loading...</div>
+                                ) : budgetCategories.length === 0 ? (
+                                    <div className="text-zinc-400 text-sm text-center py-2">No budgets set</div>
+                                ) : (
+                                    budgetCategories.map((category) => (
+                                        <div key={category.id} className="space-y-1.5">
+                                            <div className="flex justify-between text-xs">
+                                                <span className="text-zinc-600 dark:text-zinc-400">{category.name}</span>
+                                                <span className={`font-medium ${category.percentage > 100 ? "text-red-500" : "text-zinc-500"}`}>
+                                                    {category.percentage.toFixed(0)}%
+                                                </span>
+                                            </div>
+                                            <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                                <div
+                                                    className={`h-full rounded-full ${category.percentage > 100 ? "bg-red-500" : "bg-zinc-900 dark:bg-white"}`}
+                                                    style={{ width: `${Math.min(category.percentage, 100)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Upcoming Payments */}
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Upcoming</h3>
+                                <Link href="/recurring" className="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+                                    <ArrowRight size={12} />
+                                </Link>
+                            </div>
+                            <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 space-y-3">
                                 {loading ? (
                                     <div className="text-zinc-400 text-sm">Loading...</div>
                                 ) : recurringExpenses.length === 0 ? (
                                     <div className="text-zinc-400 text-xs">No upcoming payments</div>
                                 ) : (
                                     recurringExpenses.map((expense) => (
-                                        <div key={expense.id} className="flex items-center gap-2">
-                                            <Clock size={12} className="text-zinc-400" />
-                                            <span className="text-xs text-zinc-600 dark:text-zinc-400 truncate flex-1">{expense.name}</span>
-                                            <span className="text-xs font-medium text-zinc-900 dark:text-white">
+                                        <div key={expense.id} className="flex items-center gap-3">
+                                            <Clock size={14} className="text-zinc-400" />
+                                            <span className="text-sm text-zinc-600 dark:text-zinc-400 flex-1">{expense.name}</span>
+                                            <span className="text-sm font-medium text-zinc-900 dark:text-white">
                                                 <PrivateAmount amount={expense.amount} prefix="₴" />
                                             </span>
                                         </div>
@@ -412,29 +387,29 @@ export default function Home() {
                         </div>
 
                         {/* Quick Actions */}
-                        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
-                            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Quick Actions</h3>
+                        <div>
+                            <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-4">Quick Actions</h3>
                             <div className="grid grid-cols-3 gap-2">
                                 <Link
                                     href="/settings"
-                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
+                                    className="flex flex-col items-center gap-2 p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
                                 >
-                                    <FolderPlus size={16} className="text-zinc-500" />
-                                    <span className="text-[10px] text-zinc-500">Category</span>
+                                    <FolderPlus size={18} className="text-zinc-500" />
+                                    <span className="text-xs text-zinc-500">Category</span>
                                 </Link>
                                 <Link
                                     href="/settings"
-                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
+                                    className="flex flex-col items-center gap-2 p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
                                 >
-                                    <ArrowLeftRight size={16} className="text-zinc-500" />
-                                    <span className="text-[10px] text-zinc-500">Transfer</span>
+                                    <ArrowLeftRight size={18} className="text-zinc-500" />
+                                    <span className="text-xs text-zinc-500">Transfer</span>
                                 </Link>
                                 <Link
                                     href="/recurring"
-                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
+                                    className="flex flex-col items-center gap-2 p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
                                 >
-                                    <FileText size={16} className="text-zinc-500" />
-                                    <span className="text-[10px] text-zinc-500">Note</span>
+                                    <FileText size={18} className="text-zinc-500" />
+                                    <span className="text-xs text-zinc-500">Note</span>
                                 </Link>
                             </div>
                         </div>

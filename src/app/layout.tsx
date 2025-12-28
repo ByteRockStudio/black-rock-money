@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className="min-h-full">
-            <body className={clsx(inter.variable, hardRock.variable, "min-h-full font-sans antialiased bg-zinc-100 dark:bg-black text-zinc-900 dark:text-white")}>
+            <body className={clsx(inter.variable, hardRock.variable, "min-h-full font-sans antialiased bg-zinc-100 dark:bg-[#111111] text-zinc-900 dark:text-zinc-100")}>
 
                 <Providers>
                     <SettingsProvider>

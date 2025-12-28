@@ -40,19 +40,19 @@ export function GlobalActions() {
             <div className="flex items-center gap-2">
                 <button
                     onClick={() => setShowAddExpense(true)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-black dark:bg-white text-white dark:text-black rounded-xl hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
                 >
                     <Plus size={16} />
                     Add Transaction
                 </button>
 
-                <div className="w-px h-6 bg-zinc-200 dark:bg-zinc-700 mx-1" />
+                <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-600 mx-1" />
 
                 <button
                     onClick={togglePrivacy}
                     className={`p-2 rounded-xl transition-colors ${privacyMode
-                        ? "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900"
-                        : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        ? "bg-black dark:bg-white text-white dark:text-black"
+                        : "text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10"
                         }`}
                     title={privacyMode ? "Show numbers" : "Hide numbers"}
                 >
@@ -61,7 +61,7 @@ export function GlobalActions() {
 
                 <button
                     onClick={toggleTheme}
-                    className="p-2 text-zinc-400 hover:text-zinc-900 dark:hover:text-white rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    className="p-2 text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
                     title="Toggle Theme"
                 >
                     {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
@@ -69,7 +69,7 @@ export function GlobalActions() {
 
                 <button
                     onClick={() => signOut({ callbackUrl: "/login" })}
-                    className="p-2 text-zinc-400 hover:text-red-600 dark:hover:text-red-400 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    className="p-2 text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400 rounded-xl hover:bg-white/50 dark:hover:bg-white/10 transition-colors"
                     title="Logout"
                 >
                     <LogOut size={18} />
@@ -78,7 +78,7 @@ export function GlobalActions() {
 
             {showAddExpense && (
                 <div className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white rounded-2xl shadow-xl w-full max-w-md relative">
+                    <div className="bg-white dark:bg-[#171717] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white rounded-2xl shadow-xl w-full max-w-md relative">
                         <button
                             onClick={() => setShowAddExpense(false)}
                             className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
@@ -94,7 +94,7 @@ export function GlobalActions() {
 
             {showAddIncome && (
                 <div className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white rounded-2xl shadow-xl w-full max-w-md relative">
+                    <div className="bg-white dark:bg-[#171717] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white rounded-2xl shadow-xl w-full max-w-md relative">
                         <button
                             onClick={() => setShowAddIncome(false)}
                             className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
@@ -129,9 +129,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <div className="flex min-h-screen bg-zinc-100 dark:bg-black">
-            {/* Left Sidebar - Clean, edge-to-edge, sticky */}
-            <aside className="sticky top-0 h-screen w-64 flex-shrink-0 flex flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+        <div className="flex min-h-screen bg-zinc-100 dark:bg-[#111111]">
+            {/* Left Sidebar - Transparent, blends with global bg */}
+            <aside className="sticky top-0 h-screen w-64 flex-shrink-0 flex flex-col bg-transparent">
                 {/* Logo */}
                 <div className="px-6 py-5">
                     <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tighter font-mono">
@@ -139,7 +139,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     </h1>
                 </div>
 
-                {/* Navigation */}
+                {/* Navigation - High contrast active state */}
                 <nav className="flex-1 px-3 py-2 space-y-1">
                     {navItems.map((item) => {
                         const active = isActive(item.href);
@@ -148,8 +148,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                                 key={item.href}
                                 href={item.href}
                                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${active
-                                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"
-                                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                                    ? "bg-black text-white dark:bg-white dark:text-black"
+                                    : "text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10"
                                     }`}
                             >
                                 {item.icon}
@@ -160,9 +160,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </nav>
 
                 {/* User Footer */}
-                <div className="p-4 border-t border-zinc-100 dark:border-zinc-800">
+                <div className="p-4">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center shadow-sm">
                             <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                                 {session?.user?.email?.charAt(0).toUpperCase() || "U"}
                             </span>
@@ -174,9 +174,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            {/* Main Content Area - Natural scroll, floating panel */}
-            <main className="flex-1 py-6 pr-6">
-                <div className="min-h-[calc(100vh-3rem)] w-full bg-white dark:bg-[#121212] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-none">
+            {/* Main Content Area - Panel bg #171717 */}
+            <main className="flex-1 px-6 py-6">
+                <div className="min-h-[calc(100vh-3rem)] w-full bg-white dark:bg-[#171717] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-none">
                     {children}
                 </div>
             </main>

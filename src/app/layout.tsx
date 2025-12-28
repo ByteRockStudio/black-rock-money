@@ -31,8 +31,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className="h-full w-full overflow-hidden">
-            <body className={clsx(inter.variable, hardRock.variable, "h-full w-full overflow-hidden font-sans antialiased bg-zinc-100 dark:bg-[#09090b] text-zinc-900 dark:text-white")}>
+        <html lang="en" className="min-h-full">
+            <body className={clsx(inter.variable, hardRock.variable, "min-h-full font-sans antialiased bg-zinc-100 dark:bg-black text-zinc-900 dark:text-white")}>
 
                 <Providers>
                     <SettingsProvider>

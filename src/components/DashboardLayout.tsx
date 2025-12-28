@@ -129,9 +129,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <div className="flex h-screen w-full bg-zinc-100 dark:bg-black p-4 gap-4">
-            {/* Left Sidebar - Outside the main panel */}
-            <aside className="w-60 flex-shrink-0 h-full flex flex-col bg-white dark:bg-[#121212] rounded-3xl border border-zinc-200 dark:border-zinc-800">
+        <div className="flex min-h-screen bg-zinc-100 dark:bg-black">
+            {/* Left Sidebar - Clean, edge-to-edge, sticky */}
+            <aside className="sticky top-0 h-screen w-64 flex-shrink-0 flex flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                 {/* Logo */}
                 <div className="px-6 py-5">
                     <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tighter font-mono">
@@ -174,9 +174,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 </div>
             </aside>
 
-            {/* Main Dashboard Panel - The unified "Sheet" */}
-            <main className="flex-1 bg-white dark:bg-[#121212] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-none overflow-y-auto min-h-[calc(100vh-2rem)]">
-                {children}
+            {/* Main Content Area - Natural scroll, floating panel */}
+            <main className="flex-1 py-6 pr-6">
+                <div className="min-h-[calc(100vh-3rem)] w-full bg-white dark:bg-[#121212] rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-none">
+                    {children}
+                </div>
             </main>
         </div>
     );

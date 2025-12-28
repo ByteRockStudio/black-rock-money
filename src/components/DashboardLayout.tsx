@@ -36,11 +36,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const [showAddIncome, setShowAddIncome] = useState(false);
 
     const navItems: NavItem[] = [
-        { href: "/", label: t("nav.dashboard") || "Dashboard", icon: <Home size={18} /> },
-        { href: "/transactions", label: t("nav.view") || "Transactions", icon: <List size={18} /> },
-        { href: "/budget", label: t("nav.budget") || "Budget", icon: <PieChart size={18} /> },
-        { href: "/recurring", label: t("nav.recurring") || "Recurring", icon: <Repeat size={18} /> },
-        { href: "/settings", label: t("nav.settings") || "Settings", icon: <Settings size={18} /> },
+        { href: "/", label: "Dashboard", icon: <Home size={18} /> },
+        { href: "/transactions", label: "Transactions", icon: <List size={18} /> },
+        { href: "/budget", label: "Budget", icon: <PieChart size={18} /> },
+        { href: "/recurring", label: "Recurring", icon: <Repeat size={18} /> },
+        { href: "/settings", label: "Settings", icon: <Settings size={18} /> },
     ];
 
     const isActive = (href: string) => {
@@ -58,13 +58,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const toggleLanguage = () => setLanguage(language === "en" ? "ukr" : "en");
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-white dark:bg-black">
+        <div className="flex h-screen w-full overflow-hidden bg-zinc-100 dark:bg-[#09090b]">
             {/* Left Sidebar */}
-            <aside className="w-64 flex-shrink-0 h-full flex flex-col border-r border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950">
+            <aside className="w-64 flex-shrink-0 h-full flex flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                 {/* Logo */}
                 <div className="px-6 py-5">
-                    <h1 className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
-                        Hard Rock Money
+                    <h1 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tighter font-mono">
+                        CIA
                     </h1>
                 </div>
 

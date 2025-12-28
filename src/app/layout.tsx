@@ -11,8 +11,8 @@ const hardRock = localFont({
 });
 
 export const metadata: Metadata = {
-    title: "Rock Money",
-    description: "Minimalist Expense Tracker",
+    title: "CIA | Dashboard",
+    description: "Personal Finance Intelligence",
     icons: {
         icon: "/favicon/favicon.ico",
         apple: "/favicon/apple-touch-icon.png",
@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className="h-full w-full overflow-hidden">
-            <body className={clsx(inter.variable, hardRock.variable, "h-full w-full overflow-hidden font-sans antialiased bg-white dark:bg-black text-zinc-900 dark:text-white")}>
+            <body className={clsx(inter.variable, hardRock.variable, "h-full w-full overflow-hidden font-sans antialiased bg-zinc-100 dark:bg-[#09090b] text-zinc-900 dark:text-white")}>
 
                 <Providers>
                     <SettingsProvider>

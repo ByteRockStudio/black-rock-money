@@ -49,13 +49,30 @@ interface SummaryData {
     monthlyStats: Record<string, { income: number; expense: number }>;
 }
 
-// Privacy-aware amount display component
+// Dynamic greeting based on time (Kyiv timezone)
+function getGreeting(): string {
+    const now = new Date();
+    // Get current hour in Kyiv timezone
+    const kyivTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Kyiv" }));
+    const hour = kyivTime.getHours();
+
+    if (hour >= 5 && hour < 12) return "Good morning";
+    if (hour >= 12 && hour < 18) return "Good day";
+    if (hour >= 18 && hour < 23) return "Good evening";
+    return "Good night";
+}
+
+// Privacy-aware amount display component - uses asterisks instead of blur
 function PrivateAmount({ amount, prefix = "", className = "" }: { amount: number; prefix?: string; className?: string }) {
     const { privacyMode } = useSettings();
     const formatted = amount.toLocaleString(undefined, { maximumFractionDigits: 0 });
 
+    if (privacyMode) {
+        return <span className={className}>******</span>;
+    }
+
     return (
-        <span className={`${className} ${privacyMode ? "blur-sm select-none" : ""}`}>
+        <span className={className}>
             {prefix}{formatted}
         </span>
     );
@@ -72,12 +89,18 @@ export default function Home() {
     const [budgetCategories, setBudgetCategories] = useState<BudgetCategory[]>([]);
     const [recurringExpenses, setRecurringExpenses] = useState<RecurringExpense[]>([]);
     const [loading, setLoading] = useState(true);
+    const [greeting, setGreeting] = useState("");
 
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/login");
         }
     }, [status, router]);
+
+    useEffect(() => {
+        // Set greeting on client side
+        setGreeting(getGreeting());
+    }, []);
 
     useEffect(() => {
         if (session) {
@@ -108,7 +131,6 @@ export default function Home() {
             }
             if (recurringRes.ok) {
                 const data = await recurringRes.json();
-                // Get next 2 non-paused recurring expenses
                 const upcoming = data
                     .filter((r: RecurringExpense) => !r.isPaused)
                     .slice(0, 2);
@@ -163,16 +185,24 @@ export default function Home() {
     const savingsBalance = calculateSavingsBalance();
     const monthlyIncome = summary?.monthlyStats?.["UAH"]?.income || 0;
     const monthlyExpense = summary?.monthlyStats?.["UAH"]?.expense || 0;
+    const userName = session?.user?.email?.split("@")[0] || "User";
 
     return (
         <DashboardLayout>
-            <div className="p-6 space-y-6 max-w-7xl mx-auto">
+            <div className="p-8 space-y-6 max-w-7xl mx-auto">
+
+                {/* Dynamic Greeting */}
+                <div className="mb-2">
+                    <h1 className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">
+                        {greeting}, {userName} 👋
+                    </h1>
+                </div>
 
                 {/* Row 1: Financial Health Strip */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {/* Total Balance */}
-                    <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-4">
-                        <div className="p-3 bg-zinc-200 dark:bg-zinc-800 rounded-xl">
+                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm dark:shadow-none">
+                        <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
                             <Wallet size={20} className="text-zinc-600 dark:text-zinc-400" />
                         </div>
                         <div>
@@ -184,7 +214,7 @@ export default function Home() {
                     </div>
 
                     {/* Monthly Income */}
-                    <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-4">
+                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm dark:shadow-none">
                         <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
                             <TrendingUp size={20} className="text-emerald-600 dark:text-emerald-400" />
                         </div>
@@ -197,7 +227,7 @@ export default function Home() {
                     </div>
 
                     {/* Monthly Expenses */}
-                    <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-4">
+                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm dark:shadow-none">
                         <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-xl">
                             <TrendingDown size={20} className="text-red-600 dark:text-red-400" />
                         </div>
@@ -210,7 +240,7 @@ export default function Home() {
                     </div>
 
                     {/* Savings */}
-                    <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-4">
+                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm dark:shadow-none">
                         <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-xl">
                             <PiggyBank size={20} className="text-violet-600 dark:text-violet-400" />
                         </div>
@@ -224,8 +254,8 @@ export default function Home() {
                 </div>
 
                 {/* Row 2: Accounts Overview */}
-                <div>
-                    <div className="flex items-center justify-between mb-3">
+                <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
+                    <div className="flex items-center justify-between mb-4">
                         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">My Accounts</h3>
                         <Link
                             href="/settings"
@@ -243,10 +273,10 @@ export default function Home() {
                             accounts.map((account) => (
                                 <div
                                     key={account.id}
-                                    className="flex-shrink-0 w-48 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4"
+                                    className="flex-shrink-0 w-44 bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 rounded-xl p-4"
                                 >
                                     <div className="flex items-center gap-2 mb-2">
-                                        <div className="p-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-lg">
+                                        <div className="p-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg">
                                             {account.type === "card" ? (
                                                 <CreditCard size={14} className="text-zinc-500" />
                                             ) : (
@@ -271,7 +301,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                     {/* Col 1: Recent Transactions (50% = 2 cols) */}
-                    <div className="lg:col-span-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5">
+                    <div className="lg:col-span-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Recent Activity</h3>
                             <Link
@@ -313,7 +343,7 @@ export default function Home() {
                     </div>
 
                     {/* Col 2: Budget Status (25% = 1 col) */}
-                    <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5">
+                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Monthly Budget</h3>
                             <Link
@@ -337,7 +367,7 @@ export default function Home() {
                                                 {category.percentage.toFixed(0)}%
                                             </span>
                                         </div>
-                                        <div className="h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                        <div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                                             <div
                                                 className={`h-full rounded-full ${category.percentage > 100 ? "bg-red-500" : "bg-zinc-900 dark:bg-white"}`}
                                                 style={{ width: `${Math.min(category.percentage, 100)}%` }}
@@ -352,7 +382,7 @@ export default function Home() {
                     {/* Col 3: Recurring & Quick Actions (25% = 1 col) */}
                     <div className="space-y-4">
                         {/* Upcoming Payments */}
-                        <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5">
+                        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
                             <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Upcoming</h3>
                                 <Link
@@ -382,26 +412,26 @@ export default function Home() {
                         </div>
 
                         {/* Quick Actions */}
-                        <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5">
+                        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
                             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Quick Actions</h3>
                             <div className="grid grid-cols-3 gap-2">
                                 <Link
                                     href="/settings"
-                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl transition-colors"
+                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
                                 >
                                     <FolderPlus size={16} className="text-zinc-500" />
                                     <span className="text-[10px] text-zinc-500">Category</span>
                                 </Link>
                                 <Link
                                     href="/settings"
-                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl transition-colors"
+                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
                                 >
                                     <ArrowLeftRight size={16} className="text-zinc-500" />
                                     <span className="text-[10px] text-zinc-500">Transfer</span>
                                 </Link>
                                 <Link
                                     href="/recurring"
-                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-xl transition-colors"
+                                    className="flex flex-col items-center gap-1.5 p-3 bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-xl transition-colors"
                                 >
                                     <FileText size={16} className="text-zinc-500" />
                                     <span className="text-[10px] text-zinc-500">Note</span>

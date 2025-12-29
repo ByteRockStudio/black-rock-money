@@ -17,7 +17,7 @@ export default function RecurringPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
 
-    useCloseOnEscape(() => router.back());
+    useCloseOnEscape(() => router.push('/'));
 
     // Data State
     const [recurringExpenses, setRecurringExpenses] = useState<any[]>([]);
@@ -256,13 +256,13 @@ export default function RecurringPage() {
     if (status === "loading") return null;
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-[#efede7] dark:bg-black font-sans">
+        <div className="flex h-full w-full overflow-hidden">
 
             {/* Left Panel: List (75%) */}
-            <div className="w-[75%] h-full flex flex-col bg-white dark:bg-black px-8 relative">
+            <div className="w-[75%] h-full flex flex-col px-8 relative">
 
                 {/* Header */}
-                <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-gray-100 dark:border-white/10 py-6">
+                <div className="sticky top-0 z-20 border-b border-zinc-200 dark:border-zinc-800 py-6">
                     <div className="flex items-center gap-4 mb-6">
                         <Link href="/" className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
                             <ArrowLeft size={20} />
@@ -365,7 +365,7 @@ export default function RecurringPage() {
             </div>
 
             {/* Right Panel: Summary or Form (25%) */}
-            <div className="w-[25%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto">
+            <div className="w-[25%] h-full border-l border-zinc-200 dark:border-zinc-800 p-6 overflow-y-auto">
                 {viewMode === 'summary' ? (
                     /* Summary Dashboard - Budget Style */
                     <div className="w-full">

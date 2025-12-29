@@ -43,7 +43,7 @@ function AnalyticsPanel({ transactions }: { transactions: any[] }) {
         .slice(0, 5); // Top 5
 
     return (
-        <div className="h-full w-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-8 flex flex-col gap-8 overflow-y-auto">
+        <div className="h-full w-full border-l border-zinc-200 dark:border-zinc-800 p-8 flex flex-col gap-8 overflow-y-auto">
 
             {/* Widget 1: Monthly Summary */}
             <div className="space-y-4">
@@ -108,7 +108,7 @@ export default function TransactionsPage() {
     const router = useRouter();
     const { t } = useSettings();
 
-    useCloseOnEscape(() => router.back());
+    useCloseOnEscape(() => router.push('/'));
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [filterType, setFilterType] = useState<"all" | "expense" | "income">("all");
@@ -195,13 +195,13 @@ export default function TransactionsPage() {
     if (status === "loading") return null;
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-[#efede7] dark:bg-black font-sans">
+        <div className="flex h-full w-full overflow-hidden">
 
             {/* Left Panel: Transaction Table (75%) */}
-            <div className="w-[75%] h-full flex flex-col bg-white dark:bg-black px-8">
+            <div className="w-[75%] h-full flex flex-col px-8">
 
                 {/* Sticky Header */}
-                <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-gray-100 dark:border-white/10 py-6">
+                <div className="sticky top-0 z-20 border-b border-zinc-200 dark:border-zinc-800 py-6">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
                             <Link href="/" className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition">

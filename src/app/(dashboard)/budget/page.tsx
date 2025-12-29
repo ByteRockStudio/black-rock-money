@@ -28,7 +28,7 @@ export default function BudgetPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
 
-    useCloseOnEscape(() => router.back());
+    useCloseOnEscape(() => router.push('/'));
 
     const [data, setData] = useState<BudgetData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -108,8 +108,8 @@ export default function BudgetPage() {
 
     if (status === "loading" || loading) {
         return (
-            <div className="flex h-screen items-center justify-center bg-[#efede7] dark:bg-black">
-                <span className="text-gray-400">Loading...</span>
+            <div className="flex h-full items-center justify-center">
+                <span className="text-zinc-400">Loading...</span>
             </div>
         );
     }
@@ -129,11 +129,11 @@ export default function BudgetPage() {
     const isSpendingSlow = actualPercentage < expectedPercentage - 10;
 
     return (
-        <div className="flex h-screen w-full overflow-hidden bg-[#efede7] dark:bg-black font-sans">
+        <div className="flex h-full w-full overflow-hidden">
             {/* Left Panel (75%) - Budget List */}
-            <div className="w-[75%] h-full flex flex-col bg-white dark:bg-black px-8 relative">
+            <div className="w-[75%] h-full flex flex-col px-8 relative">
                 {/* Header */}
-                <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-gray-100 dark:border-white/10 py-6">
+                <div className="sticky top-0 z-20 border-b border-zinc-200 dark:border-zinc-800 py-6">
                     <div className="flex items-center gap-4 mb-6">
                         <Link
                             href="/"
@@ -269,7 +269,7 @@ export default function BudgetPage() {
             </div>
 
             {/* Right Panel (25%) - Financial Health Dashboard */}
-            <div className="w-[25%] h-full bg-gray-50 dark:bg-[#111] border-l border-gray-200 dark:border-white/10 p-6 overflow-y-auto flex flex-col items-center justify-start">
+            <div className="w-[25%] h-full border-l border-zinc-200 dark:border-zinc-800 p-6 overflow-y-auto flex flex-col items-center justify-start">
                 <div className="w-full">
                     {/* Consolidated Month Overview Card */}
                     <div className="w-full bg-white/5 dark:bg-white/5 backdrop-blur-md rounded-lg p-6 border border-white/10 space-y-6">

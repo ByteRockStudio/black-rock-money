@@ -113,6 +113,30 @@ The database schema is defined in `prisma/schema.prisma`.
 
 ## 7. Change Log (Recent Updates)
 
+### [2025-12-29] Unified App Shell & Page Integration
+*   **Goal**: Implement persistent sidebar with all pages rendering inside a single cohesive dashboard panel.
+*   **Architecture Changes**:
+    *   Created `(dashboard)` route group with unified `layout.tsx` containing persistent sidebar + main panel.
+    *   All pages (Dashboard, Transactions, Budget, Recurring, Settings) now render inside the panel.
+    *   Navigation no longer causes full-page refreshes - only content inside the panel swaps.
+*   **Layout Structure**:
+    *   **Global Background**: `#111111` (Dark) / `bg-zinc-100` (Light).
+    *   **Panel Surface**: `#171717` (Dark) / white (Light) with `rounded-[32px]` corners.
+    *   **Sidebar**: `w-64`, transparent background, high-contrast active states.
+*   **Settings Page Redesign**:
+    *   Removed guitar background image and glassmorphism.
+    *   Implemented horizontal tabs (Global, Accounts, Categories).
+    *   Flat form styling with proper dark/light mode inputs.
+*   **ESC Navigation**: All pages now use `router.push('/')` instead of `router.back()` for predictable navigation.
+*   **Files Changed**:
+    *   `src/app/(dashboard)/layout.tsx`: New unified layout with sidebar + panel.
+    *   `src/app/(dashboard)/page.tsx`: Dashboard without wrapper.
+    *   `src/app/(dashboard)/transactions/page.tsx`: Transactions without wrapper.
+    *   `src/app/(dashboard)/budget/page.tsx`: Budget without wrapper.
+    *   `src/app/(dashboard)/recurring/page.tsx`: Recurring without wrapper.
+    *   `src/app/(dashboard)/settings/page.tsx`: Complete redesign with flat styling.
+*   **Files Removed**: Old standalone pages outside route group.
+
 ### [2025-12-29] Header Actions, Global Privacy & Account Management V2
 *   **Goal**: Enhance dashboard UX with split action buttons, persistent privacy mode, and interactive account management.
 *   **Header Buttons**:

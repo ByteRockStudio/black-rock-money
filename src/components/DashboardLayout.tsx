@@ -15,7 +15,9 @@ import {
     EyeOff,
     Moon,
     Sun,
-    LogOut
+    LogOut,
+    TrendingDown,
+    TrendingUp
 } from "lucide-react";
 import { useState } from "react";
 import { AddExpenseModal } from "@/components/AddExpenseModal";
@@ -38,12 +40,22 @@ export function GlobalActions() {
     return (
         <>
             <div className="flex items-center gap-2">
+                {/* Add Expense Button - Solid */}
                 <button
                     onClick={() => setShowAddExpense(true)}
                     className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-black dark:bg-white text-white dark:text-black rounded-xl hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors"
                 >
-                    <Plus size={16} />
-                    Add Transaction
+                    <TrendingDown size={16} />
+                    Add Expense
+                </button>
+
+                {/* Add Income Button - Green Outline */}
+                <button
+                    onClick={() => setShowAddIncome(true)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 rounded-xl hover:bg-emerald-500/20 transition-colors"
+                >
+                    <TrendingUp size={16} />
+                    Add Income
                 </button>
 
                 <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-600 mx-1" />

@@ -2,12 +2,32 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Wallet, TrendingUp, TrendingDown, PiggyBank, ArrowRight, CreditCard, Banknote, Clock, FolderPlus, ArrowLeftRight, FileText } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Wallet, TrendingUp, TrendingDown, PiggyBank, ArrowRight, CreditCard, Banknote, Clock, FolderPlus, ArrowLeftRight, FileText, Pencil, GripVertical, Check, X } from "lucide-react";
 import Link from "next/link";
-import { format, startOfMonth, endOfMonth } from "date-fns";
+import { format, startOfMonth, endOfMonth, formatDistanceToNow, isToday, isTomorrow, parseISO } from "date-fns";
 import { DashboardLayout, GlobalActions } from "@/components/DashboardLayout";
 import { useSettings } from "@/contexts/SettingsContext";
+import { toast } from "sonner";
+
+// DnD Kit imports
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from "@dnd-kit/core";
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Account {
     id: string;
@@ -16,6 +36,7 @@ interface Account {
     balance: number;
     currency: string;
     isSavings?: boolean;
+    orderIndex?: number;
 }
 
 interface Transaction {
@@ -25,7 +46,7 @@ interface Transaction {
     type: string;
     category: { name: string };
     account: { name: string; currency: string };
-    description?: string;
+    comment?: string;
 }
 
 interface BudgetCategory {
@@ -40,7 +61,9 @@ interface RecurringExpense {
     id: string;
     name: string;
     amount: number;
-    nextDue: string;
+    startDate: string;
+    recurrenceType: string;
+    lastAppliedDate?: string;
     isPaused: boolean;
 }
 
@@ -73,6 +96,137 @@ function PrivateAmount({ amount, prefix = "", className = "" }: { amount: number
     return <span className={className}>{prefix}{formatted}</span>;
 }
 
+// Format next due date for recurring expenses
+function formatNextDue(expense: RecurringExpense): string {
+    const startDate = parseISO(expense.startDate);
+    const lastApplied = expense.lastAppliedDate ? parseISO(expense.lastAppliedDate) : null;
+
+    // Simple calculation for next due based on recurrence type
+    let nextDue = new Date(startDate);
+    if (lastApplied) {
+        nextDue = new Date(lastApplied);
+        switch (expense.recurrenceType) {
+            case "DAILY":
+                nextDue.setDate(nextDue.getDate() + 1);
+                break;
+            case "WEEKLY":
+                nextDue.setDate(nextDue.getDate() + 7);
+                break;
+            case "MONTHLY":
+                nextDue.setMonth(nextDue.getMonth() + 1);
+                break;
+            case "YEARLY":
+                nextDue.setFullYear(nextDue.getFullYear() + 1);
+                break;
+        }
+    }
+
+    if (isToday(nextDue)) return "Today";
+    if (isTomorrow(nextDue)) return "Tomorrow";
+    return format(nextDue, "MMM d");
+}
+
+// Sortable Account Card Component
+function SortableAccountCard({
+    account,
+    onEditBalance,
+    editingId,
+    editValue,
+    setEditValue,
+    onSaveBalance,
+    onCancelEdit
+}: {
+    account: Account;
+    onEditBalance: (id: string, currentBalance: number) => void;
+    editingId: string | null;
+    editValue: string;
+    setEditValue: (value: string) => void;
+    onSaveBalance: (id: string) => void;
+    onCancelEdit: () => void;
+}) {
+    const { privacyMode } = useSettings();
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: account.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    const isEditing = editingId === account.id;
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`flex-shrink-0 w-48 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 group relative ${isDragging ? 'z-50' : ''}`}
+        >
+            {/* Drag Handle */}
+            <div
+                {...attributes}
+                {...listeners}
+                className="absolute top-2 right-2 p-1 text-zinc-300 dark:text-zinc-600 hover:text-zinc-500 dark:hover:text-zinc-400 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+                <GripVertical size={14} />
+            </div>
+
+            <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg">
+                    {account.type === "card" ? (
+                        <CreditCard size={14} className="text-zinc-500" />
+                    ) : (
+                        <Banknote size={14} className="text-zinc-500" />
+                    )}
+                </div>
+                <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 truncate">{account.name}</span>
+            </div>
+
+            {isEditing ? (
+                <div className="flex items-center gap-1">
+                    <input
+                        type="number"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") onSaveBalance(account.id);
+                            if (e.key === "Escape") onCancelEdit();
+                        }}
+                        autoFocus
+                        className="w-full text-lg font-bold bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                    />
+                    <button onClick={() => onSaveBalance(account.id)} className="p-1 text-emerald-500 hover:text-emerald-600">
+                        <Check size={14} />
+                    </button>
+                    <button onClick={onCancelEdit} className="p-1 text-red-500 hover:text-red-600">
+                        <X size={14} />
+                    </button>
+                </div>
+            ) : (
+                <div className="flex items-center justify-between">
+                    <p className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
+                        <PrivateAmount amount={account.balance} prefix={account.currency === "USD" ? "$" : "₴"} />
+                    </p>
+                    {!privacyMode && (
+                        <button
+                            onClick={() => onEditBalance(account.id, account.balance)}
+                            className="p-1 text-zinc-300 dark:text-zinc-600 hover:text-zinc-500 dark:hover:text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            <Pencil size={12} />
+                        </button>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function Home() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -85,6 +239,22 @@ export default function Home() {
     const [recurringExpenses, setRecurringExpenses] = useState<RecurringExpense[]>([]);
     const [loading, setLoading] = useState(true);
     const [greeting, setGreeting] = useState("");
+
+    // Inline balance editing state
+    const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+    const [editBalanceValue, setEditBalanceValue] = useState("");
+
+    // DnD sensors
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -133,6 +303,82 @@ export default function Home() {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Handle DnD reorder
+    const handleDragEnd = useCallback(async (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const oldIndex = accounts.findIndex((acc) => acc.id === active.id);
+            const newIndex = accounts.findIndex((acc) => acc.id === over.id);
+
+            const newAccounts = arrayMove(accounts, oldIndex, newIndex);
+            setAccounts(newAccounts);
+
+            // Save new order to API
+            try {
+                await fetch("/api/accounts/reorder", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ orderedIds: newAccounts.map((a) => a.id) }),
+                });
+                toast.success("Account order saved");
+            } catch (error) {
+                toast.error("Failed to save order");
+                // Revert on error
+                setAccounts(accounts);
+            }
+        }
+    }, [accounts]);
+
+    // Handle inline balance editing
+    const handleEditBalance = (id: string, currentBalance: number) => {
+        setEditingAccountId(id);
+        setEditBalanceValue(currentBalance.toString());
+    };
+
+    const handleSaveBalance = async (id: string) => {
+        const newBalance = parseFloat(editBalanceValue);
+        if (isNaN(newBalance)) {
+            toast.error("Invalid balance");
+            return;
+        }
+
+        const account = accounts.find((a) => a.id === id);
+        if (!account) return;
+
+        try {
+            const res = await fetch("/api/accounts", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id,
+                    name: account.name,
+                    type: account.type,
+                    currency: account.currency,
+                    balance: newBalance,
+                    isSavings: account.isSavings,
+                }),
+            });
+
+            if (res.ok) {
+                setAccounts(accounts.map(a => a.id === id ? { ...a, balance: newBalance } : a));
+                toast.success("Balance updated");
+            } else {
+                toast.error("Failed to update balance");
+            }
+        } catch (error) {
+            toast.error("Failed to update balance");
+        }
+
+        setEditingAccountId(null);
+        setEditBalanceValue("");
+    };
+
+    const handleCancelEdit = () => {
+        setEditingAccountId(null);
+        setEditBalanceValue("");
     };
 
     const calculateTotalBalance = () => {
@@ -233,7 +479,7 @@ export default function Home() {
                     </div>
                 </div>
 
-                {/* Accounts Row */}
+                {/* Accounts Row with DnD */}
                 <div>
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">My Accounts</h3>
@@ -241,40 +487,40 @@ export default function Home() {
                             Manage <ArrowRight size={12} />
                         </Link>
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-2">
-                        {loading ? (
-                            <div className="text-zinc-400 text-sm py-4">Loading...</div>
-                        ) : accounts.length === 0 ? (
-                            <div className="text-zinc-400 text-sm py-4">No accounts yet</div>
-                        ) : (
-                            accounts.map((account) => (
-                                <div
-                                    key={account.id}
-                                    className="flex-shrink-0 w-44 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="p-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg">
-                                            {account.type === "card" ? (
-                                                <CreditCard size={14} className="text-zinc-500" />
-                                            ) : (
-                                                <Banknote size={14} className="text-zinc-500" />
-                                            )}
-                                        </div>
-                                        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 truncate">{account.name}</span>
-                                    </div>
-                                    <p className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">
-                                        <PrivateAmount amount={account.balance} prefix={account.currency === "USD" ? "$" : "₴"} />
-                                    </p>
-                                </div>
-                            ))
-                        )}
-                    </div>
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext items={accounts.map(a => a.id)} strategy={horizontalListSortingStrategy}>
+                            <div className="flex gap-3 overflow-x-auto pb-2">
+                                {loading ? (
+                                    <div className="text-zinc-400 text-sm py-4">Loading...</div>
+                                ) : accounts.length === 0 ? (
+                                    <div className="text-zinc-400 text-sm py-4">No accounts yet</div>
+                                ) : (
+                                    accounts.map((account) => (
+                                        <SortableAccountCard
+                                            key={account.id}
+                                            account={account}
+                                            onEditBalance={handleEditBalance}
+                                            editingId={editingAccountId}
+                                            editValue={editBalanceValue}
+                                            setEditValue={setEditBalanceValue}
+                                            onSaveBalance={handleSaveBalance}
+                                            onCancelEdit={handleCancelEdit}
+                                        />
+                                    ))
+                                )}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
                 </div>
 
                 {/* Main Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    {/* Recent Transactions (2/3 width) */}
+                    {/* Recent Transactions with Account & Comment */}
                     <div className="lg:col-span-2">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Recent Transactions</h3>
@@ -287,15 +533,17 @@ export default function Home() {
                                 <thead>
                                     <tr className="bg-zinc-50 dark:bg-zinc-900 text-xs text-zinc-500 uppercase">
                                         <th className="text-left px-4 py-3 font-medium">Category</th>
+                                        <th className="text-left px-4 py-3 font-medium">Account</th>
+                                        <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Comment</th>
                                         <th className="text-left px-4 py-3 font-medium">Date</th>
                                         <th className="text-right px-4 py-3 font-medium">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                                     {loading ? (
-                                        <tr><td colSpan={3} className="px-4 py-8 text-center text-zinc-400">Loading...</td></tr>
+                                        <tr><td colSpan={5} className="px-4 py-8 text-center text-zinc-400">Loading...</td></tr>
                                     ) : transactions.length === 0 ? (
-                                        <tr><td colSpan={3} className="px-4 py-8 text-center text-zinc-400">No transactions yet</td></tr>
+                                        <tr><td colSpan={5} className="px-4 py-8 text-center text-zinc-400">No transactions yet</td></tr>
                                     ) : (
                                         transactions.map((tx) => (
                                             <tr key={tx.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/50">
@@ -311,7 +559,11 @@ export default function Home() {
                                                         <span className="text-sm font-medium text-zinc-900 dark:text-white">{tx.category.name}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 text-sm text-zinc-500">{format(new Date(tx.date), "MMM d, yyyy")}</td>
+                                                <td className="px-4 py-3 text-sm text-zinc-500">{tx.account.name}</td>
+                                                <td className="px-4 py-3 text-sm text-zinc-400 truncate max-w-[120px] hidden md:table-cell">
+                                                    {tx.comment || "—"}
+                                                </td>
+                                                <td className="px-4 py-3 text-sm text-zinc-500">{format(new Date(tx.date), "MMM d")}</td>
                                                 <td className={`px-4 py-3 text-sm font-semibold text-right ${tx.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-zinc-900 dark:text-white"}`}>
                                                     <PrivateAmount amount={tx.amount} prefix={tx.type === "income" ? "+₴" : "-₴"} />
                                                 </td>
@@ -359,7 +611,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        {/* Upcoming Payments */}
+                        {/* Upcoming Payments with Next Due Date */}
                         <div>
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Upcoming</h3>
@@ -376,7 +628,10 @@ export default function Home() {
                                     recurringExpenses.map((expense) => (
                                         <div key={expense.id} className="flex items-center gap-3">
                                             <Clock size={14} className="text-zinc-400" />
-                                            <span className="text-sm text-zinc-600 dark:text-zinc-400 flex-1">{expense.name}</span>
+                                            <div className="flex-1 min-w-0">
+                                                <span className="text-sm text-zinc-700 dark:text-zinc-300 block truncate">{expense.name}</span>
+                                                <span className="text-xs text-zinc-500">{formatNextDue(expense)}</span>
+                                            </div>
                                             <span className="text-sm font-medium text-zinc-900 dark:text-white">
                                                 <PrivateAmount amount={expense.amount} prefix="₴" />
                                             </span>

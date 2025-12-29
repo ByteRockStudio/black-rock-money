@@ -113,6 +113,32 @@ The database schema is defined in `prisma/schema.prisma`.
 
 ## 7. Change Log (Recent Updates)
 
+### [2025-12-29] Header Actions, Global Privacy & Account Management V2
+*   **Goal**: Enhance dashboard UX with split action buttons, persistent privacy mode, and interactive account management.
+*   **Header Buttons**:
+    *   Split "Add Transaction" into two buttons: **Add Expense** (solid black/white, TrendingDown icon) and **Add Income** (green outline, TrendingUp icon).
+*   **Privacy Mode Persistence**:
+    *   `privacyMode` now persists to `localStorage` and survives page refresh.
+    *   All financial amounts use asterisks (`******`) when privacy is enabled (no blur).
+*   **Account Drag-and-Drop**:
+    *   Added `orderIndex` field to Account model (via `prisma db push`).
+    *   Installed `@dnd-kit/core` and `@dnd-kit/sortable` for DnD functionality.
+    *   New API endpoint: `PUT /api/accounts/reorder` to save account order.
+    *   Dashboard account cards are now draggable to reorder.
+*   **Inline Balance Editing**:
+    *   Hover over account card reveals pencil icon.
+    *   Click to edit balance inline, save on Enter/Blur.
+*   **Widget Data Enrichment**:
+    *   **Recent Activity**: Added "Account" and "Comment" columns.
+    *   **Upcoming Payments**: Shows next due date (e.g., "Today", "Tomorrow", "Jan 12").
+*   **Files Modified**:
+    *   `src/components/DashboardLayout.tsx`: Split header buttons, updated icons.
+    *   `src/contexts/SettingsContext.tsx`: Added localStorage persistence for `privacyMode`.
+    *   `src/app/page.tsx`: DnD implementation, inline editing, enriched tables.
+    *   `src/app/api/accounts/route.ts`: Changed orderBy to `orderIndex`.
+    *   `src/app/api/accounts/reorder/route.ts`: New endpoint for saving order.
+    *   `prisma/schema.prisma`: Added `orderIndex` to Account model.
+
 ### [2025-12-28] UI/UX Overhaul: SaaS Dashboard Layout
 *   **Goal**: Transform from Central Menu to Professional SaaS Dashboard with persistent Left Sidebar.
 *   **New Components**:

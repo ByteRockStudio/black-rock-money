@@ -172,17 +172,25 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     const [exchangeRate, setExchangeRateState] = useState<number>(42);
     const [privacyMode, setPrivacyMode] = useState<boolean>(false);
 
-    const togglePrivacy = () => setPrivacyMode(prev => !prev);
+    const togglePrivacy = () => {
+        setPrivacyMode(prev => {
+            const newValue = !prev;
+            localStorage.setItem("privacyMode", JSON.stringify(newValue));
+            return newValue;
+        });
+    };
 
     useEffect(() => {
         const savedLang = localStorage.getItem("language") as Language;
         const savedTheme = localStorage.getItem("theme") as Theme;
+        const savedPrivacy = localStorage.getItem("privacyMode");
 
         if (savedLang) setLanguage(savedLang);
         if (savedTheme) setTheme(savedTheme);
         else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
             setTheme("dark");
         }
+        if (savedPrivacy) setPrivacyMode(JSON.parse(savedPrivacy));
 
         // Fetch exchange rate from API
         fetch("/api/settings")

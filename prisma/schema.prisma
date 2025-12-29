@@ -30,6 +30,7 @@ model Account {
   currency  String   @default("UAH")
   isDefault Boolean  @default(false)
   isSavings Boolean  @default(false)
+  orderIndex Int     @default(0)
   transactions Transaction[]
   recurringRules RecurringRule[]
   recurringExpenses RecurringExpense[]

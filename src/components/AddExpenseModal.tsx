@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
+import { ChevronDown } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { usePrivacy } from "@/contexts/PrivacyContext";
 import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
@@ -86,12 +87,20 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
         dark:bg-[#111111] dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-600 dark:focus:ring-white
         [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`;
 
-    const selectClasses = `w-full rounded-lg px-4 py-3 text-sm transition-all
+    const selectClasses = `w-full rounded-lg px-4 py-3 pr-10 text-sm transition-all appearance-none cursor-pointer
         bg-zinc-50 border border-zinc-200 text-zinc-900
         focus:outline-none focus:ring-2 focus:ring-black
         dark:bg-[#111111] dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white`;
 
     const labelClasses = "block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-wider";
+
+    // Custom select wrapper component
+    const SelectWrapper = ({ children }: { children: React.ReactNode }) => (
+        <div className="relative">
+            {children}
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 dark:text-zinc-500 pointer-events-none" />
+        </div>
+    );
 
     return (
         <div className="space-y-6">
@@ -117,49 +126,55 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
                     </div>
                     <div>
                         <label className={labelClasses}>{t("add.currency") || "Currency"}</label>
-                        <select
-                            value={currency}
-                            onChange={(e) => setCurrency(e.target.value)}
-                            className={selectClasses}
-                        >
-                            <option value="UAH">UAH</option>
-                            <option value="USD">USD</option>
-                        </select>
+                        <SelectWrapper>
+                            <select
+                                value={currency}
+                                onChange={(e) => setCurrency(e.target.value)}
+                                className={selectClasses}
+                            >
+                                <option value="UAH">UAH</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </SelectWrapper>
                     </div>
                 </div>
 
                 {/* Account */}
                 <div>
                     <label className={labelClasses}>{t("add.source") || "Account"}</label>
-                    <select
-                        value={accountId}
-                        onChange={(e) => setAccountId(e.target.value)}
-                        required
-                        className={selectClasses}
-                    >
-                        {accounts.map((acc) => (
-                            <option key={acc.id} value={acc.id}>
-                                {acc.name} ({isPrivacyEnabled ? "***" : `${acc.balance} ${acc.currency}`})
-                            </option>
-                        ))}
-                    </select>
+                    <SelectWrapper>
+                        <select
+                            value={accountId}
+                            onChange={(e) => setAccountId(e.target.value)}
+                            required
+                            className={selectClasses}
+                        >
+                            {accounts.map((acc) => (
+                                <option key={acc.id} value={acc.id}>
+                                    {acc.name} ({isPrivacyEnabled ? "***" : `${acc.balance} ${acc.currency}`})
+                                </option>
+                            ))}
+                        </select>
+                    </SelectWrapper>
                 </div>
 
                 {/* Category */}
                 <div>
                     <label className={labelClasses}>{t("add.category") || "Category"}</label>
-                    <select
-                        value={categoryId}
-                        onChange={(e) => setCategoryId(e.target.value)}
-                        required
-                        className={selectClasses}
-                    >
-                        {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                                {cat.name}
-                            </option>
-                        ))}
-                    </select>
+                    <SelectWrapper>
+                        <select
+                            value={categoryId}
+                            onChange={(e) => setCategoryId(e.target.value)}
+                            required
+                            className={selectClasses}
+                        >
+                            {categories.map((cat) => (
+                                <option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                        </select>
+                    </SelectWrapper>
                 </div>
 
                 {/* Comment */}
@@ -182,7 +197,7 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
                         value={transactionDate}
                         onChange={(e) => setTransactionDate(e.target.value)}
                         required
-                        className={inputClasses}
+                        className={`${inputClasses} dark:[&::-webkit-calendar-picker-indicator]:invert dark:[&::-webkit-calendar-picker-indicator]:opacity-60`}
                     />
                 </div>
 

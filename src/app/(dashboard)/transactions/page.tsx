@@ -40,7 +40,7 @@ function AnalyticsPanel({ transactions }: { transactions: any[] }) {
 
     const sortedCategories = Object.entries(categorySpending)
         .sort(([, a], [, b]) => b - a)
-        .slice(0, 5); // Top 5
+        .slice(0, 8); // Top 8
 
     return (
         <div className="h-full w-full border-l border-zinc-200 dark:border-zinc-800 p-8 flex flex-col gap-8 overflow-y-auto">

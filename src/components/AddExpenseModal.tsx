@@ -2,10 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { useSettings } from "@/contexts/SettingsContext";
 import { usePrivacy } from "@/contexts/PrivacyContext";
 import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
@@ -35,6 +31,8 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
     const [accounts, setAccounts] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
 
+    const isEditing = !!initialData;
+
     useEffect(() => {
         // Auto-focus on amount input
         amountInputRef.current?.focus();
@@ -60,17 +58,17 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const url = initialData ? "/api/transactions" : "/api/transactions";
+        const url = "/api/transactions";
         const method = initialData ? "PUT" : "POST";
         const body = {
-            id: initialData?.id, // Only for PUT
+            id: initialData?.id,
             amount,
             currency,
             accountId,
             categoryId,
             comment,
-            date: transactionDate, // ISO date string
-            type: initialData?.type || "expense", // Preserve type if editing, default to expense
+            date: transactionDate,
+            type: initialData?.type || "expense",
         };
 
         await fetch(url, {
@@ -81,28 +79,48 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
         onClose();
     };
 
+    // Shared input classes for dual-theme
+    const inputClasses = `w-full rounded-lg px-4 py-3 text-sm transition-all
+        bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder-zinc-400 
+        focus:outline-none focus:ring-2 focus:ring-black
+        dark:bg-[#111111] dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-600 dark:focus:ring-white
+        [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`;
+
+    const selectClasses = `w-full rounded-lg px-4 py-3 text-sm transition-all
+        bg-zinc-50 border border-zinc-200 text-zinc-900
+        focus:outline-none focus:ring-2 focus:ring-black
+        dark:bg-[#111111] dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white`;
+
+    const labelClasses = "block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-wider";
+
     return (
-        <div className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">{initialData ? "Edit Transaction" : t("add.title")}</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-6">
+            {/* Header */}
+            <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                {isEditing ? "Edit Transaction" : t("add.title") || "Add Expense"}
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Amount & Currency Row */}
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label>{t("add.amount")}</label>
-                        <Input
+                    <div>
+                        <label className={labelClasses}>{t("add.amount") || "Amount"}</label>
+                        <input
                             ref={amountInputRef}
                             type="number"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0.00"
                             required
-                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className={inputClasses}
                         />
                     </div>
-                    <div className="space-y-2">
-                        <label>{t("add.currency")}</label>
+                    <div>
+                        <label className={labelClasses}>{t("add.currency") || "Currency"}</label>
                         <select
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             value={currency}
                             onChange={(e) => setCurrency(e.target.value)}
+                            className={selectClasses}
                         >
                             <option value="UAH">UAH</option>
                             <option value="USD">USD</option>
@@ -110,31 +128,31 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <label>{t("add.source")}</label>
+                {/* Account */}
+                <div>
+                    <label className={labelClasses}>{t("add.source") || "Account"}</label>
                     <select
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         value={accountId}
                         onChange={(e) => setAccountId(e.target.value)}
                         required
+                        className={selectClasses}
                     >
                         {accounts.map((acc) => (
                             <option key={acc.id} value={acc.id}>
-                                {acc.name} {t("common.balance_wrapper", {
-                                    balance: isPrivacyEnabled ? "***" : `${acc.balance} ${acc.currency}`
-                                })}
+                                {acc.name} ({isPrivacyEnabled ? "***" : `${acc.balance} ${acc.currency}`})
                             </option>
                         ))}
                     </select>
                 </div>
 
-                <div className="space-y-2">
-                    <label>{t("add.category")}</label>
+                {/* Category */}
+                <div>
+                    <label className={labelClasses}>{t("add.category") || "Category"}</label>
                     <select
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         value={categoryId}
                         onChange={(e) => setCategoryId(e.target.value)}
                         required
+                        className={selectClasses}
                     >
                         {categories.map((cat) => (
                             <option key={cat.id} value={cat.id}>
@@ -144,30 +162,47 @@ export function AddExpenseModal({ onClose, initialData }: AddExpenseModalProps) 
                     </select>
                 </div>
 
-                <div className="space-y-2">
-                    <label>{t("add.comment")}</label>
-                    <Input
+                {/* Comment */}
+                <div>
+                    <label className={labelClasses}>{t("add.comment") || "Comment"}</label>
+                    <input
+                        type="text"
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
+                        placeholder="Optional note..."
+                        className={inputClasses}
                     />
                 </div>
 
-                {/* Date Field */}
-                <div className="space-y-2">
-                    <label>Date</label>
-                    <Input
+                {/* Date */}
+                <div>
+                    <label className={labelClasses}>Date</label>
+                    <input
                         type="date"
                         value={transactionDate}
                         onChange={(e) => setTransactionDate(e.target.value)}
                         required
+                        className={inputClasses}
                     />
                 </div>
 
-                <div className="flex justify-end space-x-2 pt-4">
-                    <Button type="button" variant="outline" onClick={onClose}>
-                        {t("common.cancel")}
-                    </Button>
-                    <Button type="submit">{t("add.submit")}</Button>
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-4 py-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
+                    >
+                        {t("common.cancel") || "Cancel"}
+                    </button>
+                    <button
+                        type="submit"
+                        className="px-6 py-2 text-sm font-semibold rounded-lg transition-colors
+                            bg-black text-white hover:bg-zinc-800
+                            dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                    >
+                        {isEditing ? "Save Changes" : (t("add.submit") || "Add Expense")}
+                    </button>
                 </div>
             </form>
         </div>

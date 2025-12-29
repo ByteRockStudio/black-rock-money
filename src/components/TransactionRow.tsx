@@ -62,7 +62,7 @@ export function TransactionRow({ transaction, onEdit, onDelete }: TransactionRow
 
             {/* Amount */}
             <td className={`px-4 text-right font-medium ${isIncome ? "text-green-600 dark:text-green-400" : "text-gray-900 dark:text-gray-100"}`}>
-                <PrivacyMask value={`${isIncome ? "+" : "-"}${transaction.amount} ${transaction.currency}`} />
+                <PrivacyMask value={`${isIncome ? "+" : "-"}${transaction.amount} ${transaction.currency || "₴"}`} />
             </td>
 
             {/* Actions */}

@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useSettings } from "@/contexts/SettingsContext";
 import { usePrivacy } from "@/contexts/PrivacyContext";
 import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
@@ -63,28 +61,48 @@ export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
         onClose();
     };
 
+    // Shared input classes for dual-theme
+    const inputClasses = `w-full rounded-lg px-4 py-3 text-sm transition-all
+        bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder-zinc-400 
+        focus:outline-none focus:ring-2 focus:ring-black
+        dark:bg-[#111111] dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-600 dark:focus:ring-white
+        [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`;
+
+    const selectClasses = `w-full rounded-lg px-4 py-3 text-sm transition-all
+        bg-zinc-50 border border-zinc-200 text-zinc-900
+        focus:outline-none focus:ring-2 focus:ring-black
+        dark:bg-[#111111] dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white`;
+
+    const labelClasses = "block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-wider";
+
     return (
-        <div className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">{t("add.income_title")}</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-6">
+            {/* Header */}
+            <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                {t("add.income_title") || "Add Income"}
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Amount & Currency Row */}
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label>{t("add.amount")}</label>
-                        <Input
+                    <div>
+                        <label className={labelClasses}>{t("add.amount") || "Amount"}</label>
+                        <input
                             ref={amountInputRef}
                             type="number"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0.00"
                             required
-                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className={inputClasses}
                         />
                     </div>
-                    <div className="space-y-2">
-                        <label>{t("add.currency")}</label>
+                    <div>
+                        <label className={labelClasses}>{t("add.currency") || "Currency"}</label>
                         <select
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             value={currency}
                             onChange={(e) => setCurrency(e.target.value)}
+                            className={selectClasses}
                         >
                             <option value="UAH">UAH</option>
                             <option value="USD">USD</option>
@@ -92,31 +110,31 @@ export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <label>{t("add.destination")}</label>
+                {/* Account */}
+                <div>
+                    <label className={labelClasses}>{t("add.destination") || "Destination Account"}</label>
                     <select
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         value={accountId}
                         onChange={(e) => setAccountId(e.target.value)}
                         required
+                        className={selectClasses}
                     >
                         {accounts.map((acc) => (
                             <option key={acc.id} value={acc.id}>
-                                {acc.name} {t("common.balance_wrapper", {
-                                    balance: isPrivacyEnabled ? "***" : `${acc.balance} ${acc.currency}`
-                                })}
+                                {acc.name} ({isPrivacyEnabled ? "***" : `${acc.balance} ${acc.currency}`})
                             </option>
                         ))}
                     </select>
                 </div>
 
-                <div className="space-y-2">
-                    <label>{t("add.source_category")}</label>
+                {/* Category */}
+                <div>
+                    <label className={labelClasses}>{t("add.source_category") || "Income Source"}</label>
                     <select
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         value={categoryId}
                         onChange={(e) => setCategoryId(e.target.value)}
                         required
+                        className={selectClasses}
                     >
                         {categories.map((cat) => (
                             <option key={cat.id} value={cat.id}>
@@ -126,19 +144,35 @@ export function AddIncomeModal({ onClose }: AddIncomeModalProps) {
                     </select>
                 </div>
 
-                <div className="space-y-2">
-                    <label>{t("add.comment")}</label>
-                    <Input
+                {/* Comment */}
+                <div>
+                    <label className={labelClasses}>{t("add.comment") || "Comment"}</label>
+                    <input
+                        type="text"
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
+                        placeholder="Optional note..."
+                        className={inputClasses}
                     />
                 </div>
 
-                <div className="flex justify-end space-x-2 pt-4">
-                    <Button type="button" variant="outline" onClick={onClose}>
-                        {t("common.cancel")}
-                    </Button>
-                    <Button type="submit">{t("add.submit_income")}</Button>
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-4 py-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
+                    >
+                        {t("common.cancel") || "Cancel"}
+                    </button>
+                    <button
+                        type="submit"
+                        className="px-6 py-2 text-sm font-semibold rounded-lg transition-colors
+                            bg-emerald-600 text-white hover:bg-emerald-700
+                            dark:bg-emerald-500 dark:text-black dark:hover:bg-emerald-400"
+                    >
+                        {t("add.submit_income") || "Add Income"}
+                    </button>
                 </div>
             </form>
         </div>

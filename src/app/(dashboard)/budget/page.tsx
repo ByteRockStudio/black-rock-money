@@ -131,105 +131,98 @@ export default function BudgetPage() {
     return (
         <div className="flex h-full w-full overflow-hidden divide-x divide-zinc-200 dark:divide-zinc-800">
             {/* Left Panel (75%) - Budget List */}
-            <div className="w-[75%] h-full flex flex-col px-8 relative">
-                {/* Header */}
-                <div className="sticky top-0 z-20 border-b border-zinc-200 dark:border-zinc-800 py-6 bg-white dark:bg-[#171717]">
-                    <div className="flex items-center gap-4 mb-6">
+            <div className="w-[75%] h-full flex flex-col px-6 relative">
+                {/* Header - Compact */}
+                <div className="sticky top-0 z-20 border-b border-zinc-200 dark:border-zinc-800 py-4 bg-white dark:bg-[#171717]">
+                    <div className="flex items-center gap-3 mb-4">
                         <Link
                             href="/"
                             className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition"
                         >
-                            <ArrowLeft size={20} />
+                            <ArrowLeft size={18} />
                         </Link>
-                        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">
                             Budget Overview
                         </h1>
                     </div>
 
-                    {/* Column Headers */}
-                    <div className="grid grid-cols-[2fr_3fr_1.5fr_80px] gap-4 items-center text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider border-b border-zinc-100 dark:border-zinc-800 pb-2 mb-4 px-4">
+                    {/* Column Headers - Compact */}
+                    <div className="grid grid-cols-[2fr_3fr_1.5fr_60px] gap-3 items-center text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider px-3">
                         <div className="text-left">Category</div>
                         <div className="text-left">Progress</div>
                         <div className="text-right">Spent / Limit</div>
-                        <div className="text-right">Actions</div>
+                        <div className="text-right"></div>
                     </div>
                 </div>
 
-                {/* List Content */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar pb-20">
+                {/* List Content - Compact Rows */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar pb-10">
                     {data.categories.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-64 text-zinc-400">
+                        <div className="flex flex-col items-center justify-center h-48 text-zinc-400 text-sm">
                             <p>No budgets set yet.</p>
-                            <p className="text-sm mt-2">Add budget limits in Settings → Categories</p>
+                            <p className="text-xs mt-1">Add limits in Settings → Categories</p>
                         </div>
                     ) : (
                         <div className="space-y-0">
                             {data.categories.map((category) => {
-                                // Calculate daily cap for this category
                                 const remaining = Math.max(0, category.budgetLimit - category.spent);
                                 const dailyCap = data.daysLeftInMonth > 0 ? remaining / data.daysLeftInMonth : 0;
 
                                 return (
                                     <div
                                         key={category.id}
-                                        className="grid grid-cols-[2fr_3fr_1.5fr_80px] gap-4 items-start w-full border-b border-zinc-100 dark:border-zinc-800 p-4 hover:bg-zinc-50 dark:hover:bg-white/5 transition group"
+                                        className="grid grid-cols-[2fr_3fr_1.5fr_60px] gap-3 items-center w-full border-b border-zinc-100 dark:border-zinc-800 py-2.5 px-3 hover:bg-zinc-50 dark:hover:bg-white/5 transition group"
                                     >
-                                        {/* Category Name */}
-                                        <div className="font-medium text-zinc-900 dark:text-white truncate pt-1">
+                                        {/* Category Name - Compact */}
+                                        <div className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
                                             {category.name}
                                         </div>
 
-                                        {/* Progress Bar + Daily Cap */}
-                                        <div className="flex flex-col gap-1">
+                                        {/* Progress Bar - Slim */}
+                                        <div className="flex flex-col gap-0.5">
                                             <div className="flex items-center gap-2">
                                                 {category.isOverBudget ? (
-                                                    /* Over Budget: 100% bar + overflow */
-                                                    <div className="flex gap-1 flex-1">
-                                                        {/* Main bar (100%) */}
-                                                        <div className="relative h-3 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden flex-1">
+                                                    <div className="flex gap-0.5 flex-1">
+                                                        <div className="relative h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden flex-1">
                                                             <div className="h-full bg-zinc-900 dark:bg-white" style={{ width: "100%" }} />
                                                         </div>
-                                                        {/* Overflow bar */}
                                                         <div
-                                                            className="relative h-3 bg-red-200 dark:bg-red-500/20 rounded-full overflow-hidden"
+                                                            className="relative h-1.5 bg-red-200 dark:bg-red-500/20 rounded-full overflow-hidden"
                                                             style={{ width: `${Math.min(category.percentage - 100, 100)}%` }}
                                                         >
                                                             <div className="h-full bg-red-500" style={{ width: "100%" }} />
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    /* Under Budget: Normal bar */
-                                                    <div className="relative h-3 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden flex-1">
+                                                    <div className="relative h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden flex-1">
                                                         <div
                                                             className="h-full bg-zinc-900 dark:bg-white"
                                                             style={{ width: `${Math.min(category.percentage, 100)}%` }}
                                                         />
                                                     </div>
                                                 )}
-                                                {/* Percentage */}
-                                                <span className={`text-xs font-medium min-w-[45px] text-right ${category.isOverBudget ? "text-red-500" : "text-zinc-600 dark:text-zinc-400"}`}>
+                                                <span className={`text-[10px] font-medium min-w-[36px] text-right ${category.isOverBudget ? "text-red-500" : "text-zinc-500 dark:text-zinc-400"}`}>
                                                     {category.percentage.toFixed(0)}%
                                                 </span>
                                             </div>
-
-                                            {/* Contextual Daily Cap */}
-                                            <div className="text-xs text-right">
+                                            {/* Daily Cap - Micro text */}
+                                            <div className="text-[11px] text-right">
                                                 {category.isOverBudget ? (
-                                                    <span className="text-red-400">Limit exceeded</span>
+                                                    <span className="text-red-400">Over limit</span>
                                                 ) : (
                                                     <span className="text-zinc-400">
-                                                        Can spend <span className="text-zinc-900 dark:text-white font-medium">{dailyCap.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₴</span> / day
+                                                        <span className="text-zinc-700 dark:text-zinc-300">{dailyCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}₴</span>/day
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
 
-                                        {/* Spent / Limit */}
-                                        <div className="text-right text-sm pt-1">
+                                        {/* Spent / Limit - Compact */}
+                                        <div className="text-right text-sm">
                                             <span className={category.isOverBudget ? "text-red-500 font-medium" : "text-zinc-900 dark:text-white"}>
                                                 {category.spent.toLocaleString()}
                                             </span>
-                                            <span className="text-zinc-400"> / </span>
+                                            <span className="text-zinc-400 text-xs"> / </span>
                                             {editingId === category.id ? (
                                                 <input
                                                     type="number"
@@ -237,12 +230,12 @@ export default function BudgetPage() {
                                                     onChange={(e) => setEditValue(e.target.value)}
                                                     onBlur={handleSaveLimit}
                                                     onKeyDown={handleKeyDown}
-                                                    className="w-20 bg-transparent border-b border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white text-sm pb-1 focus:border-zinc-900 dark:focus:border-white focus:outline-none text-right"
+                                                    className="w-16 bg-transparent border-b border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white text-sm focus:border-zinc-900 dark:focus:border-white focus:outline-none text-right"
                                                     autoFocus
                                                 />
                                             ) : (
                                                 <span
-                                                    className="text-zinc-500 dark:text-zinc-400 cursor-pointer hover:text-zinc-900 dark:hover:text-white transition"
+                                                    className="text-zinc-500 dark:text-zinc-400 cursor-pointer hover:text-zinc-900 dark:hover:text-white transition text-xs"
                                                     onClick={() => handleStartEdit(category.id, category.budgetLimit)}
                                                 >
                                                     {category.budgetLimit.toLocaleString()}
@@ -250,14 +243,14 @@ export default function BudgetPage() {
                                             )}
                                         </div>
 
-                                        {/* Edit Button */}
-                                        <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity pt-1">
+                                        {/* Edit Button - Compact */}
+                                        <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button
                                                 onClick={() => handleStartEdit(category.id, category.budgetLimit)}
-                                                className="p-1.5 text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded-md transition-colors"
-                                                title="Edit Budget Limit"
+                                                className="p-1 text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded transition-colors"
+                                                title="Edit"
                                             >
-                                                <Edit2 size={14} />
+                                                <Edit2 size={12} />
                                             </button>
                                         </div>
                                     </div>
@@ -268,40 +261,40 @@ export default function BudgetPage() {
                 </div>
             </div>
 
-            {/* Right Panel (25%) - Month Overview */}
-            <div className="w-[25%] h-full bg-zinc-50/80 dark:bg-[#111111]/50 p-6 overflow-y-auto flex flex-col items-center justify-start">
+            {/* Right Panel (25%) - Compact Summary */}
+            <div className="w-[25%] h-full bg-zinc-50/80 dark:bg-[#111111]/50 p-5 overflow-y-auto">
                 <div className="w-full">
-                    {/* Month Overview Card */}
-                    <div className="w-full bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl p-6 shadow-sm space-y-6">
-                        {/* Health Indicator Badge - Top Right */}
-                        <div className="flex justify-between items-start">
+                    {/* Month Overview Card - Compact */}
+                    <div className="w-full bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 shadow-sm space-y-4">
+                        {/* Header Row */}
+                        <div className="flex justify-between items-center">
                             <p className="text-[10px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                                Month Overview
+                                Overview
                             </p>
-                            <div className={`px-3 py-1 rounded-full text-xs font-medium ${totalPercentage > 100 ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400" :
+                            <div className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${totalPercentage > 100 ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400" :
                                 totalPercentage > 80 ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400" :
                                     "bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400"
                                 }`}>
-                                {totalPercentage.toFixed(0)}% Used
+                                {totalPercentage.toFixed(0)}%
                             </div>
                         </div>
 
-                        {/* Hero Section - Total Remaining */}
-                        <div className="py-4">
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Safe to Spend</p>
-                            <p className="text-5xl font-black tracking-tighter text-zinc-900 dark:text-white">
+                        {/* Hero - Compact */}
+                        <div className="py-2">
+                            <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-1">Safe to Spend</p>
+                            <p className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
                                 {safeToSpend.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                                <span className="text-lg font-bold text-zinc-400 ml-2">₴</span>
+                                <span className="text-sm font-medium text-zinc-400 ml-1">₴</span>
                             </p>
                         </div>
 
-                        {/* Global Progress Bar */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400">
-                                <span>Spent: {data.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                                <span>Limit: {data.totalBudget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                        {/* Progress Bar - Compact */}
+                        <div className="space-y-1">
+                            <div className="flex justify-between text-[10px] text-zinc-500 dark:text-zinc-400">
+                                <span>{data.totalSpent.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                                <span>{data.totalBudget.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                             </div>
-                            <div className="relative h-3 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                            <div className="relative h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                                 <div
                                     className={`h-full ${totalPercentage > 100 ? "bg-red-500" : "bg-zinc-900 dark:bg-white"}`}
                                     style={{ width: `${Math.min(totalPercentage, 100)}%` }}
@@ -309,25 +302,24 @@ export default function BudgetPage() {
                             </div>
                         </div>
 
-                        {/* Burn Rate Insight */}
-                        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-700">
-                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Spending Pace</p>
-                            <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-3">
+                        {/* Alert Box - Compact */}
+                        <div className="pt-3 border-t border-zinc-200 dark:border-zinc-700">
+                            <div className="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-md p-2.5">
                                 {isSpendingFast ? (
-                                    <p className="text-sm text-orange-600 dark:text-orange-400">
-                                        ⚠️ Pacing too fast. Consider slowing down.
+                                    <p className="text-xs text-orange-600 dark:text-orange-400">
+                                        ⚠️ Pacing fast
                                     </p>
                                 ) : isSpendingSlow ? (
-                                    <p className="text-sm text-green-600 dark:text-green-400">
-                                        ✓ Spending slower than planned. Good job!
+                                    <p className="text-xs text-green-600 dark:text-green-400">
+                                        ✓ Under pace
                                     </p>
                                 ) : (
-                                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                                        → On track with monthly budget.
+                                    <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                                        → On track
                                     </p>
                                 )}
-                                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
-                                    {data.daysLeftInMonth} days left in month
+                                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                                    {data.daysLeftInMonth}d left
                                 </p>
                             </div>
                         </div>

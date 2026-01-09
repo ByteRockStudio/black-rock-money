@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { format, addDays, addWeeks, addMonths, addYears, isBefore, isSameMonth } from "date-fns";
-import { ArrowLeft, Play, Edit, Trash2, PauseCircle, PlayCircle } from "lucide-react";
+import { ArrowLeft, Play, Edit2, Trash2, PauseCircle, PlayCircle, Plus } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { useCloseOnEscape } from "@/lib/hooks/useCloseOnEscape";
@@ -78,21 +76,20 @@ export default function RecurringPage() {
             if (accountsRes.ok) {
                 const accs = await accountsRes.json();
                 setAccounts(accs);
-                if (!formData.accountId && accs.length > 0) {
-                    const defaultAccount = accs.find((acc: any) => acc.isDefault);
-                    setFormData(prev => ({ ...prev, accountId: defaultAccount ? defaultAccount.id : accs[0].id }));
+                if (accs.length > 0 && !formData.accountId) {
+                    const defaultAcc = accs.find((a: any) => a.isDefault) || accs[0];
+                    setFormData(prev => ({ ...prev, accountId: defaultAcc.id }));
                 }
             }
             if (categoriesRes.ok) {
                 const cats = await categoriesRes.json();
                 setCategories(cats);
-                if (!formData.categoryId && cats.length > 0) {
+                if (cats.length > 0 && !formData.categoryId) {
                     setFormData(prev => ({ ...prev, categoryId: cats[0].id }));
                 }
             }
         } catch (error) {
             console.error("Failed to fetch data", error);
-            toast.error("Failed to load data");
         } finally {
             setLoading(false);
         }
@@ -100,7 +97,7 @@ export default function RecurringPage() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const resetForm = () => {
@@ -108,7 +105,7 @@ export default function RecurringPage() {
         setFormData({
             name: "",
             amount: "",
-            accountId: accounts.length > 0 ? accounts[0].id : "",
+            accountId: accounts.length > 0 ? (accounts.find((a: any) => a.isDefault)?.id || accounts[0].id) : "",
             categoryId: categories.length > 0 ? categories[0].id : "",
             recurrenceType: "MONTHLY",
             recurrenceInterval: "1",
@@ -119,26 +116,25 @@ export default function RecurringPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const url = editingId ? `/api/recurring/${editingId}` : "/api/recurring";
         const method = editingId ? "PUT" : "POST";
+        const body = { ...formData, id: editingId };
 
         try {
-            const res = await fetch(url, {
+            const res = await fetch("/api/recurring", {
                 method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(body),
             });
 
             if (res.ok) {
-                toast.success(editingId ? "Recurring expense updated" : "Recurring expense created");
-                fetchData();
+                toast.success(editingId ? "Updated" : "Created");
                 resetForm();
+                fetchData();
             } else {
-                const error = await res.text();
-                toast.error(`Error: ${error}`);
+                toast.error("Failed to save");
             }
         } catch (error) {
-            toast.error("Failed to save recurring expense");
+            toast.error("Error saving");
         }
     };
 
@@ -159,15 +155,19 @@ export default function RecurringPage() {
     const handleDelete = (id: string) => {
         setConfirmation({
             isOpen: true,
-            title: "Delete Recurring Expense",
-            message: "Are you sure you want to delete this recurring expense?",
+            title: "Delete Expense",
+            message: "Are you sure? This cannot be undone.",
             onConfirm: async () => {
-                const res = await fetch(`/api/recurring/${id}`, { method: "DELETE" });
-                if (res.ok) {
-                    toast.success("Recurring expense deleted");
-                    fetchData();
-                } else {
-                    toast.error("Failed to delete");
+                try {
+                    const res = await fetch(`/api/recurring/${id}`, { method: "DELETE" });
+                    if (res.ok) {
+                        toast.success("Deleted");
+                        fetchData();
+                    } else {
+                        toast.error("Failed to delete");
+                    }
+                } catch (error) {
+                    toast.error("Error deleting");
                 }
             },
         });
@@ -177,13 +177,13 @@ export default function RecurringPage() {
         try {
             const res = await fetch(`/api/recurring/apply/${id}`, { method: "POST" });
             if (res.ok) {
-                toast.success(`Transaction created for ${name}`);
+                toast.success(`Applied: ${name}`);
                 fetchData();
             } else {
-                toast.error("Failed to apply transaction");
+                toast.error("Failed to apply");
             }
         } catch (error) {
-            toast.error("Error applying transaction");
+            toast.error("Error applying");
         }
     };
 
@@ -191,13 +191,13 @@ export default function RecurringPage() {
         try {
             const res = await fetch(`/api/recurring/${id}/toggle-pause`, { method: "PUT" });
             if (res.ok) {
-                toast.success("Pause status updated");
+                toast.success("Status updated");
                 fetchData();
             } else {
-                toast.error("Failed to update pause status");
+                toast.error("Failed to update");
             }
         } catch (error) {
-            toast.error("Error updating pause status");
+            toast.error("Error updating");
         }
     };
 
@@ -226,69 +226,76 @@ export default function RecurringPage() {
                 case "YEARLY": return "Yearly";
             }
         }
-        return `Every ${interval} ${type.toLowerCase().replace("ly", "s")}`;
+        return `${interval}${type.charAt(0).toLowerCase()}`;
     };
 
-    // Calculate Total Monthly (exclude paused)
-    const activeExpenses = recurringExpenses.filter(expense => !expense.isPaused);
+    // Calculate totals (exclude paused)
+    const activeExpenses = recurringExpenses.filter(e => !e.isPaused);
     const totalMonthly = activeExpenses.reduce((sum, expense) => {
         let monthlyAmount = expense.amount;
         if (expense.recurrenceType === "DAILY") monthlyAmount = expense.amount * 30 / expense.recurrenceInterval;
         if (expense.recurrenceType === "WEEKLY") monthlyAmount = expense.amount * 4 / expense.recurrenceInterval;
         if (expense.recurrenceType === "YEARLY") monthlyAmount = expense.amount / 12 / expense.recurrenceInterval;
         if (expense.recurrenceType === "MONTHLY") monthlyAmount = expense.amount / expense.recurrenceInterval;
-
         return sum + monthlyAmount;
     }, 0);
 
-    // Calculate Paid vs Pending (exclude paused)
     const currentMonth = new Date();
-    const paidExpenses = activeExpenses.filter(expense =>
-        expense.lastAppliedDate && isSameMonth(new Date(expense.lastAppliedDate), currentMonth)
+    const paidExpenses = activeExpenses.filter(e =>
+        e.lastAppliedDate && isSameMonth(new Date(e.lastAppliedDate), currentMonth)
     );
-    const pendingExpenses = activeExpenses.filter(expense =>
-        !expense.lastAppliedDate || !isSameMonth(new Date(expense.lastAppliedDate), currentMonth)
+    const pendingExpenses = activeExpenses.filter(e =>
+        !e.lastAppliedDate || !isSameMonth(new Date(e.lastAppliedDate), currentMonth)
     );
-
-    const paidTotal = paidExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-    const pendingTotal = pendingExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+    const paidTotal = paidExpenses.reduce((sum, e) => sum + e.amount, 0);
+    const pendingTotal = pendingExpenses.reduce((sum, e) => sum + e.amount, 0);
 
     if (status === "loading") return null;
 
+    // Input styling classes
+    const inputClasses = `w-full rounded-lg px-4 py-2.5 text-sm transition-all
+        bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder-zinc-400 
+        focus:outline-none focus:ring-2 focus:ring-black
+        dark:bg-[#111111] dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-600 dark:focus:ring-white`;
+
+    const selectClasses = `w-full rounded-lg px-4 py-2.5 text-sm transition-all cursor-pointer
+        bg-zinc-50 border border-zinc-200 text-zinc-900
+        focus:outline-none focus:ring-2 focus:ring-black
+        dark:bg-[#111111] dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white`;
+
+    const labelClasses = "block text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider";
+
     return (
-        <div className="flex h-full w-full overflow-hidden">
-
-            {/* Left Panel: List (75%) */}
-            <div className="w-[75%] h-full flex flex-col px-8 relative">
-
-                {/* Header */}
-                <div className="sticky top-0 z-20 border-b border-zinc-200 dark:border-zinc-800 py-6">
-                    <div className="flex items-center gap-4 mb-6">
-                        <Link href="/" className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition">
-                            <ArrowLeft size={20} />
+        <div className="flex h-full w-full overflow-hidden divide-x divide-zinc-200 dark:divide-zinc-800">
+            {/* Left Panel (66%) - High Density List */}
+            <div className="w-[66%] h-full flex flex-col px-6 relative">
+                {/* Compact Header */}
+                <div className="sticky top-0 z-20 border-b border-zinc-200 dark:border-zinc-800 py-4 bg-white dark:bg-[#171717]">
+                    <div className="flex items-center gap-3 mb-3">
+                        <Link href="/" className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">
+                            <ArrowLeft size={18} />
                         </Link>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Recurring Expenses</h1>
+                        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Recurring Expenses</h1>
                     </div>
 
-                    {/* Column Headers */}
-                    <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 items-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-white/10 pb-2 mb-4 px-4">
+                    {/* Column Headers - Compact */}
+                    <div className="grid grid-cols-[2fr_1fr_1fr_1fr_60px] gap-2 items-center text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider px-3">
                         <div className="text-left">Name</div>
                         <div className="text-right">Amount</div>
-                        <div className="text-left">Account</div>
-                        <div className="text-left">Category</div>
-                        <div className="text-left">Recurrence</div>
+                        <div className="text-left">Freq</div>
                         <div className="text-left">Next Due</div>
-                        <div className="text-right">Actions</div>
+                        <div></div>
                     </div>
                 </div>
 
-                {/* List Content */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar pb-20">
+                {/* List Content - High Density */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar pb-10">
                     {loading ? (
-                        <div className="flex items-center justify-center h-40 text-gray-400">Loading...</div>
+                        <div className="flex items-center justify-center h-32 text-zinc-400 text-sm">Loading...</div>
                     ) : recurringExpenses.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-                            <p>No recurring expenses found.</p>
+                        <div className="flex flex-col items-center justify-center h-48 text-zinc-400 text-sm">
+                            <p>No recurring expenses</p>
+                            <p className="text-xs mt-1">Add one from the right panel</p>
                         </div>
                     ) : (
                         <div className="space-y-0">
@@ -299,61 +306,67 @@ export default function RecurringPage() {
                                 return (
                                     <div
                                         key={expense.id}
-                                        className={`grid grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_80px] gap-4 items-center w-full bg-white dark:bg-black border-b border-gray-50 dark:border-white/5 p-2 hover:bg-gray-50 dark:hover:bg-white/5 transition group ${expense.isPaused ? 'opacity-50' : ''}`}
+                                        className={`grid grid-cols-[2fr_1fr_1fr_1fr_60px] gap-2 items-center w-full border-b border-zinc-100 dark:border-zinc-800 py-2.5 px-3 hover:bg-zinc-50 dark:hover:bg-white/5 transition group ${expense.isPaused ? 'opacity-50' : ''}`}
                                     >
-                                        <div className="font-medium text-gray-900 dark:text-white truncate flex items-center gap-2">
-                                            {expense.name}
+                                        {/* Name + Badge */}
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <span className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+                                                {expense.name}
+                                            </span>
                                             {expense.isPaused && (
-                                                <span className="text-[10px] bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded uppercase tracking-wider">
-                                                    PAUSED
+                                                <span className="text-[9px] bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400 px-1.5 py-0.5 rounded uppercase tracking-wide flex-shrink-0">
+                                                    Paused
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="text-right font-medium text-gray-900 dark:text-white">
-                                            <PrivacyMask value={`${expense.amount.toLocaleString()} ${expense.account.currency}`} />
+
+                                        {/* Amount */}
+                                        <div className="text-right text-sm font-medium text-zinc-900 dark:text-white">
+                                            <PrivacyMask value={`${expense.amount.toLocaleString()}`} />
+                                            <span className="text-zinc-400 text-xs ml-0.5">{expense.account.currency}</span>
                                         </div>
-                                        <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                                            {expense.account.name}
-                                        </div>
-                                        <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                                            {expense.category.name}
-                                        </div>
-                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+
+                                        {/* Frequency - Compact */}
+                                        <div className="text-[11px] text-zinc-500 dark:text-zinc-400">
                                             {getRecurrenceLabel(expense.recurrenceType, expense.recurrenceInterval)}
                                         </div>
-                                        <div className={`text-sm ${expense.isPaused ? 'line-through text-gray-400' : isOverdue ? "text-red-500 font-medium" : "text-gray-600 dark:text-gray-400"}`}>
+
+                                        {/* Next Due */}
+                                        <div className={`text-[11px] ${expense.isPaused ? 'line-through text-zinc-400' : isOverdue ? "text-red-500 font-medium" : "text-zinc-500 dark:text-zinc-400"}`}>
                                             {format(nextDue, "MMM d")}
                                         </div>
-                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                                        {/* Actions - Show on Hover */}
+                                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button
                                                 onClick={() => handleTogglePause(expense.id)}
-                                                className={`p-1.5 rounded-md transition-colors ${expense.isPaused ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20' : 'text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20'}`}
+                                                className={`p-1 rounded transition-colors ${expense.isPaused ? 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20' : 'text-yellow-600 hover:bg-yellow-100 dark:hover:bg-yellow-900/20'}`}
                                                 title={expense.isPaused ? "Resume" : "Pause"}
                                             >
-                                                {expense.isPaused ? <PlayCircle size={16} /> : <PauseCircle size={16} />}
+                                                {expense.isPaused ? <PlayCircle size={14} /> : <PauseCircle size={14} />}
                                             </button>
                                             {!expense.isPaused && (
                                                 <button
                                                     onClick={() => handleManualApply(expense.id, expense.name)}
-                                                    className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-md transition-colors"
+                                                    className="p-1 text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/20 rounded transition-colors"
                                                     title="Apply Now"
                                                 >
-                                                    <Play size={16} />
+                                                    <Play size={14} />
                                                 </button>
                                             )}
                                             <button
                                                 onClick={() => handleEdit(expense)}
-                                                className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                                                className="p-1 text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 rounded transition-colors"
                                                 title="Edit"
                                             >
-                                                <Edit size={16} />
+                                                <Edit2 size={12} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(expense.id)}
-                                                className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                                                className="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
                                                 title="Delete"
                                             >
-                                                <Trash2 size={16} />
+                                                <Trash2 size={12} />
                                             </button>
                                         </div>
                                     </div>
@@ -364,97 +377,88 @@ export default function RecurringPage() {
                 </div>
             </div>
 
-            {/* Right Panel: Summary or Form (25%) */}
-            <div className="w-[25%] h-full border-l border-zinc-200 dark:border-zinc-800 p-6 overflow-y-auto">
+            {/* Right Panel (33%) - Summary or Form */}
+            <div className="w-[33%] h-full bg-zinc-50/80 dark:bg-[#111111]/50 p-5 overflow-y-auto">
                 {viewMode === 'summary' ? (
-                    /* Summary Dashboard - Budget Style */
-                    <div className="w-full">
-                        {/* Monthly Overview Card */}
-                        <div className="w-full bg-white/5 dark:bg-white/5 backdrop-blur-md rounded-lg p-6 border border-white/10 space-y-6">
+                    <div className="w-full space-y-4">
+                        {/* Monthly Overview Card - Compact */}
+                        <div className="w-full bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 shadow-sm space-y-4">
                             {/* Header */}
-                            <p className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500">
+                            <p className="text-[10px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
                                 Monthly Overview
                             </p>
 
-                            {/* Hero Metric - Total Monthly Estimate */}
-                            <div className="py-4">
-                                <p className="text-xs text-gray-400 mb-2">Total Monthly Estimate</p>
-                                <p className="text-4xl font-bold text-gray-900 dark:text-white">
-                                    <PrivacyMask value={`${totalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })} ₴`} />
+                            {/* Hero Metric */}
+                            <div className="py-2">
+                                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-1">Total Commitments</p>
+                                <p className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                                    <PrivacyMask value={`${totalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}`} />
+                                    <span className="text-sm font-medium text-zinc-400 ml-1">₴</span>
                                 </p>
                             </div>
 
-                            {/* Status Metrics */}
-                            <div className="space-y-4 pt-4 border-t border-white/10">
-                                {/* Paid This Month */}
+                            {/* Stats - Compact */}
+                            <div className="space-y-2 pt-3 border-t border-zinc-200 dark:border-zinc-700">
                                 <div className="flex justify-between items-center">
-                                    <div>
-                                        <p className="text-xs text-gray-400">Paid This Month</p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-500 mt-0.5">{paidExpenses.length} expenses</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-lg font-semibold text-green-400">
-                                            <PrivacyMask value={paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} />
-                                        </p>
-                                    </div>
+                                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400">Paid ({paidExpenses.length})</span>
+                                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                                        <PrivacyMask value={`${paidTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}`} />
+                                    </span>
                                 </div>
-
-                                {/* Pending */}
                                 <div className="flex justify-between items-center">
-                                    <div>
-                                        <p className="text-xs text-gray-400">Pending</p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-500 mt-0.5">{pendingExpenses.length} expenses</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-lg font-semibold text-orange-400">
-                                            <PrivacyMask value={pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })} />
-                                        </p>
-                                    </div>
+                                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400">Pending ({pendingExpenses.length})</span>
+                                    <span className="text-sm font-medium text-orange-500 dark:text-orange-400">
+                                        <PrivacyMask value={`${pendingTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}`} />
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Add Button - Prominent */}
+                        {/* Add Button */}
                         <button
                             onClick={() => setViewMode('form')}
-                            className="w-full mt-6 h-12 text-sm font-bold bg-white dark:bg-white text-black rounded-md hover:bg-gray-200 dark:hover:bg-gray-200 transition-colors shadow-sm"
+                            className="w-full h-10 text-sm font-semibold flex items-center justify-center gap-2
+                                bg-zinc-900 text-white hover:bg-zinc-800
+                                dark:bg-white dark:text-black dark:hover:bg-zinc-200
+                                rounded-lg transition-colors"
                         >
-                            Add New Recurring Expense
+                            <Plus size={16} />
+                            Add Recurring
                         </button>
                     </div>
                 ) : (
-                    /* Compact Form View with Ghost Inputs */
-                    <div>
-                        <div className="flex items-center gap-2 mb-8">
+                    /* Compact Form */
+                    <div className="w-full">
+                        <div className="flex items-center gap-2 mb-5">
                             <button
                                 onClick={resetForm}
-                                className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
+                                className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition"
                             >
                                 <ArrowLeft size={16} />
                             </button>
-                            <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                            <h2 className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                                 {editingId ? "Edit" : "New"}
                             </h2>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Name - Full Width */}
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Name */}
                             <div>
-                                <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Name</label>
+                                <label className={labelClasses}>Name</label>
                                 <input
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    placeholder="e.g. Netflix Subscription"
+                                    placeholder="e.g. Netflix"
                                     required
-                                    className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none placeholder:text-gray-600"
+                                    className={inputClasses}
                                 />
                             </div>
 
-                            {/* Amount + Account - Side by Side */}
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Amount + Account */}
+                            <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Amount</label>
+                                    <label className={labelClasses}>Amount</label>
                                     <input
                                         name="amount"
                                         type="number"
@@ -463,107 +467,104 @@ export default function RecurringPage() {
                                         onChange={handleInputChange}
                                         placeholder="0.00"
                                         required
-                                        className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none placeholder:text-gray-600"
+                                        className={inputClasses}
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Account</label>
+                                    <label className={labelClasses}>Account</label>
                                     <select
                                         name="accountId"
                                         value={formData.accountId}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none"
+                                        className={selectClasses}
                                     >
                                         {accounts.map((acc) => (
-                                            <option key={acc.id} value={acc.id} className="bg-black">
-                                                {acc.name}
-                                            </option>
+                                            <option key={acc.id} value={acc.id}>{acc.name}</option>
                                         ))}
                                     </select>
                                 </div>
                             </div>
 
-                            {/* Category + Start Date - Side by Side */}
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Category + Start Date */}
+                            <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Category</label>
+                                    <label className={labelClasses}>Category</label>
                                     <select
                                         name="categoryId"
                                         value={formData.categoryId}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none"
+                                        className={selectClasses}
                                     >
                                         {categories.map((cat) => (
-                                            <option key={cat.id} value={cat.id} className="bg-black">
-                                                {cat.name}
-                                            </option>
+                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
                                         ))}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-1 block">Start Date</label>
+                                    <label className={labelClasses}>Start Date</label>
                                     <input
                                         name="startDate"
                                         type="date"
                                         value={formData.startDate}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-2 focus:border-white focus:outline-none"
+                                        className={`${inputClasses} dark:[&::-webkit-calendar-picker-indicator]:invert dark:[&::-webkit-calendar-picker-indicator]:opacity-60`}
                                     />
                                 </div>
                             </div>
 
-                            {/* Recurrence - Segmented Control */}
+                            {/* Recurrence - Compact Segmented */}
                             <div>
-                                <label className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-500 mb-2 block">Recurrence</label>
-                                <div className="flex gap-2 p-1 bg-white/5 dark:bg-white/5 rounded-lg">
+                                <label className={labelClasses}>Recurrence</label>
+                                <div className="flex gap-1 p-1 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg">
                                     {["DAILY", "WEEKLY", "MONTHLY", "YEARLY"].map((type) => (
                                         <button
                                             key={type}
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, recurrenceType: type }))}
-                                            className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-all ${formData.recurrenceType === type
-                                                ? "bg-white text-black"
-                                                : "text-gray-400 hover:text-white"
+                                            className={`flex-1 px-2 py-1.5 text-[10px] font-medium rounded transition-all ${formData.recurrenceType === type
+                                                ? "bg-zinc-900 text-white dark:bg-white dark:text-black"
+                                                : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
                                                 }`}
                                         >
                                             {type.charAt(0)}
                                         </button>
                                     ))}
                                 </div>
-
-                                <div className="flex items-center gap-2 mt-3">
-                                    <span className="text-xs text-gray-500">Every</span>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <span className="text-[10px] text-zinc-500">Every</span>
                                     <input
                                         name="recurrenceInterval"
                                         type="number"
                                         min="1"
                                         value={formData.recurrenceInterval}
                                         onChange={handleInputChange}
-                                        className="w-16 bg-transparent border-b border-white/20 text-white dark:text-white text-sm pb-1 focus:border-white focus:outline-none text-center"
+                                        className="w-12 bg-transparent border-b border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white text-sm text-center focus:outline-none focus:border-zinc-900 dark:focus:border-white"
                                     />
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-[10px] text-zinc-500">
                                         {formData.recurrenceType.toLowerCase().replace("ly", "")}(s)
                                     </span>
                                 </div>
                             </div>
 
-                            {/* Submit Buttons */}
-                            <div className="pt-6 flex gap-2">
+                            {/* Submit */}
+                            <div className="pt-4 flex gap-2">
                                 {editingId && (
                                     <button
                                         type="button"
                                         onClick={resetForm}
-                                        className="flex-1 h-10 text-sm font-medium border border-white/20 text-white rounded-md hover:bg-white/5 transition-colors"
+                                        className="flex-1 h-9 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
                                     >
                                         Cancel
                                     </button>
                                 )}
                                 <button
                                     type="submit"
-                                    className="flex-1 h-10 text-sm font-bold bg-white text-black rounded-md hover:bg-gray-200 transition-colors"
+                                    className="flex-1 h-9 text-sm font-semibold rounded-lg transition-colors
+                                        bg-zinc-900 text-white hover:bg-zinc-800
+                                        dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                                 >
                                     {editingId ? "Update" : "Create"}
                                 </button>
@@ -572,6 +573,7 @@ export default function RecurringPage() {
                     </div>
                 )}
             </div>
+
             <ConfirmationModal
                 isOpen={confirmation.isOpen}
                 onClose={() => setConfirmation({ ...confirmation, isOpen: false })}

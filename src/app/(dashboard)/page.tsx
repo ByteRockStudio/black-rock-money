@@ -295,7 +295,7 @@ export default function Home() {
             }
             if (recurringRes.ok) {
                 const data = await recurringRes.json();
-                const upcoming = data.filter((r: RecurringExpense) => !r.isPaused).slice(0, 2);
+                const upcoming = data.filter((r: RecurringExpense) => !r.isPaused).slice(0, 5);
                 setRecurringExpenses(upcoming);
             }
         } catch (error) {
